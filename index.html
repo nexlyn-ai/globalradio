@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GlobalRadio.top - Annuaire Radio Mondial</title>
+
+  <!-- Favicon (sera remplacé dynamiquement) -->
   <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
 
   <style>
@@ -165,6 +167,27 @@
     }
     .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); }
 
+    /* checkbox label styled as button */
+    .btnCheck{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      line-height: 1;
+      padding: 12px 14px;
+    }
+    .btnCheck input{
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      accent-color: var(--accent);
+    }
+
     .featured{
       position:relative;
       z-index:1;
@@ -317,10 +340,20 @@
       display:inline-flex;
       align-items:center;
       gap:8px;
+      max-width: 100%;
     }
     .chip .dot{ width:8px; height:8px; border-radius:50%; background: rgba(77,163,255,.9); }
     .chip.muted{ color: rgba(231,238,252,.75); }
     .chip.live .dot{ background: var(--live); box-shadow: 0 0 0 5px rgba(255,77,109,.13); }
+
+    .chip.hs{
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+    }
+    .chip.hs .dot{
+      background:#ef4444;
+      box-shadow: 0 0 0 5px rgba(239,68,68,.10);
+    }
 
     .heart{
       position:absolute;
@@ -738,6 +771,11 @@
       z-index: 3;
     }
     .fsCanvas canvas{ width: 100%; height: 100%; display:block; }
+
+    @media (max-width: 860px){
+      .player{ bottom: 52px; }
+      #scrollTopBtn{ bottom: 210px; }
+    }
   </style>
 </head>
 
@@ -766,6 +804,12 @@
       <input type="text" id="searchInput" placeholder="Rechercher par nom…" />
       <select id="countrySelect"><option value="">Tous les pays</option></select>
       <select id="genreSelect"><option value="">Tous les genres</option></select>
+
+      <!-- Toggle radios HS -->
+      <label class="btn btnCheck" title="Afficher aussi les radios récemment détectées HS (blacklist locale)">
+        <input id="showBroken" type="checkbox">
+        Afficher radios HS
+      </label>
 
       <button class="btn" id="clearBtn">Réinitialiser</button>
     </div>
@@ -873,12 +917,15 @@
   </div>
 
   <script>
+    /********************
+     * CONFIG
+     ********************/
     const API_BASE = "https://de1.api.radio-browser.info/json";
     const limit = 48;
     const SITE_LOGO = "assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
 
-    // Partie 2 (plus tard): endpoint Vercel optionnel
+    // Résolveur Vercel (Step 2)
     const RESOLVE_API = "/api/resolve-stream";
 
     // Proxy lecture (front only)
@@ -946,9 +993,13 @@
       saveMap(RESOLVED_KEY, resolvedMap);
     }
 
-    // App state
+    /********************
+     * STATE
+     ********************/
     let stations = [], offset = 0, hasMore = true, loading = false;
     let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
+
+    let showBroken = (localStorage.getItem("gr_show_broken") === "1");
 
     const audio = document.getElementById("audioPlayer");
     let audioCtx = null, analyser = null, sourceNode = null, gainNode = null;
@@ -957,6 +1008,7 @@
     let isPlaying = false;
     let isMuted = false;
     let vizLowEnergy = false;
+
     let currentTryIndex = 0;
     let currentStation = null;
     let titleInterval = null;
@@ -979,7 +1031,9 @@
       uuid: null
     };
 
-    // ----------------- Helpers UI -----------------
+    /********************
+     * UI HELPERS
+     ********************/
     function toast(msg, ms = 2400){
       const el = document.getElementById("toast");
       el.textContent = msg;
@@ -998,7 +1052,9 @@
     function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
     function safeText(v, fallback=""){ return (v && String(v).trim()) ? String(v).trim() : fallback; }
 
-    // ----------------- Station normalization -----------------
+    /********************
+     * Station normalization
+     ********************/
     function normalizeStation(st){
       const stream = st.url_resolved || st.url || "";
       return {
@@ -1014,7 +1070,9 @@
       };
     }
 
-    // ----------------- Logo fallbacks -----------------
+    /********************
+     * Logo fallbacks
+     ********************/
     function safeDomainFromStation(st){
       const src = st.homepage || st.url || "";
       try{ return new URL(src).hostname.replace(/^www\./,""); }
@@ -1044,7 +1102,9 @@
       tryNext();
     }
 
-    // ----------------- Bottom safe spacing -----------------
+    /********************
+     * Bottom safe spacing
+     ********************/
     function updateBottomSafe(){
       const footerH = fixedFooterEl.getBoundingClientRect().height;
       const playerRect = playerEl.getBoundingClientRect();
@@ -1064,7 +1124,9 @@
       else window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // ----------------- Favorites -----------------
+    /********************
+     * Favorites
+     ********************/
     function saveFavorites(){ localStorage.setItem("gr_favorites", JSON.stringify(favorites)); }
     function isFavorite(station){
       return favorites.some(f =>
@@ -1085,7 +1147,9 @@
       animateGridEntrance();
     }
 
-    // ----------------- Filters loading -----------------
+    /********************
+     * Filters loading
+     ********************/
     async function loadFilters(){
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
@@ -1114,7 +1178,9 @@
       }catch(e){}
     }
 
-    // ----------------- Stations loading -----------------
+    /********************
+     * Stations loading
+     ********************/
     async function loadStations(append=false){
       if (loading) return;
       if (!hasMore && append) return;
@@ -1156,7 +1222,11 @@
       if (!append){ stations = []; offset = 0; hasMore = true; }
 
       let normalized = (data||[]).map(normalizeStation).filter(s => s.url);
-      normalized = normalized.filter(s => !isBadStationByUrl(s.url));
+
+      // hide HS unless showBroken
+      if (!showBroken){
+        normalized = normalized.filter(s => !isBadStationByUrl(s.url));
+      }
 
       stations = stations.concat(normalized);
       offset += normalized.length;
@@ -1242,11 +1312,15 @@
 
         const meta = document.createElement("div");
         meta.className="meta";
+
+        const hs = isBadStationByUrl(station.url);
+
         meta.innerHTML = `
           <div class="name">${station.name}</div>
           <div class="chips">
             <span class="chip"><span class="dot"></span>${safeText(station.country,"Monde")}</span>
             <span class="chip muted">${safeText(station.codec,"Flux")}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
+            ${hs ? `<span class="chip hs" title="Cette station a été détectée HS récemment (blacklist locale)."><span class="dot"></span>HS</span>` : ""}
           </div>
           <div class="chips" style="margin-top:10px;">
             <span class="chip live"><span class="dot"></span>Écouter</span>
@@ -1266,7 +1340,9 @@
       grid.appendChild(frag);
     }
 
-    // ----------------- Detail page -----------------
+    /********************
+     * Detail page
+     ********************/
     function showDetail(station){
       currentStation = normalizeStation(station);
       document.getElementById("detailView").style.display = "block";
@@ -1328,11 +1404,12 @@
         populateDetail(station);
       };
 
-      // titre best effort sur page détail
       startTitlePolling(station, { target: "detail" });
     }
 
-    // ----------------- Best effort title -----------------
+    /********************
+     * Best effort title (Icecast / Shoutcast / RadioBrowser)
+     ********************/
     function baseFromUrl(u){
       try{ const url = new URL(u); return `${url.protocol}//${url.host}`; }
       catch(e){ return null; }
@@ -1442,7 +1519,9 @@
       }, 12000);
     }
 
-    // ----------------- Visualizer + favicon dynamic -----------------
+    /********************
+     * Dynamic favicon + Visualizers
+     ********************/
     const vizCanvas = document.getElementById("viz");
     const vizCtx = vizCanvas.getContext("2d");
     const fsCanvas = document.getElementById("fsViz");
@@ -1690,7 +1769,9 @@
       else audio.volume = isMuted ? 0 : vol;
     }
 
-    // ----------------- Resolve stream (optional) -----------------
+    /********************
+     * Resolve stream via Vercel (Step 2)
+     ********************/
     async function resolveStreamViaServer(station){
       const cached = getResolved(station.url);
       if (cached) return cached;
@@ -1712,7 +1793,9 @@
       return null;
     }
 
-    // ----------------- Playback -----------------
+    /********************
+     * Playback
+     ********************/
     function setPlayerStationUI(station){
       playerEl.classList.remove("isEmpty");
       document.getElementById("playerName").textContent = station.name || "Radio";
@@ -1746,6 +1829,7 @@
       setFooterStatus("CONNECT");
       setTitleUI("player", "");
 
+      // 1) original
       if (await tryPlayUrl(station.url)){
         isPlaying = true; setPlayIcon();
         updatePlayerStatus(currentTryIndex===0 ? "En direct" : `En direct (proxy ${currentTryIndex})`);
@@ -1755,22 +1839,28 @@
         return true;
       }
 
+      // 2) resolve server
       updatePlayerStatus("Flux HS — recherche d’un flux alternatif…");
       setFooterStatus("BUFFER");
 
       const resolvedUrl = await resolveStreamViaServer(station);
       if (resolvedUrl && resolvedUrl !== station.url){
         if (await tryPlayUrl(resolvedUrl)){
+          // success => save resolved and remove blacklist
+          setResolved(station.url, resolvedUrl);
+          unmarkBadUrl(station.url);
+          unmarkBadUrl(resolvedUrl);
+
           station.url = resolvedUrl;
           isPlaying = true; setPlayIcon();
           updatePlayerStatus("En direct (flux alternatif)");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
-          unmarkBadUrl(resolvedUrl);
           startTitlePolling(station, { target: "player" });
           return true;
         }
       }
 
+      // 3) mark HS
       markBadUrl(station.url, "play_failed");
       updatePlayerStatus("Impossible de lire ce flux (blacklist 7j).");
       setFooterStatus("ERR");
@@ -1872,7 +1962,9 @@
 
     applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
 
-    // ----------------- Fullscreen controls -----------------
+    /********************
+     * Fullscreen controls
+     ********************/
     function openFS(){
       fsMode.classList.add("show");
       fsMode.setAttribute("aria-hidden","false");
@@ -1891,7 +1983,9 @@
     fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
     window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
 
-    // ----------------- Load/Reset events -----------------
+    /********************
+     * Load/Reset events
+     ********************/
     function resetAndReload(){
       offset = 0; hasMore = true; stations = [];
       endMessage.style.display = "none";
@@ -1924,6 +2018,17 @@
       toast("Filtres réinitialisés.");
     });
 
+    // Show broken toggle
+    const showBrokenEl = document.getElementById("showBroken");
+    if (showBrokenEl){
+      showBrokenEl.checked = showBroken;
+      showBrokenEl.addEventListener("change", ()=>{
+        showBroken = showBrokenEl.checked;
+        localStorage.setItem("gr_show_broken", showBroken ? "1" : "0");
+        resetAndReload();
+      });
+    }
+
     loadMoreBtn.addEventListener("click", ()=> loadStations(true));
     document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredStation));
     document.getElementById("backBtn").addEventListener("click", showList);
@@ -1934,41 +2039,18 @@
     window.addEventListener("scroll", ()=>{ scrollTopBtn.style.display = window.scrollY > 400 ? "block" : "none"; });
     scrollTopBtn.addEventListener("click", ()=> window.scrollTo({ top:0, behavior:"smooth" }));
 
-    // ----------------- Init -----------------
+    /********************
+     * Init
+     ********************/
     (async function init(){
       updateBottomSafe();
       window.addEventListener("resize", resizeViz);
       resizeViz();
-      startViz(); // favicon + low-energy idle même sans audio
+      startViz(); // favicon + low-energy idle
       await loadFilters();
       resetAndReload();
       toast("Bienvenue sur GlobalRadio.top ✨", 1300);
     })();
-
-    // ----------------- Detail/List helpers -----------------
-    function showList(){
-      document.getElementById("detailView").style.display = "none";
-      document.querySelector(".filters").style.display = "block";
-      document.querySelector(".featured").style.display = "block";
-      document.getElementById("stationsGrid").style.display = "grid";
-      loadMoreBtn.style.display = (hasMore && document.getElementById("viewMode").value !== "favorites") ? "block" : "none";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      updateBottomSafe();
-      animateGridEntrance();
-    }
-
-    // ----------------- Best effort title binding -----------------
-    function setTitleUI(which, title){
-      const t = cleanTitle(title);
-      const msg = t ? t : "Titre non disponible";
-      if (which === "player"){
-        document.getElementById("currentTitle").textContent = msg;
-        document.getElementById("fsTitle").textContent = msg;
-      } else if (which === "detail"){
-        const el = document.getElementById("detailTitle");
-        if (el) el.textContent = "Titre : " + msg;
-      }
-    }
   </script>
 </body>
 </html>
