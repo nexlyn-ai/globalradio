@@ -3,10 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GlobalRadio.top - Annuaire Radio Mondial</title>
+
+  <title>GlobalRadio.top — Annuaire mondial des radios en ligne</title>
+  <meta name="description" content="GlobalRadio.top : annuaire mondial de webradios. Trouvez une radio par pays, style, popularité, ajoutez vos favoris et écoutez en direct." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#0b1227" />
+  <link rel="canonical" href="https://globalradio.top/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="GlobalRadio.top — Annuaire mondial des radios en ligne" />
+  <meta property="og:description" content="Explorez des radios du monde entier : pays, styles, favoris, lecture stable et infos live quand disponibles." />
+  <meta property="og:url" content="https://globalradio.top/" />
+  <meta property="og:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="GlobalRadio.top — Annuaire mondial des radios en ligne" />
+  <meta name="twitter:description" content="Explorez des radios du monde entier : pays, styles, favoris, lecture stable et infos live quand disponibles." />
+  <meta name="twitter:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://de1.api.radio-browser.info" crossorigin />
+  <link rel="dns-prefetch" href="https://de1.api.radio-browser.info" />
 
   <!-- Favicon (sera remplacé dynamiquement) -->
   <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "GlobalRadio.top",
+    "url": "https://globalradio.top/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://globalradio.top/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 
   <style>
     :root{
@@ -628,6 +665,30 @@
       100%{ transform: scale(1); opacity: 1; }
     }
 
+    /* Footer “Made in France + drapeau + with + 🩵” */
+    .madeIn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space: nowrap;
+      color: rgba(231,238,252,.92);
+      font-weight: 700;
+    }
+    .frFlag{
+      width: 22px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 6px 16px rgba(0,0,0,.22);
+      background:
+        linear-gradient(90deg,
+          #0055A4 0 33.33%,
+          #FFFFFF 33.33% 66.66%,
+          #EF4135 66.66% 100%);
+      display:inline-block;
+    }
+    .heartBlue{ transform: translateY(0.5px); }
+
     #scrollTopBtn{
       position: fixed;
       right: 18px;
@@ -801,9 +862,20 @@
         <option value="favorites">Mes favoris</option>
       </select>
 
+      <!-- Nouveau : tri -->
+      <select id="sortMode" title="Trier les stations">
+        <option value="votes">Par popularité</option>
+        <option value="clickcount">Par écoutes</option>
+        <option value="name">Par nom</option>
+      </select>
+
       <input type="text" id="searchInput" placeholder="Rechercher par nom…" />
       <select id="countrySelect"><option value="">Tous les pays</option></select>
-      <select id="genreSelect"><option value="">Tous les genres</option></select>
+
+      <!-- Styles principaux (au lieu des tags farfelus) -->
+      <select id="genreSelect">
+        <option value="">Tous les styles</option>
+      </select>
 
       <!-- Toggle radios HS -->
       <label class="btn btnCheck" title="Afficher aussi les radios récemment détectées HS (blacklist locale)">
@@ -886,7 +958,11 @@
       <span class="sDot"></span><span class="sText">STOP</span>
     </span>
     <span style="opacity:.55;">•</span>
-    <span>Made in France 🇫🇷</span>
+    <span class="madeIn">
+      Made in France
+      <span class="frFlag" aria-hidden="true"></span>
+      with <span class="heartBlue" aria-hidden="true">🩵</span>
+    </span>
   </div>
 
   <!-- Fullscreen -->
@@ -941,6 +1017,31 @@
     // Cache flux résolus 30 jours
     const RESOLVED_KEY = "gr_resolved_streams_v1";
     const RESOLVED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+    // Dernière radio jouée (mémoire player)
+    const LAST_STATION_KEY = "gr_last_station_v1";
+    const LAST_TITLE_KEY = "gr_last_title_v1";
+
+    // Styles principaux (pour éviter les tags farfelus)
+    const MAIN_STYLES = [
+      { label: "Pop", value: "pop" },
+      { label: "Rock", value: "rock" },
+      { label: "Hip-Hop / Rap", value: "hip hop" },
+      { label: "R&B / Soul", value: "rnb" },
+      { label: "Electro", value: "electronic" },
+      { label: "House", value: "house" },
+      { label: "Techno", value: "techno" },
+      { label: "Dance", value: "dance" },
+      { label: "Jazz", value: "jazz" },
+      { label: "Classique", value: "classical" },
+      { label: "Reggae", value: "reggae" },
+      { label: "Latin", value: "latin" },
+      { label: "Country", value: "country" },
+      { label: "Metal", value: "metal" },
+      { label: "Ambient / Chill", value: "chill" },
+      { label: "News / Talk", value: "news" },
+      { label: "Sport", value: "sport" }
+    ];
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
@@ -1071,6 +1172,36 @@
     }
 
     /********************
+     * Last played memory
+     ********************/
+    function saveLastStation(st){
+      try{
+        const s = normalizeStation(st);
+        localStorage.setItem(LAST_STATION_KEY, JSON.stringify({ ts: now(), station: s }));
+      }catch(e){}
+    }
+    function loadLastStation(){
+      try{
+        const raw = localStorage.getItem(LAST_STATION_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !obj.station) return null;
+        return normalizeStation(obj.station);
+      }catch(e){ return null; }
+    }
+    function saveLastTitle(title){
+      try{ localStorage.setItem(LAST_TITLE_KEY, JSON.stringify({ ts: now(), title: String(title||"") })); }catch(e){}
+    }
+    function loadLastTitle(){
+      try{
+        const raw = localStorage.getItem(LAST_TITLE_KEY);
+        if (!raw) return "";
+        const obj = JSON.parse(raw);
+        return (obj && obj.title) ? String(obj.title) : "";
+      }catch(e){ return ""; }
+    }
+
+    /********************
      * Logo fallbacks
      ********************/
     function safeDomainFromStation(st){
@@ -1151,6 +1282,7 @@
      * Filters loading
      ********************/
     async function loadFilters(){
+      // countries API
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
         countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
@@ -1165,16 +1297,23 @@
         if (hasFrance) cs.value = DEFAULT_COUNTRY;
       }catch(e){}
 
+      // MAIN styles only (clean)
+      const gs = document.getElementById("genreSelect");
+      gs.innerHTML = `<option value="">Tous les styles</option>`;
+      MAIN_STYLES.forEach(s=>{
+        const opt = document.createElement("option");
+        opt.value = s.value;
+        opt.textContent = s.label;
+        gs.appendChild(opt);
+      });
+
+      // prefill search from ?q= for SEO/SearchAction
       try{
-        const tags = await fetch(`${API_BASE}/tags`).then(r => r.json());
-        tags.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
-        const gs = document.getElementById("genreSelect");
-        tags.slice(0,120).forEach(t=>{
-          const opt=document.createElement("option");
-          opt.value=t.name;
-          opt.textContent=`${t.name} (${t.stationcount})`;
-          gs.appendChild(opt);
-        });
+        const url = new URL(location.href);
+        const q = url.searchParams.get("q");
+        if (q){
+          document.getElementById("searchInput").value = q;
+        }
       }catch(e){}
     }
 
@@ -1203,16 +1342,19 @@
       const name = document.getElementById("searchInput").value.trim();
       const country = document.getElementById("countrySelect").value || DEFAULT_COUNTRY;
       const tag = document.getElementById("genreSelect").value;
+      const sortMode = document.getElementById("sortMode").value || "votes";
 
       const params = new URLSearchParams({
         limit: String(limit),
         offset: String(append ? offset : 0),
-        order: "votes",
-        reverse: "true",
+        order: sortMode,      // votes / clickcount / name
+        reverse: (sortMode === "name") ? "false" : "true",
         hidebroken: "true"
       });
       if (name) params.append("name", name);
       if (country) params.append("country", country);
+
+      // on passe style en "tag" (RadioBrowser: tag=...)
       if (tag) params.append("tag", tag);
 
       let data = [];
@@ -1493,6 +1635,7 @@
       if (which === "player"){
         document.getElementById("currentTitle").textContent = msg;
         document.getElementById("fsTitle").textContent = msg;
+        if (t) saveLastTitle(t);
       } else if (which === "detail"){
         const el = document.getElementById("detailTitle");
         if (el) el.textContent = "Titre : " + msg;
@@ -1802,6 +1945,7 @@
       setImgWithFallbacks(document.getElementById("playerLogo"), guessStationLogoCandidates(station));
       setImgWithFallbacks(document.getElementById("fsLogo"), guessStationLogoCandidates(station));
       document.getElementById("fsName").textContent = station.name || "Radio";
+      updateBottomSafe();
     }
 
     function setAudioSourceWithProxy(url, tryIndex){
@@ -1836,6 +1980,7 @@
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
         unmarkBadUrl(station.url);
         startTitlePolling(station, { target: "player" });
+        saveLastStation(station);
         return true;
       }
 
@@ -1846,7 +1991,6 @@
       const resolvedUrl = await resolveStreamViaServer(station);
       if (resolvedUrl && resolvedUrl !== station.url){
         if (await tryPlayUrl(resolvedUrl)){
-          // success => save resolved and remove blacklist
           setResolved(station.url, resolvedUrl);
           unmarkBadUrl(station.url);
           unmarkBadUrl(resolvedUrl);
@@ -1856,6 +2000,7 @@
           updatePlayerStatus("En direct (flux alternatif)");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
           startTitlePolling(station, { target: "player" });
+          saveLastStation(station);
           return true;
         }
       }
@@ -1875,7 +2020,6 @@
 
       currentStation = s;
       setPlayerStationUI(s);
-      updateBottomSafe();
 
       if (autoStart) startPlaybackWithFallbacks(s);
       else{
@@ -1883,8 +2027,26 @@
         setFooterStatus("PAUSE");
         isPlaying = false;
         setPlayIcon();
-        setTitleUI("player", "");
+        if (titleInterval) clearInterval(titleInterval);
+        titleInterval = null;
       }
+    }
+
+    function restoreLastPlayedIntoPlayer(){
+      const last = loadLastStation();
+      if (!last || !last.url) return;
+
+      currentStation = last;
+      setPlayerStationUI(last);
+
+      const lastTitle = loadLastTitle();
+      document.getElementById("currentTitle").textContent = lastTitle ? lastTitle : "Titre non disponible";
+      document.getElementById("fsTitle").textContent = lastTitle ? lastTitle : "Titre non disponible";
+
+      isPlaying = false;
+      setPlayIcon();
+      setFooterStatus("PAUSE");
+      updatePlayerStatus("Dernière station — clique ▶ pour reprendre");
     }
 
     function stopPlayback(){
@@ -1994,6 +2156,7 @@
     }
 
     document.getElementById("viewMode").addEventListener("change", resetAndReload);
+    document.getElementById("sortMode").addEventListener("change", resetAndReload);
 
     let searchTimer=null;
     document.getElementById("searchInput").addEventListener("input", ()=>{
@@ -2011,6 +2174,7 @@
 
     document.getElementById("clearBtn").addEventListener("click", ()=>{
       document.getElementById("viewMode").value = "all";
+      document.getElementById("sortMode").value = "votes";
       document.getElementById("searchInput").value = "";
       document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
       document.getElementById("genreSelect").value = "";
@@ -2047,8 +2211,13 @@
       window.addEventListener("resize", resizeViz);
       resizeViz();
       startViz(); // favicon + low-energy idle
+
+      // Restore last played into player (no autoplay)
+      restoreLastPlayedIntoPlayer();
+
       await loadFilters();
       resetAndReload();
+
       toast("Bienvenue sur GlobalRadio.top ✨", 1300);
     })();
   </script>
