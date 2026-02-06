@@ -548,7 +548,6 @@
     }
     .pLogo img{ width: 44px; height: 44px; object-fit: contain; }
 
-    /* ✅ Player info: 1 line each + ellipsis */
     .pInfo{
       flex: 1 1 320px;
       min-width: 0;
@@ -932,6 +931,7 @@
       <input type="text" id="searchInput" data-i18n-placeholder="searchPh" placeholder="Search by name…" />
       <select id="countrySelect"><option value="" data-i18n="allCountries">All countries</option></select>
 
+      <!-- ✅ restored main styles list -->
       <select id="genreSelect">
         <option value="" data-i18n="allStyles">All styles</option>
       </select>
@@ -1168,6 +1168,11 @@
     const DEFAULT_COUNTRY = "France";
     const RESOLVE_API = "/api/resolve-stream";
 
+    // ✅ Infinite scroll only on Home
+    const INFINITE_SCROLL = true;
+    const SCROLL_THRESHOLD_PX = 950;
+    let scrollTicking = false;
+
     const PROXY_CHAIN = [
       (u) => u,
       (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
@@ -1181,6 +1186,28 @@
 
     const LAST_STATION_KEY = "gr_last_station_v1";
     const LAST_TITLE_KEY = "gr_last_title_v1";
+
+    // ✅ Main styles (clean list)
+    const MAIN_STYLES = [
+      { key: "pop", en: "Pop", fr: "Pop", tag: "pop" },
+      { key: "rock", en: "Rock", fr: "Rock", tag: "rock" },
+      { key: "hiphop", en: "Hip-Hop / Rap", fr: "Hip-Hop / Rap", tag: "hiphop" },
+      { key: "electronic", en: "Electronic", fr: "Électronique", tag: "electronic" },
+      { key: "house", en: "House", fr: "House", tag: "house" },
+      { key: "techno", en: "Techno", fr: "Techno", tag: "techno" },
+      { key: "dance", en: "Dance", fr: "Dance", tag: "dance" },
+      { key: "jazz", en: "Jazz", fr: "Jazz", tag: "jazz" },
+      { key: "classical", en: "Classical", fr: "Classique", tag: "classical" },
+      { key: "reggae", en: "Reggae", fr: "Reggae", tag: "reggae" },
+      { key: "latin", en: "Latin", fr: "Latino", tag: "latin" },
+      { key: "rnb", en: "R&B / Soul", fr: "R&B / Soul", tag: "rnb" },
+      { key: "blues", en: "Blues", fr: "Blues", tag: "blues" },
+      { key: "metal", en: "Metal", fr: "Metal", tag: "metal" },
+      { key: "country", en: "Country", fr: "Country", tag: "country" },
+      { key: "world", en: "World", fr: "World", tag: "world" },
+      { key: "chill", en: "Chill / Lounge", fr: "Chill / Lounge", tag: "chill" },
+      { key: "news", en: "News / Talk", fr: "Actu / Talk", tag: "news" }
+    ];
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
@@ -1271,6 +1298,19 @@
       uuid: null
     };
 
+    function buildMainStyles(){
+      const sel = document.getElementById("genreSelect");
+      const keep = sel.value || "";
+      sel.innerHTML = `<option value="" data-i18n="allStyles">${t("allStyles")}</option>`;
+      MAIN_STYLES.forEach(s=>{
+        const opt = document.createElement("option");
+        opt.value = s.tag;
+        opt.textContent = (LANG === "fr") ? s.fr : s.en;
+        sel.appendChild(opt);
+      });
+      sel.value = keep;
+    }
+
     function applyLang(lang){
       LANG = (lang === "fr") ? "fr" : "en";
       localStorage.setItem("gr_lang", LANG);
@@ -1285,7 +1325,7 @@
       document.querySelectorAll("[data-i18n]").forEach(el => {
         const k = el.dataset.i18n;
 
-        // ✅ PATCH: ne pas écraser le nom/titre du player si une station est chargée
+        // ✅ do not overwrite dynamic player name/title if a station is loaded
         if (hasStationLoaded && (el.id === "playerName" || el.id === "currentTitle")) return;
 
         if (k) el.textContent = t(k);
@@ -1308,7 +1348,9 @@
         frBtn.classList.toggle("isActive", LANG === "fr");
       }
 
-      // (le statut est OK à traduire)
+      // ✅ rebuild main styles list with correct language
+      buildMainStyles();
+
       const statusEl = document.getElementById("playerStatus");
       if (statusEl) statusEl.textContent = playerStateText || t(playerStateKey || "statusSelect");
 
@@ -1444,6 +1486,12 @@
     function isDetailOpen(){
       return document.getElementById("detailView").style.display === "block";
     }
+    function isHome(){
+      return !isDetailOpen();
+    }
+    function isFavorites(){
+      return document.getElementById("viewMode").value === "favorites";
+    }
 
     document.getElementById("homeLink").addEventListener("click", (e)=>{
       e.preventDefault();
@@ -1472,6 +1520,7 @@
     }
 
     async function loadFilters(){
+      // ✅ countries
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
         countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
@@ -1487,6 +1536,10 @@
         if (hasFrance) cs.value = "France";
       }catch(e){}
 
+      // ✅ main styles list
+      buildMainStyles();
+
+      // deep link search
       try{
         const url = new URL(location.href);
         const q = url.searchParams.get("q");
@@ -1547,6 +1600,8 @@
       animateGridEntrance();
 
       loading = false;
+
+      // ✅ Load more button remains as fallback
       loadMoreBtn.style.display = (hasMore && mode !== "favorites") ? "block" : "none";
 
       if (!hasMore){
@@ -2411,6 +2466,30 @@
       if (isDetailOpen()) refreshDetailLang();
       else resetAndReload();
     });
+
+    // ✅ Infinite scroll on Home
+    function handleInfiniteScroll(){
+      if (!INFINITE_SCROLL) return;
+      if (!isHome()) return;
+      if (isFavorites()) return;
+      if (loading || !hasMore) return;
+
+      const doc = document.documentElement;
+      const scrollBottom = doc.scrollHeight - (window.scrollY + window.innerHeight);
+      if (scrollBottom < SCROLL_THRESHOLD_PX){
+        loadStations(true);
+      }
+    }
+
+    window.addEventListener("scroll", ()=>{
+      if (!INFINITE_SCROLL) return;
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(()=>{
+        scrollTicking = false;
+        handleInfiniteScroll();
+      });
+    }, { passive: true });
 
     (async function init(){
       const savedLang = localStorage.getItem("gr_lang");
