@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlobalRadio.top - Annuaire Radio Mondial</title>
+  <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
+
+  <style>
+    :root{
+      --bg0:#060914;
+      --bg1:#0b1227;
+      --text:#e7eefc;
+      --muted:#a9b7d6;
+      --accent:#4da3ff;
+      --accent2:#7c5cff;
+      --live:#ff4d6d;
+      --warn:#f59e0b;
+      --ok:#22c55e;
+      --cyan:#22d3ee;
+      --shadow: 0 18px 55px rgba(0,0,0,.40);
+      --shadow2: 0 10px 25px rgba(0,0,0,.35);
+      --r20: 20px;
+      --max: 1200px;
+      --bottom-safe: 260px;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(124,92,255,.20), transparent 60%),
+        radial-gradient(1000px 600px at 85% 20%, rgba(77,163,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 50% 95%, rgba(255,77,109,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x: hidden;
+    }
+
+    #bottomSpacer{ width:100%; height: var(--bottom-safe); }
+
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      opacity:.10;
+      mix-blend-mode: overlay;
+      z-index:0;
+    }
+
+    header{
+      position:relative;
+      z-index:1;
+      padding: 34px 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.14));
+      backdrop-filter: blur(10px);
+    }
+
+    .wrap{ max-width: var(--max); margin:0 auto; }
+
+    .topbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1{ margin:0; font-size: 2.2rem; line-height: 1.1; }
+    .brand p{ margin:8px 0 0; color: var(--muted); max-width: 760px; }
+
+    .siteLogo{
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+      flex: 0 0 auto;
+    }
+
+    .brandLink{
+      display:inline-flex;
+      align-items:center;
+      gap: 12px;
+      text-decoration:none;
+      color: var(--text);
+      user-select:none;
+    }
+    .brandLink:hover{ opacity: .92; }
+
+    /* sécurité: cache pill debug s'il traîne */
+    .pill{ display:none !important; }
+
+    .filters{
+      position:relative;
+      z-index:1;
+      margin: 18px auto 12px;
+      padding: 0 16px;
+    }
+    .filters .bar{
+      max-width: var(--max);
+      margin: 0 auto;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+
+    select, input{
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline:none;
+      min-width: 210px;
+      flex: 1;
+      box-shadow: 0 10px 25px rgba(0,0,0,.12);
+      backdrop-filter: blur(12px);
+    }
+    input::placeholder{ color: rgba(231,238,252,.55); }
+
+    input:focus, select:focus{
+      outline: none;
+      border-color: var(--accent);
+      box-shadow:
+        0 0 0 1px rgba(77,163,255,.8),
+        0 0 0 4px rgba(77,163,255,.22);
+      background-color: rgba(255,255,255,.08);
+    }
+
+    select{
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding: 12px 44px 12px 14px;
+      cursor: pointer;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e7eefc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 14px;
+    }
+    select option{ background-color: #0b1227; color: #e7eefc; }
+
+    .btn{
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .15s ease, background .15s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,.12);
+      backdrop-filter: blur(12px);
+      white-space: nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); }
+
+    .featured{
+      position:relative;
+      z-index:1;
+      margin: 14px auto 18px;
+      padding: 0 16px;
+    }
+    .featured-card{
+      max-width: var(--max);
+      margin:0 auto;
+      display:flex;
+      gap: 18px;
+      align-items:center;
+      padding: 16px 16px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.12));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      transition: transform .25s ease, filter .25s ease;
+      backdrop-filter: blur(14px);
+    }
+    .featured-card:hover{ transform: translateY(-3px); filter: brightness(1.02); }
+    .featured-logo{
+      width: 92px; height: 92px; border-radius: 50%;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.16);
+      display:grid; place-items:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .featured-logo img{ width: 82px; height: 82px; object-fit: contain; }
+
+    .grid{
+      position:relative;
+      z-index:1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 16px 18px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .station{
+      position:relative;
+      border-radius: var(--r20);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      cursor:pointer;
+      min-height: 324px;
+      backdrop-filter: blur(12px);
+      transition: border-color .20s ease;
+      transform: translateZ(0);
+
+      opacity: 0;
+      transform: translateY(22px) scale(.98);
+      filter: blur(6px);
+      transition:
+        opacity .70s ease,
+        transform .70s cubic-bezier(.2,.9,.2,1),
+        filter .70s ease,
+        border-color .20s ease;
+      will-change: transform, opacity, filter;
+    }
+    .station.isIn{
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .station{ transition:none !important; opacity:1 !important; transform:none !important; filter:none !important; }
+    }
+
+    .stationInner{
+      height:100%;
+      transition: transform .22s ease;
+      will-change: transform;
+      transform: translate3d(0,0,0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .station::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: inherit;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .22s ease;
+      box-shadow: 0 22px 52px rgba(0,0,0,.46);
+    }
+    .station::before{
+      content:"";
+      position:absolute;
+      inset:-45%;
+      border-radius: inherit;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .22s ease, transform .52s ease;
+      background: linear-gradient(120deg, transparent 46%, rgba(255,255,255,.075), transparent 54%);
+      transform: translateX(-28%);
+    }
+    .station:hover{ border-color: rgba(255,255,255,.16); }
+    .station:hover .stationInner{ transform: translate3d(0,-3px,0); }
+    .station:hover::after{ opacity:1; }
+    .station:hover::before{ opacity:1; transform: translateX(30%); }
+
+    .cover{
+      height: 170px;
+      background:
+        radial-gradient(400px 200px at 20% 20%, rgba(77,163,255,.25), transparent 60%),
+        radial-gradient(420px 210px at 85% 30%, rgba(124,92,255,.22), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      display:grid;
+      place-items:center;
+      padding: 14px;
+    }
+    .logo{
+      width: 110px; height: 110px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.18);
+      display:grid; place-items:center;
+      overflow:hidden;
+    }
+    .logo img{ width: 92px; height: 92px; object-fit: contain; display:block; }
+
+    .meta{ padding: 12px 12px 14px; }
+    .name{
+      font-weight: 700;
+      font-size: 1.02rem;
+      line-height: 1.25;
+      margin: 0 0 8px;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .chips{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip{
+      font-size:.82rem;
+      color: rgba(231,238,252,.92);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .chip .dot{ width:8px; height:8px; border-radius:50%; background: rgba(77,163,255,.9); }
+    .chip.muted{ color: rgba(231,238,252,.75); }
+    .chip.live .dot{ background: var(--live); box-shadow: 0 0 0 5px rgba(255,77,109,.13); }
+
+    .heart{
+      position:absolute;
+      top: 12px; right: 12px;
+      width: 42px; height: 42px;
+      border-radius: 999px;
+      display:grid; place-items:center;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      cursor:pointer;
+      user-select:none;
+      z-index: 6;
+      transition: transform .15s ease, background .15s ease;
+      font-size: 20px;
+    }
+    .heart:hover{ transform: scale(1.06); background: rgba(0,0,0,.28); }
+    .heart.filled{ color: #ff4d6d; }
+
+    .loading{
+      padding: 18px 16px;
+      border-radius: var(--r20);
+      border: 1px dashed rgba(255,255,255,.14);
+      color: var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.03);
+      width: 100%;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    #detailView{
+      display:none;
+      position:relative;
+      z-index:1;
+      padding: 18px 16px 18px;
+      min-height: calc(100vh - 260px);
+    }
+    .detail-card{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .detail-top{ display:flex; gap: 16px; align-items:center; flex-wrap: wrap; }
+    .detail-logo{
+      width: 128px; height: 128px;
+      border-radius: 30px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.16);
+      display:grid; place-items:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .detail-logo img{ width: 96px; height: 96px; object-fit: contain; display:block; }
+
+    .detail-title{ flex:1; min-width: 240px; }
+    .detail-title h2{ margin:0; font-size: 1.7rem; line-height:1.15; }
+    .detail-title p{ margin:10px 0 0; color: var(--muted); }
+    .detail-actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; align-items:center; }
+    .btnPrimary{
+      background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(124,92,255,.90));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 45px rgba(77,163,255,.15);
+    }
+    #detailTitle{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(231,238,252,.95);
+      min-height: 44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    /* Player */
+    .player{
+      position:fixed;
+      left: 10px; right: 10px;
+      bottom: 46px;
+      z-index: 110;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(8,10,22,.72);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 70px rgba(0,0,0,.45);
+      padding: 12px;
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    .player.isEmpty{ opacity: .88; }
+
+    .pLogo{
+      width: 54px; height: 54px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.16);
+      display:grid; place-items:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .pLogo img{ width: 44px; height: 44px; object-fit: contain; }
+
+    .pInfo{ flex: 1; min-width: 220px; }
+    .pName{ font-weight: 800; }
+    .pTitle{ color: rgba(231,238,252,.90); font-style: italic; margin-top: 2px; }
+    .pStatus{ color: rgba(169,183,214,.92); font-size: .92rem; margin-top: 3px; }
+
+    .pControls{ display:flex; align-items:center; gap: 10px; }
+    .playBtn{
+      width: 58px; height: 58px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(124,92,255,.88));
+      display:grid; place-items:center;
+      cursor:pointer;
+      user-select:none;
+      font-size: 26px;
+      transition: transform .12s ease, filter .12s ease;
+      box-shadow: 0 18px 45px rgba(77,163,255,.14);
+    }
+    .playBtn:hover{ transform: translateY(-1px); filter: brightness(1.04); }
+
+    .miniBtn{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      display:grid; place-items:center;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .miniBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); }
+
+    .vol{
+      display:flex; align-items:center; gap: 8px;
+      padding: 10px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+
+    #volume{
+      flex: 0 0 160px;
+      min-width: 140px;
+      height: 6px;
+      padding: 0 !important;
+      margin: 0;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: rgba(231,238,252,.22);
+      border-radius: 999px;
+      cursor: pointer;
+      touch-action: pan-x;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    #volume::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(231,238,252,.92);
+      border: 1px solid rgba(255,255,255,.20);
+    }
+    #volume::-moz-range-thumb{
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(231,238,252,.92);
+      border: 1px solid rgba(255,255,255,.20);
+    }
+
+    .viz{
+      width: 100%;
+      flex: 1 1 420px;
+      min-width: 280px;
+      height: 54px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+    .viz canvas{ width: 100%; height: 100%; display:block; }
+
+    .toast{
+      position:fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(8,10,22,.75);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow2);
+      color: var(--text);
+      display:none;
+      max-width: min(740px, calc(100vw - 24px));
+    }
+    .toast.show{ display:block; }
+
+    /* Footer */
+    #fixedFooter{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 42px;
+      z-index: 105;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 12px;
+      padding: 0 12px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: rgba(8,10,22,.78);
+      backdrop-filter: blur(14px);
+      color: rgba(169,183,214,.95);
+      font-size: .92rem;
+      user-select:none;
+      flex-wrap: wrap;
+    }
+    #fixedFooter a{
+      color: rgba(231,238,252,.92);
+      text-decoration: none;
+      font-weight: 800;
+      opacity: .95;
+    }
+    #fixedFooter a:hover{
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .footerStatus{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(231,238,252,.95);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .footerStatus .sDot{
+      width: 9px; height: 9px; border-radius: 50%;
+      background: rgba(169,183,214,.9);
+      box-shadow: 0 0 0 5px rgba(169,183,214,.10);
+    }
+    .footerStatus[data-state="LIVE"] .sDot{ background: var(--live); box-shadow: 0 0 0 6px rgba(255,77,109,.14); animation: pulse 1.1s infinite ease-in-out; }
+    .footerStatus[data-state="MUTE"] .sDot{ background: var(--warn); box-shadow: 0 0 0 6px rgba(245,158,11,.12); }
+    .footerStatus[data-state="BUFFER"] .sDot{ background: var(--cyan); box-shadow: 0 0 0 6px rgba(34,211,238,.12); animation: pulse 1.0s infinite ease-in-out; }
+    .footerStatus[data-state="CONNECT"] .sDot{ background: var(--ok); box-shadow: 0 0 0 6px rgba(34,197,94,.12); }
+    .footerStatus[data-state="ERR"] .sDot{ background: #ef4444; box-shadow: 0 0 0 6px rgba(239,68,68,.12); }
+    .footerStatus[data-state="PAUSE"] .sDot{ background: rgba(231,238,252,.75); box-shadow: 0 0 0 6px rgba(231,238,252,.10); }
+    .footerStatus[data-state="STOP"] .sDot{ background: rgba(148,163,184,.9); box-shadow: 0 0 0 6px rgba(148,163,184,.10); }
+    @keyframes pulse{
+      0%{ transform: scale(1); opacity: 1; }
+      50%{ transform: scale(1.18); opacity: .85; }
+      100%{ transform: scale(1); opacity: 1; }
+    }
+
+    #scrollTopBtn{
+      position: fixed;
+      right: 18px;
+      bottom: 198px;
+      z-index: 140;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(8,10,22,.75);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: none;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+      transition: transform .12s ease;
+    }
+    #scrollTopBtn:hover{ transform: translateY(-2px); }
+
+    /* Fullscreen */
+    #fsMode{
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: none;
+      overflow: hidden;
+      background:
+        radial-gradient(1200px 800px at 50% 30%, rgba(77,163,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 60% 70%, rgba(255,77,109,.12), transparent 55%),
+        linear-gradient(180deg, rgba(5,7,16,.94), rgba(10,16,36,.92));
+      backdrop-filter: blur(14px);
+    }
+    #fsMode.show{ display:block; }
+
+    .aurora{
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(900px 500px at 20% 30%, rgba(124,92,255,.20), transparent 60%),
+        radial-gradient(800px 420px at 80% 40%, rgba(77,163,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 60% 80%, rgba(255,77,109,.16), transparent 55%);
+      filter: blur(30px);
+      opacity: .85;
+      transform: translateZ(0);
+      animation: auroraMove 12s ease-in-out infinite alternate;
+      pointer-events:none;
+    }
+    @keyframes auroraMove{
+      0%{ transform: translate3d(-2%, -2%,0) scale(1.02); }
+      100%{ transform: translate3d(2%, 2%,0) scale(1.05); }
+    }
+
+    .fsTop{
+      position:absolute;
+      top: 14px; left: 14px; right: 14px;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      z-index: 5;
+    }
+    .fsBtn{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      user-select:none;
+      backdrop-filter: blur(12px);
+      transition: transform .12s ease, background .12s ease;
+    }
+    .fsBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+
+    .fsCenter{
+      position:absolute;
+      inset: 0;
+      display:grid;
+      place-items:center;
+      padding: 86px 22px 170px;
+      text-align:center;
+      z-index: 4;
+    }
+    .fsLogoWrap{
+      width: min(46vh, 380px);
+      height: min(46vh, 380px);
+      border-radius: 40px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 40px 120px rgba(0,0,0,.55);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      transform: translateZ(0);
+      will-change: transform, filter;
+      position: relative;
+    }
+    .fsLogoWrap:after{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,77,109,.25), transparent 55%);
+      opacity: .0;
+      filter: blur(12px);
+      transition: opacity .25s ease;
+      pointer-events:none;
+    }
+    .fsLogoWrap.active:after{ opacity: 1; }
+    .fsLogoWrap img{
+      width: 78%;
+      height: 78%;
+      object-fit: contain;
+      display:block;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
+      position: relative;
+      z-index: 2;
+    }
+    .fsText{ margin-top: 16px; color: rgba(231,238,252,.92); }
+    .fsName{
+      font-weight: 950;
+      font-size: clamp(18px, 3.2vw, 30px);
+      letter-spacing: .2px;
+    }
+    .fsTitle{
+      margin-top: 8px;
+      color: rgba(231,238,252,.82);
+      font-style: italic;
+      font-size: clamp(14px, 2.2vw, 18px);
+      min-height: 1.4em;
+    }
+    .fsCanvas{
+      position:absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 44vh;
+      max-height: 380px;
+      pointer-events:none;
+      opacity: .92;
+      z-index: 3;
+    }
+    .fsCanvas canvas{ width: 100%; height: 100%; display:block; }
+  </style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+
+  <header>
+    <div class="wrap topbar">
+      <div class="brand">
+        <a href="#" class="brandLink" id="homeLink" title="Retour à l'accueil">
+          <img class="siteLogo" id="siteLogoHeader" src="assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
+          <h1>GlobalRadio.top</h1>
+        </a>
+        <p>L'annuaire mondial des webradios — explore, découvre, écoute en direct.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="filters">
+    <div class="bar">
+      <select id="viewMode">
+        <option value="all">Toutes les stations</option>
+        <option value="favorites">Mes favoris</option>
+      </select>
+
+      <input type="text" id="searchInput" placeholder="Rechercher par nom…" />
+      <select id="countrySelect"><option value="">Tous les pays</option></select>
+      <select id="genreSelect"><option value="">Tous les genres</option></select>
+
+      <button class="btn" id="clearBtn">Réinitialiser</button>
+    </div>
+  </div>
+
+  <div class="featured">
+    <div class="featured-card" id="featuredCard">
+      <div class="featured-logo">
+        <img src="https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png" alt="Radio ABF Logo">
+      </div>
+      <div class="featured-info">
+        <p class="title"><strong>Radio ABF</strong> — Alternative Bass Fréquence</p>
+        <p class="sub">France • Techno, House, Electronic, Club • 320 kbps</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="stationsGrid">
+    <div class="loading">Chargement des stations…</div>
+  </div>
+
+  <div class="wrap" style="padding:0 16px; margin-bottom: 40px;">
+    <button id="loadMoreBtn" class="btn" style="width:100%; margin:14px 0; display:none;">
+      Afficher la suite
+    </button>
+    <div id="endMessage" class="loading" style="display:none; margin-bottom: 14px;">
+      Fin des résultats.
+    </div>
+  </div>
+
+  <div id="detailView">
+    <div class="detail-card">
+      <button class="btn" id="backBtn">← Retour</button>
+      <div id="detailContent" style="margin-top: 12px;"></div>
+    </div>
+  </div>
+
+  <div id="bottomSpacer" aria-hidden="true"></div>
+
+  <div class="player isEmpty" id="player">
+    <div class="pLogo"><img id="playerLogo" src="assets/globalradio-logo.jpg" alt="Logo"></div>
+
+    <div class="pInfo">
+      <div class="pName" id="playerName">Choisis une radio</div>
+      <div class="pTitle" id="currentTitle">Titre non disponible</div>
+      <div class="pStatus" id="playerStatus">Sélectionne une station puis ▶</div>
+    </div>
+
+    <div class="pControls">
+      <div class="miniBtn" id="stopBtn" title="Arrêter">⏹</div>
+      <div class="playBtn" id="playPauseBtn" title="Lecture / Pause">▶</div>
+      <div class="miniBtn" id="retryBtn" title="Reconnexion">↻</div>
+      <div class="miniBtn" id="muteBtn" title="Mute / Unmute">🔊</div>
+      <div class="miniBtn" id="fsBtn" title="Mode plein écran">⛶</div>
+    </div>
+
+    <div class="vol" title="Volume">
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
+    </div>
+
+    <div class="viz">
+      <canvas id="viz"></canvas>
+    </div>
+
+    <audio id="audioPlayer" preload="none" crossorigin="anonymous"></audio>
+  </div>
+
+  <button id="scrollTopBtn" title="Remonter en haut">⬆</button>
+
+  <div id="fixedFooter">
+    <a href="https://globalradio.top">© <span id="year"></span> GlobalRadio.top</a>
+    <span style="opacity:.55;">•</span>
+    <span id="footerStatus" class="footerStatus" data-state="STOP">
+      <span class="sDot"></span><span class="sText">STOP</span>
+    </span>
+    <span style="opacity:.55;">•</span>
+    <span>Made in France 🇫🇷</span>
+  </div>
+
+  <!-- Fullscreen -->
+  <div id="fsMode" aria-hidden="true">
+    <div class="aurora" id="aurora"></div>
+
+    <div class="fsTop">
+      <button class="fsBtn" id="fsClose" type="button">✕ Fermer</button>
+      <div style="display:flex; gap:10px;">
+        <button class="fsBtn" id="fsMiniPlay" type="button">⏯ Lecture</button>
+        <button class="fsBtn" id="fsMiniMute" type="button">🔊 Mute</button>
+      </div>
+    </div>
+
+    <div class="fsCenter">
+      <div class="fsLogoWrap" id="fsLogoWrap">
+        <img id="fsLogo" src="assets/globalradio-logo.jpg" alt="Logo radio">
+      </div>
+      <div class="fsText">
+        <div class="fsName" id="fsName">—</div>
+        <div class="fsTitle" id="fsTitle">Titre non disponible</div>
+      </div>
+    </div>
+
+    <div class="fsCanvas">
+      <canvas id="fsViz"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://de1.api.radio-browser.info/json";
+    const limit = 48;
+    const SITE_LOGO = "assets/globalradio-logo.jpg";
+    const DEFAULT_COUNTRY = "France";
+
+    // Partie 2 (plus tard): endpoint Vercel optionnel
+    const RESOLVE_API = "/api/resolve-stream";
+
+    // Proxy lecture (front only)
+    const PROXY_CHAIN = [
+      (u) => u,
+      (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
+    ];
+
+    // Blacklist 7 jours
+    const BAD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    const BAD_KEY = "gr_bad_stations_v1";
+
+    // Cache flux résolus 30 jours
+    const RESOLVED_KEY = "gr_resolved_streams_v1";
+    const RESOLVED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+    function loadMap(key){
+      try { return JSON.parse(localStorage.getItem(key) || "{}"); }
+      catch(e){ return {}; }
+    }
+    function saveMap(key, map){ localStorage.setItem(key, JSON.stringify(map)); }
+    function now(){ return Date.now(); }
+    function isExpired(ts, ttl){ return !ts || (now() - ts > ttl); }
+
+    let badMap = loadMap(BAD_KEY);
+    let resolvedMap = loadMap(RESOLVED_KEY);
+
+    function isBadStationByUrl(url){
+      if (!url) return true;
+      const rec = badMap[url];
+      if (!rec) return false;
+      if (isExpired(rec.ts, BAD_TTL_MS)){
+        delete badMap[url];
+        saveMap(BAD_KEY, badMap);
+        return false;
+      }
+      return true;
+    }
+    function markBadUrl(url, reason="fail"){
+      if (!url) return;
+      badMap[url] = { ts: now(), reason };
+      saveMap(BAD_KEY, badMap);
+    }
+    function unmarkBadUrl(url){
+      if (!url) return;
+      if (badMap[url]){
+        delete badMap[url];
+        saveMap(BAD_KEY, badMap);
+      }
+    }
+
+    function getResolved(fromUrl){
+      const rec = resolvedMap[fromUrl];
+      if (!rec) return null;
+      if (isExpired(rec.ts, RESOLVED_TTL_MS)){
+        delete resolvedMap[fromUrl];
+        saveMap(RESOLVED_KEY, resolvedMap);
+        return null;
+      }
+      return rec.url || null;
+    }
+    function setResolved(fromUrl, toUrl){
+      if (!fromUrl || !toUrl) return;
+      resolvedMap[fromUrl] = { ts: now(), url: toUrl };
+      saveMap(RESOLVED_KEY, resolvedMap);
+    }
+
+    // App state
+    let stations = [], offset = 0, hasMore = true, loading = false;
+    let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
+
+    const audio = document.getElementById("audioPlayer");
+    let audioCtx = null, analyser = null, sourceNode = null, gainNode = null;
+    let vizRaf = null;
+
+    let isPlaying = false;
+    let isMuted = false;
+    let vizLowEnergy = false;
+    let currentTryIndex = 0;
+    let currentStation = null;
+    let titleInterval = null;
+
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    const endMessage = document.getElementById("endMessage");
+    const playerEl = document.getElementById("player");
+    const fixedFooterEl = document.getElementById("fixedFooter");
+    const bottomSpacerEl = document.getElementById("bottomSpacer");
+
+    const featuredStation = {
+      name: "Radio ABF - Alternative Bass Fréquence | The DJs' Frequency",
+      favicon: "https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png",
+      url: "https://play.radioabf.com:2590/stream",
+      homepage: "https://radioabf.com",
+      country: "France",
+      tags: "Techno, House, Electronic, Club",
+      bitrate: 320,
+      codec: "MP3",
+      uuid: null
+    };
+
+    // ----------------- Helpers UI -----------------
+    function toast(msg, ms = 2400){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(el._t);
+      el._t = setTimeout(()=> el.classList.remove("show"), ms);
+    }
+
+    function setFooterStatus(state){
+      const el = document.getElementById("footerStatus");
+      el.dataset.state = state;
+      el.querySelector(".sText").textContent = state;
+    }
+
+    function updatePlayerStatus(text){ document.getElementById("playerStatus").textContent = text; }
+    function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
+    function safeText(v, fallback=""){ return (v && String(v).trim()) ? String(v).trim() : fallback; }
+
+    // ----------------- Station normalization -----------------
+    function normalizeStation(st){
+      const stream = st.url_resolved || st.url || "";
+      return {
+        name: safeText(st.name, "Radio"),
+        favicon: st.favicon || "",
+        url: stream,
+        homepage: st.homepage || "",
+        country: st.country || "",
+        tags: st.tags || "",
+        bitrate: st.bitrate || 0,
+        codec: st.codec || "",
+        uuid: st.uuid || null
+      };
+    }
+
+    // ----------------- Logo fallbacks -----------------
+    function safeDomainFromStation(st){
+      const src = st.homepage || st.url || "";
+      try{ return new URL(src).hostname.replace(/^www\./,""); }
+      catch(e){ return ""; }
+    }
+    function guessStationLogoCandidates(st){
+      const domain = safeDomainFromStation(st);
+      const candidates = [];
+      if (st.favicon) candidates.push(st.favicon);
+      if (domain){
+        candidates.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`);
+        candidates.push(`https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`);
+      }
+      candidates.push(SITE_LOGO);
+      return candidates;
+    }
+    function setImgWithFallbacks(imgEl, urlList){
+      let i = 0;
+      const tryNext = ()=>{
+        if (i >= urlList.length){
+          imgEl.src = SITE_LOGO;
+          return;
+        }
+        imgEl.src = urlList[i++];
+      };
+      imgEl.onerror = tryNext;
+      tryNext();
+    }
+
+    // ----------------- Bottom safe spacing -----------------
+    function updateBottomSafe(){
+      const footerH = fixedFooterEl.getBoundingClientRect().height;
+      const playerRect = playerEl.getBoundingClientRect();
+      const playerBottom = parseFloat(getComputedStyle(playerEl).bottom || "0");
+      const safe = Math.ceil(playerBottom + playerRect.height + footerH + 24);
+      document.documentElement.style.setProperty("--bottom-safe", safe + "px");
+      bottomSpacerEl.style.height = safe + "px";
+    }
+    window.addEventListener("resize", updateBottomSafe);
+    new ResizeObserver(updateBottomSafe).observe(playerEl);
+    new ResizeObserver(updateBottomSafe).observe(fixedFooterEl);
+
+    // Home link
+    document.getElementById("homeLink").addEventListener("click", (e)=>{
+      e.preventDefault();
+      if (document.getElementById("detailView").style.display === "block") showList();
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // ----------------- Favorites -----------------
+    function saveFavorites(){ localStorage.setItem("gr_favorites", JSON.stringify(favorites)); }
+    function isFavorite(station){
+      return favorites.some(f =>
+        (f.uuid && station.uuid && f.uuid === station.uuid) ||
+        (!f.uuid && !station.uuid && f.name === station.name && f.url === station.url)
+      );
+    }
+    function toggleFavorite(station){
+      const s = normalizeStation(station);
+      const idx = favorites.findIndex(f =>
+        (f.uuid && s.uuid && f.uuid === s.uuid) ||
+        (!f.uuid && !s.uuid && f.name === s.name && f.url === s.url)
+      );
+      if (idx > -1) favorites.splice(idx, 1);
+      else favorites.push(s);
+      saveFavorites();
+      renderStations(false);
+      animateGridEntrance();
+    }
+
+    // ----------------- Filters loading -----------------
+    async function loadFilters(){
+      try{
+        const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
+        countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
+        const cs = document.getElementById("countrySelect");
+        countries.forEach(c=>{
+          const opt=document.createElement("option");
+          opt.value=c.name;
+          opt.textContent=`${c.name} (${c.stationcount})`;
+          cs.appendChild(opt);
+        });
+        const hasFrance = countries.some(c => (c.name||"").toLowerCase() === DEFAULT_COUNTRY.toLowerCase());
+        if (hasFrance) cs.value = DEFAULT_COUNTRY;
+      }catch(e){}
+
+      try{
+        const tags = await fetch(`${API_BASE}/tags`).then(r => r.json());
+        tags.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
+        const gs = document.getElementById("genreSelect");
+        tags.slice(0,120).forEach(t=>{
+          const opt=document.createElement("option");
+          opt.value=t.name;
+          opt.textContent=`${t.name} (${t.stationcount})`;
+          gs.appendChild(opt);
+        });
+      }catch(e){}
+    }
+
+    // ----------------- Stations loading -----------------
+    async function loadStations(append=false){
+      if (loading) return;
+      if (!hasMore && append) return;
+      loading = true;
+
+      const mode = document.getElementById("viewMode").value;
+      if (mode === "favorites"){
+        stations = favorites.slice();
+        hasMore = false;
+        renderStations(false);
+        animateGridEntrance();
+        loadMoreBtn.style.display = "none";
+        endMessage.style.display = stations.length ? "none" : "block";
+        endMessage.textContent = stations.length ? "" : "Aucun favori pour le moment.";
+        updateBottomSafe();
+        loading = false;
+        return;
+      }
+
+      const name = document.getElementById("searchInput").value.trim();
+      const country = document.getElementById("countrySelect").value || DEFAULT_COUNTRY;
+      const tag = document.getElementById("genreSelect").value;
+
+      const params = new URLSearchParams({
+        limit: String(limit),
+        offset: String(append ? offset : 0),
+        order: "votes",
+        reverse: "true",
+        hidebroken: "true"
+      });
+      if (name) params.append("name", name);
+      if (country) params.append("country", country);
+      if (tag) params.append("tag", tag);
+
+      let data = [];
+      try{ data = await fetch(`${API_BASE}/stations/search?${params}`).then(r => r.json()); }
+      catch(e){ data = []; }
+
+      if (!append){ stations = []; offset = 0; hasMore = true; }
+
+      let normalized = (data||[]).map(normalizeStation).filter(s => s.url);
+      normalized = normalized.filter(s => !isBadStationByUrl(s.url));
+
+      stations = stations.concat(normalized);
+      offset += normalized.length;
+      hasMore = normalized.length === limit;
+
+      renderStations(append);
+      animateGridEntrance();
+
+      loading = false;
+      loadMoreBtn.style.display = (hasMore && mode !== "favorites") ? "block" : "none";
+
+      if (!hasMore){
+        endMessage.style.display = "block";
+        endMessage.textContent = "Fin des résultats.";
+      } else {
+        endMessage.style.display = "none";
+      }
+
+      updateBottomSafe();
+    }
+
+    function animateGridEntrance(){
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+        document.querySelectorAll(".station").forEach(el => el.classList.add("isIn"));
+        return;
+      }
+      const cards = Array.from(document.querySelectorAll(".station"));
+      if (!cards.length) return;
+
+      cards.forEach(el => {
+        el.classList.remove("isIn");
+        el.style.transitionDelay = "0ms";
+      });
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cards.forEach((el, i) => {
+            const delay = Math.min(520, i * 28);
+            el.style.transitionDelay = delay + "ms";
+            el.classList.add("isIn");
+          });
+        });
+      });
+    }
+
+    function renderStations(append=false){
+      const grid = document.getElementById("stationsGrid");
+      if (!append) grid.innerHTML = "";
+
+      if (!stations.length){
+        grid.innerHTML = `<div class="loading">Aucune station trouvée</div>`;
+        loadMoreBtn.style.display = "none";
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      stations.forEach((station)=>{
+        const div = document.createElement("div");
+        div.className="station";
+        div.onclick=(e)=>{ if (e.target.closest(".heart")) return; showDetail(station); };
+
+        const fav = isFavorite(station);
+        const heart = document.createElement("div");
+        heart.className = "heart" + (fav ? " filled" : "");
+        heart.textContent = fav ? "❤️" : "♡";
+        heart.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(station); };
+
+        const inner = document.createElement("div");
+        inner.className = "stationInner";
+
+        const cover = document.createElement("div");
+        cover.className="cover";
+
+        const logo = document.createElement("div");
+        logo.className="logo";
+
+        const img = document.createElement("img");
+        img.loading="lazy";
+        img.alt=station.name;
+        setImgWithFallbacks(img, guessStationLogoCandidates(station));
+        logo.appendChild(img);
+        cover.appendChild(logo);
+
+        const meta = document.createElement("div");
+        meta.className="meta";
+        meta.innerHTML = `
+          <div class="name">${station.name}</div>
+          <div class="chips">
+            <span class="chip"><span class="dot"></span>${safeText(station.country,"Monde")}</span>
+            <span class="chip muted">${safeText(station.codec,"Flux")}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
+          </div>
+          <div class="chips" style="margin-top:10px;">
+            <span class="chip live"><span class="dot"></span>Écouter</span>
+            <span class="chip muted" title="${safeText(station.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${safeText(station.tags,"Divers").slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
+            </span>
+          </div>
+        `;
+
+        inner.appendChild(cover);
+        inner.appendChild(meta);
+
+        div.appendChild(heart);
+        div.appendChild(inner);
+        frag.appendChild(div);
+      });
+      grid.appendChild(frag);
+    }
+
+    // ----------------- Detail page -----------------
+    function showDetail(station){
+      currentStation = normalizeStation(station);
+      document.getElementById("detailView").style.display = "block";
+      document.querySelector(".filters").style.display = "none";
+      document.querySelector(".featured").style.display = "none";
+      document.getElementById("stationsGrid").style.display = "none";
+      loadMoreBtn.style.display = "none";
+      endMessage.style.display = "none";
+      populateDetail(currentStation);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      updateBottomSafe();
+    }
+
+    function showList(){
+      document.getElementById("detailView").style.display = "none";
+      document.querySelector(".filters").style.display = "block";
+      document.querySelector(".featured").style.display = "block";
+      document.getElementById("stationsGrid").style.display = "grid";
+      loadMoreBtn.style.display = (hasMore && document.getElementById("viewMode").value !== "favorites") ? "block" : "none";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      updateBottomSafe();
+      animateGridEntrance();
+    }
+
+    function populateDetail(station){
+      const logoCandidates = guessStationLogoCandidates(station);
+      document.getElementById("detailContent").innerHTML = `
+        <div class="detail-top">
+          <div class="detail-logo">
+            <img id="detailLogo" alt="${station.name}">
+          </div>
+
+          <div class="detail-title">
+            <h2>${station.name}</h2>
+            <p>${safeText(station.country,"Monde")} • ${safeText(station.tags,"Divers")}</p>
+            <p style="margin-top:8px; color: rgba(169,183,214,.95);">
+              ${safeText(station.codec,"Flux")}
+              ${station.bitrate ? ` • ${station.bitrate} kbps` : ""}
+            </p>
+
+            <div class="detail-actions">
+              <button class="btn btnPrimary" id="detailPlay">▶ Lancer la lecture</button>
+              <button class="btn" id="detailFav">${isFavorite(station) ? "❤️" : "♡"} Favori</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="detailTitle">Titre : Chargement…</div>
+      `;
+
+      const detailLogo = document.getElementById("detailLogo");
+      setImgWithFallbacks(detailLogo, logoCandidates);
+
+      document.getElementById("detailPlay").onclick = ()=>{
+        playStation(station, { autoStart: true });
+      };
+      document.getElementById("detailFav").onclick = ()=>{
+        toggleFavorite(station);
+        populateDetail(station);
+      };
+
+      // titre best effort sur page détail
+      startTitlePolling(station, { target: "detail" });
+    }
+
+    // ----------------- Best effort title -----------------
+    function baseFromUrl(u){
+      try{ const url = new URL(u); return `${url.protocol}//${url.host}`; }
+      catch(e){ return null; }
+    }
+
+    function cleanTitle(t){
+      if (!t) return "";
+      return String(t)
+        .replace(/\s+/g, " ")
+        .replace(/[\u0000-\u001f]/g, "")
+        .trim();
+    }
+
+    async function fetchJson(url, timeoutMs=4500){
+      try{
+        const ctrl = new AbortController();
+        const t = setTimeout(()=> ctrl.abort(), timeoutMs);
+        const r = await fetch(url, { signal: ctrl.signal, redirect: "follow" });
+        clearTimeout(t);
+        if (!r.ok) return null;
+        return await r.json();
+      }catch(e){ return null; }
+    }
+
+    async function getTitleFromIcecast(streamUrl){
+      const base = baseFromUrl(streamUrl);
+      if (!base) return "";
+      const data = await fetchJson(`${base}/status-json.xsl`);
+      if (!data) return "";
+      const ic = data.icestats || data;
+      let src = ic.source;
+      if (!src) return "";
+
+      const pick = (s)=> cleanTitle(s.title || s.streamtitle || s.server_name || "");
+      if (Array.isArray(src)) return pick(src[0]);
+      return pick(src);
+    }
+
+    async function getTitleFromShoutcast(streamUrl){
+      const base = baseFromUrl(streamUrl);
+      if (!base) return "";
+      const data = await fetchJson(`${base}/stats?sid=1&json=1`);
+      if (!data) return "";
+      const t =
+        data?.songtitle ||
+        data?.song ||
+        data?.streamtitle ||
+        data?.servertitle ||
+        (data?.streams && data.streams[0] && (data.streams[0].songtitle || data.streams[0].title)) ||
+        "";
+      return cleanTitle(t);
+    }
+
+    async function getTitleFromRadioBrowser(uuid){
+      if (!uuid) return "";
+      try{
+        const r = await fetch(`${API_BASE}/url/${uuid}`);
+        if (!r.ok) return "";
+        const data = await r.json();
+        return cleanTitle(data?.song || "");
+      }catch(e){ return ""; }
+    }
+
+    async function bestEffortTitle(station){
+      const stream = station.url || station.url_resolved || "";
+      let t = await getTitleFromIcecast(stream);
+      if (t) return t;
+
+      t = await getTitleFromShoutcast(stream);
+      if (t) return t;
+
+      t = await getTitleFromRadioBrowser(station.uuid);
+      if (t) return t;
+
+      return "";
+    }
+
+    function setTitleUI(which, title){
+      const t = cleanTitle(title);
+      const msg = t ? t : "Titre non disponible";
+      if (which === "player"){
+        document.getElementById("currentTitle").textContent = msg;
+        document.getElementById("fsTitle").textContent = msg;
+      } else if (which === "detail"){
+        const el = document.getElementById("detailTitle");
+        if (el) el.textContent = "Titre : " + msg;
+      }
+    }
+
+    function startTitlePolling(station, { target="player" } = {}){
+      if (titleInterval) clearInterval(titleInterval);
+
+      (async ()=>{
+        const t = await bestEffortTitle(station);
+        setTitleUI(target, t);
+      })();
+
+      titleInterval = setInterval(async ()=>{
+        if (target === "player"){
+          if (!currentStation) return;
+        }
+        if (target === "detail"){
+          if (document.getElementById("detailView").style.display !== "block") return;
+        }
+        const t = await bestEffortTitle(station);
+        setTitleUI(target, t);
+      }, 12000);
+    }
+
+    // ----------------- Visualizer + favicon dynamic -----------------
+    const vizCanvas = document.getElementById("viz");
+    const vizCtx = vizCanvas.getContext("2d");
+    const fsCanvas = document.getElementById("fsViz");
+    const fsCtx = fsCanvas.getContext("2d");
+
+    const fsMode = document.getElementById("fsMode");
+    const fsLogoWrap = document.getElementById("fsLogoWrap");
+    const aurora = document.getElementById("aurora");
+
+    const faviconLink = document.getElementById("favicon");
+    const favCanvas = document.createElement("canvas");
+    favCanvas.width = 32; favCanvas.height = 32;
+    const favCtx = favCanvas.getContext("2d");
+    let lastFavUpdate = 0;
+    const FAV_INTERVAL = 1000 / 6;
+
+    function faviconStateColor(){
+      const st = document.getElementById("footerStatus")?.dataset?.state || "STOP";
+      if (st === "LIVE") return [255, 77, 109];
+      if (st === "BUFFER") return [34, 211, 238];
+      if (st === "CONNECT") return [34, 197, 94];
+      if (st === "MUTE") return [245, 158, 11];
+      if (st === "ERR") return [239, 68, 68];
+      if (st === "PAUSE") return [231, 238, 252];
+      return [148, 163, 184];
+    }
+
+    function updateDynamicFavicon(freqData){
+      const ts = Date.now();
+      if (ts - lastFavUpdate < FAV_INTERVAL) return;
+      lastFavUpdate = ts;
+
+      const [r,g,b] = faviconStateColor();
+      favCtx.clearRect(0,0,32,32);
+      favCtx.fillStyle = "rgba(6,9,20,1)";
+      favCtx.fillRect(0,0,32,32);
+
+      const bars = 7, pad=3;
+      const bw = Math.floor((32 - pad*2)/bars) - 1;
+
+      for (let i=0;i<bars;i++){
+        let amp = 0.10;
+        if (freqData && freqData.length){
+          const idx = Math.floor((i/bars)*(freqData.length-1));
+          amp = Math.max(0.08, freqData[idx]/255);
+        } else {
+          amp = 0.08 + 0.05*(0.5+0.5*Math.sin(ts/420+i));
+        }
+        const barH = Math.max(2, Math.floor(amp*(32-10)));
+        favCtx.fillStyle = `rgba(${r},${g},${b},0.95)`;
+        favCtx.fillRect(pad + i*(bw+1), 32-pad-barH, bw, barH);
+      }
+
+      favCtx.beginPath();
+      favCtx.arc(26, 6, 3, 0, Math.PI*2);
+      favCtx.fillStyle = `rgba(${r},${g},${b},0.95)`;
+      favCtx.fill();
+
+      try{ faviconLink.href = favCanvas.toDataURL("image/png"); }catch(e){}
+    }
+
+    function resizeViz(){
+      const vizWrap = document.querySelector(".viz");
+      if (vizWrap){
+        const wCss = vizWrap.clientWidth || 600;
+        const hCss = vizWrap.clientHeight || 54;
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        vizCanvas.width = Math.max(1, Math.floor(wCss * dpr));
+        vizCanvas.height = Math.max(1, Math.floor(hCss * dpr));
+        vizCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      const fsWrap = document.querySelector(".fsCanvas");
+      if (fsWrap){
+        const rect = fsWrap.getBoundingClientRect();
+        const wCss = rect.width;
+        const hCss = rect.height;
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        fsCanvas.width = Math.max(1, Math.floor(wCss * dpr));
+        fsCanvas.height = Math.max(1, Math.floor(hCss * dpr));
+        fsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+    }
+
+    function drawLowEnergy(ctx,w,h,ts){
+      ctx.strokeStyle="rgba(231,238,252,0.55)";
+      ctx.lineWidth=2.0;
+      const baseY=h*0.52;
+      const amp=h*0.08*(0.6+0.4*Math.sin(ts/700));
+      const freq=2.2+0.25*Math.sin(ts/900);
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=2){
+        const t=x/w;
+        const y=baseY+Math.sin((t*Math.PI*2*freq)+ts/380)*amp;
+        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+    function pump(energy, ts){
+      const st = document.getElementById("footerStatus")?.dataset?.state || "STOP";
+      const active = (st==="LIVE"||st==="BUFFER"||st==="CONNECT") && !vizLowEnergy;
+
+      fsLogoWrap.classList.toggle("active", active);
+
+      const scale = active ? (1 + energy*0.10 + 0.01*Math.sin(ts/420)) : 1;
+      fsLogoWrap.style.transform = `scale(${scale})`;
+      fsLogoWrap.style.filter = active ? `brightness(${1+energy*0.14})` : "brightness(1)";
+
+      if (aurora){
+        const a = active ? (0.65 + energy*0.35) : 0.55;
+        aurora.style.opacity = String(a);
+      }
+    }
+
+    function startViz(){
+      if (vizRaf) return;
+
+      const timeData = new Uint8Array(2048);
+      const freqData = new Uint8Array(1024);
+
+      const draw = ()=>{
+        vizRaf = requestAnimationFrame(draw);
+
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        const ts = Date.now();
+
+        // mini viz
+        {
+          const w = vizCanvas.width / dpr;
+          const h = vizCanvas.height / dpr;
+          if (w>10 && h>10){
+            vizCtx.clearRect(0,0,w,h);
+            const g = vizCtx.createLinearGradient(0,0,w,h);
+            g.addColorStop(0,"rgba(77,163,255,0.18)");
+            g.addColorStop(1,"rgba(124,92,255,0.14)");
+            vizCtx.fillStyle=g;
+            vizCtx.fillRect(0,0,w,h);
+
+            if (vizLowEnergy || !analyser){
+              drawLowEnergy(vizCtx,w,h,ts);
+              updateDynamicFavicon(null);
+            } else {
+              analyser.getByteTimeDomainData(timeData);
+              vizCtx.strokeStyle="rgba(231,238,252,0.92)";
+              vizCtx.lineWidth=2.2;
+              vizCtx.beginPath();
+              const step = w/timeData.length;
+              let x=0;
+              for(let i=0;i<timeData.length;i++){
+                const v=timeData[i]/128.0;
+                const y=(v*h)/2;
+                if(i===0) vizCtx.moveTo(x,y); else vizCtx.lineTo(x,y);
+                x += step;
+              }
+              vizCtx.stroke();
+
+              analyser.getByteFrequencyData(freqData);
+              const bins=48, barW=w/bins;
+              vizCtx.fillStyle="rgba(255,77,109,0.18)";
+              for(let i=0;i<bins;i++){
+                const idx=Math.floor(i*(freqData.length/bins));
+                const amp=freqData[idx]/255;
+                const barH=amp*(h*0.92);
+                vizCtx.fillRect(i*barW, h-barH, Math.max(1,barW-2), barH);
+              }
+              updateDynamicFavicon(freqData);
+            }
+          }
+        }
+
+        // fullscreen viz
+        {
+          const w = fsCanvas.width / dpr;
+          const h = fsCanvas.height / dpr;
+          if (w>10 && h>10){
+            fsCtx.clearRect(0,0,w,h);
+
+            const bg = fsCtx.createLinearGradient(0,0,w,h);
+            bg.addColorStop(0,"rgba(77,163,255,0.12)");
+            bg.addColorStop(1,"rgba(255,77,109,0.10)");
+            fsCtx.fillStyle=bg;
+            fsCtx.fillRect(0,0,w,h);
+
+            if (vizLowEnergy || !analyser){
+              drawLowEnergy(fsCtx,w,h,ts);
+              pump(0.0, ts);
+            } else {
+              analyser.getByteFrequencyData(freqData);
+              const bins=120;
+              const barW = w / bins;
+              for(let i=0;i<bins;i++){
+                const idx = Math.floor(i*(freqData.length/bins));
+                const amp = freqData[idx]/255;
+                const barH = amp*(h*0.98);
+                const x = i*barW;
+                fsCtx.fillStyle = "rgba(231,238,252,0.14)";
+                fsCtx.fillRect(x, h-barH, barW+0.8, barH);
+              }
+
+              const low = freqData[2]/255;
+              const mid = freqData[12]/255;
+              const energy = Math.min(1, (low*0.65 + mid*0.35));
+              pump(energy, ts);
+            }
+          }
+        }
+      };
+      draw();
+    }
+
+    async function ensureAudioGraph(){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!audioCtx) audioCtx = new AC();
+
+      if (!analyser){
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.85;
+      }
+      if (!gainNode){
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.9;
+      }
+      if (!sourceNode){
+        try{
+          sourceNode = audioCtx.createMediaElementSource(audio);
+          sourceNode.connect(analyser);
+          analyser.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+        }catch(e){
+          analyser=null; sourceNode=null; gainNode=null;
+        }
+      }
+      if (audioCtx.state === "suspended"){
+        try{ await audioCtx.resume(); }catch(e){}
+      }
+      resizeViz();
+      startViz();
+    }
+
+    function applyVolume(v){
+      const vol = Math.max(0, Math.min(1, v));
+      if (gainNode) gainNode.gain.value = isMuted ? 0 : vol;
+      else audio.volume = isMuted ? 0 : vol;
+    }
+
+    // ----------------- Resolve stream (optional) -----------------
+    async function resolveStreamViaServer(station){
+      const cached = getResolved(station.url);
+      if (cached) return cached;
+
+      const qs = new URLSearchParams();
+      if (station.homepage) qs.set("homepage", station.homepage);
+      if (station.url) qs.set("stream", station.url);
+      if (station.name) qs.set("name", station.name);
+
+      try{
+        const r = await fetch(`${RESOLVE_API}?${qs.toString()}`, { method: "GET" });
+        if (!r.ok) return null;
+        const data = await r.json();
+        if (data && data.url){
+          setResolved(station.url, data.url);
+          return data.url;
+        }
+      }catch(e){}
+      return null;
+    }
+
+    // ----------------- Playback -----------------
+    function setPlayerStationUI(station){
+      playerEl.classList.remove("isEmpty");
+      document.getElementById("playerName").textContent = station.name || "Radio";
+      setImgWithFallbacks(document.getElementById("playerLogo"), guessStationLogoCandidates(station));
+      setImgWithFallbacks(document.getElementById("fsLogo"), guessStationLogoCandidates(station));
+      document.getElementById("fsName").textContent = station.name || "Radio";
+    }
+
+    function setAudioSourceWithProxy(url, tryIndex){
+      const make = PROXY_CHAIN[Math.min(tryIndex, PROXY_CHAIN.length-1)];
+      audio.src = make(url);
+      audio.load();
+    }
+
+    async function tryPlayUrl(url){
+      for (let i=0;i<PROXY_CHAIN.length;i++){
+        currentTryIndex = i;
+        setAudioSourceWithProxy(url, i);
+        try{
+          await ensureAudioGraph();
+          applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+          await audio.play();
+          return true;
+        }catch(e){}
+      }
+      return false;
+    }
+
+    async function startPlaybackWithFallbacks(station){
+      updatePlayerStatus("Connexion…");
+      setFooterStatus("CONNECT");
+      setTitleUI("player", "");
+
+      if (await tryPlayUrl(station.url)){
+        isPlaying = true; setPlayIcon();
+        updatePlayerStatus(currentTryIndex===0 ? "En direct" : `En direct (proxy ${currentTryIndex})`);
+        setFooterStatus(isMuted ? "MUTE" : "LIVE");
+        unmarkBadUrl(station.url);
+        startTitlePolling(station, { target: "player" });
+        return true;
+      }
+
+      updatePlayerStatus("Flux HS — recherche d’un flux alternatif…");
+      setFooterStatus("BUFFER");
+
+      const resolvedUrl = await resolveStreamViaServer(station);
+      if (resolvedUrl && resolvedUrl !== station.url){
+        if (await tryPlayUrl(resolvedUrl)){
+          station.url = resolvedUrl;
+          isPlaying = true; setPlayIcon();
+          updatePlayerStatus("En direct (flux alternatif)");
+          setFooterStatus(isMuted ? "MUTE" : "LIVE");
+          unmarkBadUrl(resolvedUrl);
+          startTitlePolling(station, { target: "player" });
+          return true;
+        }
+      }
+
+      markBadUrl(station.url, "play_failed");
+      updatePlayerStatus("Impossible de lire ce flux (blacklist 7j).");
+      setFooterStatus("ERR");
+      isPlaying = false; setPlayIcon();
+      setTitleUI("player", "");
+      return false;
+    }
+
+    function playStation(station, { autoStart=false } = {}){
+      const s = normalizeStation(station);
+      if (!s.url) return toast("Flux introuvable.");
+
+      currentStation = s;
+      setPlayerStationUI(s);
+      updateBottomSafe();
+
+      if (autoStart) startPlaybackWithFallbacks(s);
+      else{
+        updatePlayerStatus("Prêt — clique ▶");
+        setFooterStatus("PAUSE");
+        isPlaying = false;
+        setPlayIcon();
+        setTitleUI("player", "");
+      }
+    }
+
+    function stopPlayback(){
+      try{ audio.pause(); }catch(e){}
+      audio.removeAttribute("src");
+      audio.load();
+
+      isPlaying = false;
+      setPlayIcon();
+      updatePlayerStatus("Arrêté");
+      setTitleUI("player", "");
+
+      currentStation = null;
+      playerEl.classList.add("isEmpty");
+      document.getElementById("playerName").textContent = "Choisis une radio";
+      setFooterStatus("STOP");
+      updateBottomSafe();
+
+      if (titleInterval) clearInterval(titleInterval);
+      titleInterval = null;
+    }
+
+    function togglePlayPause(){
+      if (!currentStation) return toast("Choisis une station d’abord.");
+      if (isPlaying){ audio.pause(); return; }
+      if (!audio.src) startPlaybackWithFallbacks(currentStation);
+      else audio.play().catch(()=> startPlaybackWithFallbacks(currentStation));
+    }
+
+    audio.addEventListener("playing", ()=>{
+      isPlaying = true;
+      setPlayIcon();
+      setFooterStatus(isMuted ? "MUTE" : "LIVE");
+      if (currentStation) startTitlePolling(currentStation, { target: "player" });
+    });
+    audio.addEventListener("pause", ()=>{
+      isPlaying = false;
+      setPlayIcon();
+      if (currentStation) setFooterStatus(isMuted ? "MUTE" : "PAUSE");
+      else setFooterStatus("STOP");
+    });
+    audio.addEventListener("waiting", ()=>{
+      if (currentStation) setFooterStatus(isMuted ? "MUTE" : "BUFFER");
+    });
+    audio.addEventListener("error", ()=>{
+      setFooterStatus("ERR");
+    });
+
+    // Player buttons
+    document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
+    document.getElementById("stopBtn").addEventListener("click", stopPlayback);
+    document.getElementById("retryBtn").addEventListener("click", ()=>{
+      if (!currentStation) return toast("Aucune station sélectionnée.");
+      startPlaybackWithFallbacks(currentStation);
+    });
+
+    document.getElementById("muteBtn").addEventListener("click", ()=>{
+      isMuted = !isMuted;
+      vizLowEnergy = isMuted;
+
+      document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔊";
+      document.getElementById("fsMiniMute").textContent = isMuted ? "🔇 Mute" : "🔊 Mute";
+
+      applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+      if (currentStation){
+        setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
+      } else {
+        setFooterStatus("STOP");
+      }
+    });
+
+    document.getElementById("volume").addEventListener("input", (e)=>{
+      applyVolume(parseFloat(e.target.value || "0.9"));
+    });
+
+    applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+
+    // ----------------- Fullscreen controls -----------------
+    function openFS(){
+      fsMode.classList.add("show");
+      fsMode.setAttribute("aria-hidden","false");
+      resizeViz(); startViz();
+      document.body.style.overflow = "hidden";
+    }
+    function closeFS(){
+      fsMode.classList.remove("show");
+      fsMode.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+    document.getElementById("fsBtn").addEventListener("click", openFS);
+    document.getElementById("fsClose").addEventListener("click", (e)=>{ e.stopPropagation(); closeFS(); });
+    document.getElementById("fsMiniPlay").addEventListener("click", (e)=>{ e.stopPropagation(); togglePlayPause(); });
+    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{ e.stopPropagation(); document.getElementById("muteBtn").click(); });
+    fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
+    window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
+
+    // ----------------- Load/Reset events -----------------
+    function resetAndReload(){
+      offset = 0; hasMore = true; stations = [];
+      endMessage.style.display = "none";
+      document.getElementById("stationsGrid").innerHTML = `<div class="loading">Chargement des stations…</div>`;
+      loadStations(false);
+    }
+
+    document.getElementById("viewMode").addEventListener("change", resetAndReload);
+
+    let searchTimer=null;
+    document.getElementById("searchInput").addEventListener("input", ()=>{
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(()=> {
+        if (document.getElementById("viewMode").value !== "favorites") resetAndReload();
+      }, 250);
+    });
+
+    ["countrySelect","genreSelect"].forEach(id=>{
+      document.getElementById(id).addEventListener("change", ()=>{
+        if (document.getElementById("viewMode").value !== "favorites") resetAndReload();
+      });
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", ()=>{
+      document.getElementById("viewMode").value = "all";
+      document.getElementById("searchInput").value = "";
+      document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
+      document.getElementById("genreSelect").value = "";
+      resetAndReload();
+      toast("Filtres réinitialisés.");
+    });
+
+    loadMoreBtn.addEventListener("click", ()=> loadStations(true));
+    document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredStation));
+    document.getElementById("backBtn").addEventListener("click", showList);
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Scroll top
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+    window.addEventListener("scroll", ()=>{ scrollTopBtn.style.display = window.scrollY > 400 ? "block" : "none"; });
+    scrollTopBtn.addEventListener("click", ()=> window.scrollTo({ top:0, behavior:"smooth" }));
+
+    // ----------------- Init -----------------
+    (async function init(){
+      updateBottomSafe();
+      window.addEventListener("resize", resizeViz);
+      resizeViz();
+      startViz(); // favicon + low-energy idle même sans audio
+      await loadFilters();
+      resetAndReload();
+      toast("Bienvenue sur GlobalRadio.top ✨", 1300);
+    })();
+
+    // ----------------- Detail/List helpers -----------------
+    function showList(){
+      document.getElementById("detailView").style.display = "none";
+      document.querySelector(".filters").style.display = "block";
+      document.querySelector(".featured").style.display = "block";
+      document.getElementById("stationsGrid").style.display = "grid";
+      loadMoreBtn.style.display = (hasMore && document.getElementById("viewMode").value !== "favorites") ? "block" : "none";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      updateBottomSafe();
+      animateGridEntrance();
+    }
+
+    // ----------------- Best effort title binding -----------------
+    function setTitleUI(which, title){
+      const t = cleanTitle(title);
+      const msg = t ? t : "Titre non disponible";
+      if (which === "player"){
+        document.getElementById("currentTitle").textContent = msg;
+        document.getElementById("fsTitle").textContent = msg;
+      } else if (which === "detail"){
+        const el = document.getElementById("detailTitle");
+        if (el) el.textContent = "Titre : " + msg;
+      }
+    }
+  </script>
+</body>
+</html>
