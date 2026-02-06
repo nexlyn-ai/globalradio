@@ -1,33 +1,33 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>GlobalRadio.top — Annuaire mondial des radios en ligne</title>
-  <meta name="description" content="GlobalRadio.top : annuaire mondial de webradios. Trouvez une radio par pays, style, popularité, ajoutez vos favoris et écoutez en direct." />
+  <title>GlobalRadio.top — Global online radio directory</title>
+  <meta name="description" content="GlobalRadio.top: a global directory of online radios. Filter by country, style, popularity, save favorites, and listen live with a stable player." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
   <link rel="canonical" href="https://globalradio.top/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="GlobalRadio.top — Annuaire mondial des radios en ligne" />
-  <meta property="og:description" content="Explorez des radios du monde entier : pays, styles, favoris, lecture stable et infos live quand disponibles." />
+  <meta property="og:title" content="GlobalRadio.top — Global online radio directory" />
+  <meta property="og:description" content="Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata." />
   <meta property="og:url" content="https://globalradio.top/" />
   <meta property="og:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="GlobalRadio.top — Annuaire mondial des radios en ligne" />
-  <meta name="twitter:description" content="Explorez des radios du monde entier : pays, styles, favoris, lecture stable et infos live quand disponibles." />
+  <meta name="twitter:title" content="GlobalRadio.top — Global online radio directory" />
+  <meta name="twitter:description" content="Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata." />
   <meta name="twitter:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
 
   <!-- Preconnect -->
   <link rel="preconnect" href="https://de1.api.radio-browser.info" crossorigin />
   <link rel="dns-prefetch" href="https://de1.api.radio-browser.info" />
 
-  <!-- Favicon (sera remplacé dynamiquement) -->
+  <!-- Favicon (will be replaced dynamically) -->
   <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
 
   <!-- Structured Data -->
@@ -94,7 +94,7 @@
     header{
       position:relative;
       z-index:1;
-      padding: 34px 16px 20px;
+      padding: 28px 16px 18px;
       border-bottom: 1px solid rgba(255,255,255,.07);
       background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.14));
       backdrop-filter: blur(10px);
@@ -134,13 +134,13 @@
     }
     .brandLink:hover{ opacity: .92; }
 
-    /* sécurité: cache pill debug s'il traîne */
+    /* safety: hide any old debug pill */
     .pill{ display:none !important; }
 
     .filters{
       position:relative;
       z-index:1;
-      margin: 18px auto 12px;
+      margin: 16px auto 10px;
       padding: 0 16px;
     }
     .filters .bar{
@@ -204,6 +204,25 @@
     }
     .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); }
 
+    .btnSmall{
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .langSwitch{ display:flex; gap:8px; align-items:center; }
+    .langSwitch .btnSmall{
+      min-width: 52px;
+      text-align:center;
+      opacity: .65;
+    }
+    .langSwitch .btnSmall.isActive{
+      opacity: 1;
+      border-color: rgba(77,163,255,.65);
+      box-shadow: 0 0 0 1px rgba(77,163,255,.55), 0 10px 25px rgba(0,0,0,.12);
+    }
+
     /* checkbox label styled as button */
     .btnCheck{
       display:inline-flex;
@@ -228,7 +247,7 @@
     .featured{
       position:relative;
       z-index:1;
-      margin: 14px auto 18px;
+      margin: 12px auto 16px;
       padding: 0 16px;
     }
     .featured-card{
@@ -256,6 +275,8 @@
       flex: 0 0 auto;
     }
     .featured-logo img{ width: 82px; height: 82px; object-fit: contain; }
+    .featured-info .title{ margin:0; }
+    .featured-info .sub{ margin:6px 0 0; color: rgba(231,238,252,.86); }
 
     .grid{
       position:relative;
@@ -665,7 +686,6 @@
       100%{ transform: scale(1); opacity: 1; }
     }
 
-    /* Footer “Made in France + drapeau + with + 🩵” */
     .madeIn{
       display:inline-flex;
       align-items:center;
@@ -750,6 +770,7 @@
       align-items:center;
       gap: 12px;
       z-index: 5;
+      flex-wrap: wrap;
     }
     .fsBtn{
       border: 1px solid rgba(255,255,255,.16);
@@ -761,6 +782,7 @@
       user-select:none;
       backdrop-filter: blur(12px);
       transition: transform .12s ease, background .12s ease;
+      white-space: nowrap;
     }
     .fsBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
 
@@ -846,44 +868,46 @@
   <header>
     <div class="wrap topbar">
       <div class="brand">
-        <a href="#" class="brandLink" id="homeLink" title="Retour à l'accueil">
+        <a href="#" class="brandLink" id="homeLink" title="Home">
           <img class="siteLogo" id="siteLogoHeader" src="assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
-          <h1>GlobalRadio.top</h1>
+          <h1 data-i18n="siteName">GlobalRadio.top</h1>
         </a>
-        <p>L'annuaire mondial des webradios — explore, découvre, écoute en direct.</p>
+        <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
+      </div>
+
+      <div class="langSwitch" aria-label="Language switch">
+        <button class="btn btnSmall" id="langEN" type="button">EN</button>
+        <button class="btn btnSmall" id="langFR" type="button">FR</button>
       </div>
     </div>
   </header>
 
   <div class="filters">
     <div class="bar">
-      <select id="viewMode">
-        <option value="all">Toutes les stations</option>
-        <option value="favorites">Mes favoris</option>
+      <select id="viewMode" aria-label="View mode">
+        <option value="all" data-i18n="viewAll">All stations</option>
+        <option value="favorites" data-i18n="viewFavs">Favorites</option>
       </select>
 
-      <!-- Nouveau : tri -->
-      <select id="sortMode" title="Trier les stations">
-        <option value="votes">Par popularité</option>
-        <option value="clickcount">Par écoutes</option>
-        <option value="name">Par nom</option>
+      <select id="sortMode" title="Sort">
+        <option value="votes" data-i18n="sortVotes">By popularity</option>
+        <option value="clickcount" data-i18n="sortClick">By listeners</option>
+        <option value="name" data-i18n="sortName">By name</option>
       </select>
 
-      <input type="text" id="searchInput" placeholder="Rechercher par nom…" />
-      <select id="countrySelect"><option value="">Tous les pays</option></select>
+      <input type="text" id="searchInput" data-i18n-placeholder="searchPh" placeholder="Search by name…" />
+      <select id="countrySelect"><option value="" data-i18n="allCountries">All countries</option></select>
 
-      <!-- Styles principaux (au lieu des tags farfelus) -->
       <select id="genreSelect">
-        <option value="">Tous les styles</option>
+        <option value="" data-i18n="allStyles">All styles</option>
       </select>
 
-      <!-- Toggle radios HS -->
-      <label class="btn btnCheck" title="Afficher aussi les radios récemment détectées HS (blacklist locale)">
+      <label class="btn btnCheck" title="Show broken stations">
         <input id="showBroken" type="checkbox">
-        Afficher radios HS
+        <span data-i18n="showBroken">Show broken stations</span>
       </label>
 
-      <button class="btn" id="clearBtn">Réinitialiser</button>
+      <button class="btn" id="clearBtn" data-i18n="reset">Reset</button>
     </div>
   </div>
 
@@ -894,27 +918,27 @@
       </div>
       <div class="featured-info">
         <p class="title"><strong>Radio ABF</strong> — Alternative Bass Fréquence</p>
-        <p class="sub">France • Techno, House, Electronic, Club • 320 kbps</p>
+        <p class="sub" data-i18n="featuredLine">France • Techno, House, Electronic, Club • 320 kbps</p>
       </div>
     </div>
   </div>
 
   <div class="grid" id="stationsGrid">
-    <div class="loading">Chargement des stations…</div>
+    <div class="loading" data-i18n="loadingStations">Loading stations…</div>
   </div>
 
   <div class="wrap" style="padding:0 16px; margin-bottom: 40px;">
-    <button id="loadMoreBtn" class="btn" style="width:100%; margin:14px 0; display:none;">
-      Afficher la suite
+    <button id="loadMoreBtn" class="btn" style="width:100%; margin:14px 0; display:none;" data-i18n="loadMore">
+      Load more
     </button>
-    <div id="endMessage" class="loading" style="display:none; margin-bottom: 14px;">
-      Fin des résultats.
+    <div id="endMessage" class="loading" style="display:none; margin-bottom: 14px;" data-i18n="endResults">
+      End of results.
     </div>
   </div>
 
   <div id="detailView">
     <div class="detail-card">
-      <button class="btn" id="backBtn">← Retour</button>
+      <button class="btn" id="backBtn" data-i18n="back">← Back</button>
       <div id="detailContent" style="margin-top: 12px;"></div>
     </div>
   </div>
@@ -925,17 +949,17 @@
     <div class="pLogo"><img id="playerLogo" src="assets/globalradio-logo.jpg" alt="Logo"></div>
 
     <div class="pInfo">
-      <div class="pName" id="playerName">Choisis une radio</div>
-      <div class="pTitle" id="currentTitle">Titre non disponible</div>
-      <div class="pStatus" id="playerStatus">Sélectionne une station puis ▶</div>
+      <div class="pName" id="playerName" data-i18n="chooseRadio">Choose a radio</div>
+      <div class="pTitle" id="currentTitle" data-i18n="titleNotAvailable">Title not available</div>
+      <div class="pStatus" id="playerStatus" data-i18n="statusSelect">Select a station then ▶</div>
     </div>
 
     <div class="pControls">
-      <div class="miniBtn" id="stopBtn" title="Arrêter">⏹</div>
-      <div class="playBtn" id="playPauseBtn" title="Lecture / Pause">▶</div>
-      <div class="miniBtn" id="retryBtn" title="Reconnexion">↻</div>
+      <div class="miniBtn" id="stopBtn" title="Stop">⏹</div>
+      <div class="playBtn" id="playPauseBtn" title="Play / Pause">▶</div>
+      <div class="miniBtn" id="retryBtn" title="Reconnect">↻</div>
       <div class="miniBtn" id="muteBtn" title="Mute / Unmute">🔊</div>
-      <div class="miniBtn" id="fsBtn" title="Mode plein écran">⛶</div>
+      <div class="miniBtn" id="fsBtn" title="Fullscreen">⛶</div>
     </div>
 
     <div class="vol" title="Volume">
@@ -949,7 +973,7 @@
     <audio id="audioPlayer" preload="none" crossorigin="anonymous"></audio>
   </div>
 
-  <button id="scrollTopBtn" title="Remonter en haut">⬆</button>
+  <button id="scrollTopBtn" title="Scroll to top">⬆</button>
 
   <div id="fixedFooter">
     <a href="https://globalradio.top">© <span id="year"></span> GlobalRadio.top</a>
@@ -959,9 +983,9 @@
     </span>
     <span style="opacity:.55;">•</span>
     <span class="madeIn">
-      Made in France
+      <span data-i18n="madeInFrance">Made in France</span>
       <span class="frFlag" aria-hidden="true"></span>
-      with <span class="heartBlue" aria-hidden="true">🩵</span>
+      <span data-i18n="with">with</span> <span class="heartBlue" aria-hidden="true">🩵</span>
     </span>
   </div>
 
@@ -970,20 +994,20 @@
     <div class="aurora" id="aurora"></div>
 
     <div class="fsTop">
-      <button class="fsBtn" id="fsClose" type="button">✕ Fermer</button>
+      <button class="fsBtn" id="fsClose" type="button" data-i18n="fsClose">✕ Close</button>
       <div style="display:flex; gap:10px;">
-        <button class="fsBtn" id="fsMiniPlay" type="button">⏯ Lecture</button>
+        <button class="fsBtn" id="fsMiniPlay" type="button" data-i18n="fsPlay">⏯ Play</button>
         <button class="fsBtn" id="fsMiniMute" type="button">🔊 Mute</button>
       </div>
     </div>
 
     <div class="fsCenter">
       <div class="fsLogoWrap" id="fsLogoWrap">
-        <img id="fsLogo" src="assets/globalradio-logo.jpg" alt="Logo radio">
+        <img id="fsLogo" src="assets/globalradio-logo.jpg" alt="Station logo">
       </div>
       <div class="fsText">
         <div class="fsName" id="fsName">—</div>
-        <div class="fsTitle" id="fsTitle">Titre non disponible</div>
+        <div class="fsTitle" id="fsTitle" data-i18n="titleNotAvailable">Title not available</div>
       </div>
     </div>
 
@@ -994,6 +1018,137 @@
 
   <script>
     /********************
+     * I18N (Option 1) — EN default + FR switch (localStorage)
+     ********************/
+    const I18N = {
+      en: {
+        siteName: "GlobalRadio.top",
+        siteTagline: "The global directory of online radios — explore, discover, listen live.",
+        viewAll: "All stations",
+        viewFavs: "Favorites",
+        sortVotes: "By popularity",
+        sortClick: "By listeners",
+        sortName: "By name",
+        searchPh: "Search by name…",
+        allCountries: "All countries",
+        allStyles: "All styles",
+        showBroken: "Show broken stations",
+        reset: "Reset",
+        featuredLine: "France • Techno, House, Electronic, Club • 320 kbps",
+        loadingStations: "Loading stations…",
+        noResults: "No stations found",
+        endResults: "End of results.",
+        loadMore: "Load more",
+        back: "← Back",
+        playStation: "▶ Play",
+        fav: "Favorite",
+        titleLabel: "Title:",
+        titleLoading: "Loading title…",
+        titleNotAvailable: "Title not available",
+        chooseRadio: "Choose a radio",
+        statusSelect: "Select a station then ▶",
+        statusConnecting: "Connecting…",
+        statusLive: "Live",
+        statusLiveProxy: "Live (proxy)",
+        statusAlt: "Live (alternate stream)",
+        statusBuffer: "Buffering…",
+        statusPaused: "Paused",
+        statusStopped: "Stopped",
+        statusFailed: "Unable to play this stream (blacklisted for 7 days).",
+        searchAltStream: "Stream down — searching an alternate stream…",
+        madeInFrance: "Made in France",
+        with: "with",
+        fsClose: "✕ Close",
+        fsPlay: "⏯ Play",
+        toastWelcome: "Welcome to GlobalRadio.top ✨",
+        toastPick: "Pick a station first.",
+        toastReset: "Filters reset."
+      },
+      fr: {
+        siteName: "GlobalRadio.top",
+        siteTagline: "L'annuaire mondial des webradios — explore, découvre, écoute en direct.",
+        viewAll: "Toutes les stations",
+        viewFavs: "Mes favoris",
+        sortVotes: "Par popularité",
+        sortClick: "Par écoutes",
+        sortName: "Par nom",
+        searchPh: "Rechercher par nom…",
+        allCountries: "Tous les pays",
+        allStyles: "Tous les styles",
+        showBroken: "Afficher radios HS",
+        reset: "Réinitialiser",
+        featuredLine: "France • Techno, House, Electronic, Club • 320 kbps",
+        loadingStations: "Chargement des stations…",
+        noResults: "Aucune station trouvée",
+        endResults: "Fin des résultats.",
+        loadMore: "Afficher la suite",
+        back: "← Retour",
+        playStation: "▶ Lecture",
+        fav: "Favori",
+        titleLabel: "Titre :",
+        titleLoading: "Chargement du titre…",
+        titleNotAvailable: "Titre non disponible",
+        chooseRadio: "Choisis une radio",
+        statusSelect: "Sélectionne une station puis ▶",
+        statusConnecting: "Connexion…",
+        statusLive: "En direct",
+        statusLiveProxy: "En direct (proxy)",
+        statusAlt: "En direct (flux alternatif)",
+        statusBuffer: "Buffering…",
+        statusPaused: "En pause",
+        statusStopped: "Arrêté",
+        statusFailed: "Impossible de lire ce flux (blacklist 7j).",
+        searchAltStream: "Flux HS — recherche d’un flux alternatif…",
+        madeInFrance: "Made in France",
+        with: "with",
+        fsClose: "✕ Fermer",
+        fsPlay: "⏯ Lecture",
+        toastWelcome: "Bienvenue sur GlobalRadio.top ✨",
+        toastPick: "Choisis une station d’abord.",
+        toastReset: "Filtres réinitialisés."
+      }
+    };
+
+    let LANG = "en";
+    function t(key){
+      return (I18N[LANG] && I18N[LANG][key]) || (I18N.en[key] || key);
+    }
+
+    function applyLang(lang){
+      LANG = (lang === "fr") ? "fr" : "en";
+      localStorage.setItem("gr_lang", LANG);
+
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const k = el.dataset.i18n;
+        if (k) el.textContent = t(k);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        const k = el.dataset.i18nPlaceholder;
+        if (k) el.placeholder = t(k);
+      });
+
+      const enBtn = document.getElementById("langEN");
+      const frBtn = document.getElementById("langFR");
+      if (enBtn && frBtn){
+        enBtn.classList.toggle("isActive", LANG === "en");
+        frBtn.classList.toggle("isActive", LANG === "fr");
+      }
+
+      // If player is empty, keep it translated
+      if (!currentStation){
+        document.getElementById("playerName").textContent = t("chooseRadio");
+        document.getElementById("currentTitle").textContent = t("titleNotAvailable");
+        updatePlayerStatus(t("statusSelect"));
+      }
+
+      // If end message visible
+      const endMsg = document.getElementById("endMessage");
+      if (endMsg && endMsg.style.display !== "none"){
+        endMsg.textContent = t("endResults");
+      }
+    }
+
+    /********************
      * CONFIG
      ********************/
     const API_BASE = "https://de1.api.radio-browser.info/json";
@@ -1001,47 +1156,87 @@
     const SITE_LOGO = "assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
 
-    // Résolveur Vercel (Step 2)
+    // Stream resolver endpoint (optional, if you have it)
     const RESOLVE_API = "/api/resolve-stream";
 
-    // Proxy lecture (front only)
+    // Proxy chain for playback
     const PROXY_CHAIN = [
       (u) => u,
       (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
     ];
 
-    // Blacklist 7 jours
+    // Blacklist 7 days
     const BAD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
     const BAD_KEY = "gr_bad_stations_v1";
 
-    // Cache flux résolus 30 jours
+    // Cache resolved streams 30 days
     const RESOLVED_KEY = "gr_resolved_streams_v1";
     const RESOLVED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-    // Dernière radio jouée (mémoire player)
+    // Last played (player memory)
     const LAST_STATION_KEY = "gr_last_station_v1";
     const LAST_TITLE_KEY = "gr_last_title_v1";
 
-    // Styles principaux (pour éviter les tags farfelus)
+    // Main styles (clean list). Value stays stable; label is translated via i18n.
     const MAIN_STYLES = [
-      { label: "Pop", value: "pop" },
-      { label: "Rock", value: "rock" },
-      { label: "Hip-Hop / Rap", value: "hip hop" },
-      { label: "R&B / Soul", value: "rnb" },
-      { label: "Electro", value: "electronic" },
-      { label: "House", value: "house" },
-      { label: "Techno", value: "techno" },
-      { label: "Dance", value: "dance" },
-      { label: "Jazz", value: "jazz" },
-      { label: "Classique", value: "classical" },
-      { label: "Reggae", value: "reggae" },
-      { label: "Latin", value: "latin" },
-      { label: "Country", value: "country" },
-      { label: "Metal", value: "metal" },
-      { label: "Ambient / Chill", value: "chill" },
-      { label: "News / Talk", value: "news" },
-      { label: "Sport", value: "sport" }
+      { key: "stylePop", value: "pop" },
+      { key: "styleRock", value: "rock" },
+      { key: "styleHipHop", value: "hip hop" },
+      { key: "styleRnB", value: "rnb" },
+      { key: "styleElectro", value: "electronic" },
+      { key: "styleHouse", value: "house" },
+      { key: "styleTechno", value: "techno" },
+      { key: "styleDance", value: "dance" },
+      { key: "styleJazz", value: "jazz" },
+      { key: "styleClassical", value: "classical" },
+      { key: "styleReggae", value: "reggae" },
+      { key: "styleLatin", value: "latin" },
+      { key: "styleCountry", value: "country" },
+      { key: "styleMetal", value: "metal" },
+      { key: "styleChill", value: "chill" },
+      { key: "styleNews", value: "news" },
+      { key: "styleSport", value: "sport" }
     ];
+
+    // Add missing i18n labels for styles (kept here for clarity)
+    Object.assign(I18N.en, {
+      stylePop: "Pop",
+      styleRock: "Rock",
+      styleHipHop: "Hip-Hop / Rap",
+      styleRnB: "R&B / Soul",
+      styleElectro: "Electronic",
+      styleHouse: "House",
+      styleTechno: "Techno",
+      styleDance: "Dance",
+      styleJazz: "Jazz",
+      styleClassical: "Classical",
+      styleReggae: "Reggae",
+      styleLatin: "Latin",
+      styleCountry: "Country",
+      styleMetal: "Metal",
+      styleChill: "Ambient / Chill",
+      styleNews: "News / Talk",
+      styleSport: "Sport"
+    });
+    Object.assign(I18N.fr, {
+      stylePop: "Pop",
+      styleRock: "Rock",
+      styleHipHop: "Hip-Hop / Rap",
+      styleRnB: "R&B / Soul",
+      styleElectro: "Electro",
+      styleHouse: "House",
+      styleTechno: "Techno",
+      styleDance: "Dance",
+      styleJazz: "Jazz",
+      styleClassical: "Classique",
+      styleReggae: "Reggae",
+      styleLatin: "Latin",
+      styleCountry: "Country",
+      styleMetal: "Metal",
+      styleChill: "Ambient / Chill",
+      styleNews: "News / Talk",
+      styleSport: "Sport"
+    });
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
@@ -1157,7 +1352,7 @@
      * Station normalization
      ********************/
     function normalizeStation(st){
-      const stream = st.url_resolved || st.url || "";
+      const stream = st.url_resolved || st.url || st.stream || "";
       return {
         name: safeText(st.name, "Radio"),
         favicon: st.favicon || "",
@@ -1282,11 +1477,11 @@
      * Filters loading
      ********************/
     async function loadFilters(){
-      // countries API
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
         countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
         const cs = document.getElementById("countrySelect");
+        cs.innerHTML = `<option value="" data-i18n="allCountries">${t("allCountries")}</option>`;
         countries.forEach(c=>{
           const opt=document.createElement("option");
           opt.value=c.name;
@@ -1297,17 +1492,17 @@
         if (hasFrance) cs.value = DEFAULT_COUNTRY;
       }catch(e){}
 
-      // MAIN styles only (clean)
+      // styles
       const gs = document.getElementById("genreSelect");
-      gs.innerHTML = `<option value="">Tous les styles</option>`;
+      gs.innerHTML = `<option value="" data-i18n="allStyles">${t("allStyles")}</option>`;
       MAIN_STYLES.forEach(s=>{
         const opt = document.createElement("option");
         opt.value = s.value;
-        opt.textContent = s.label;
+        opt.textContent = t(s.key);
         gs.appendChild(opt);
       });
 
-      // prefill search from ?q= for SEO/SearchAction
+      // prefill search from ?q=
       try{
         const url = new URL(location.href);
         const q = url.searchParams.get("q");
@@ -1333,7 +1528,7 @@
         animateGridEntrance();
         loadMoreBtn.style.display = "none";
         endMessage.style.display = stations.length ? "none" : "block";
-        endMessage.textContent = stations.length ? "" : "Aucun favori pour le moment.";
+        endMessage.textContent = stations.length ? "" : t("noResults");
         updateBottomSafe();
         loading = false;
         return;
@@ -1347,14 +1542,12 @@
       const params = new URLSearchParams({
         limit: String(limit),
         offset: String(append ? offset : 0),
-        order: sortMode,      // votes / clickcount / name
+        order: sortMode,
         reverse: (sortMode === "name") ? "false" : "true",
         hidebroken: "true"
       });
       if (name) params.append("name", name);
       if (country) params.append("country", country);
-
-      // on passe style en "tag" (RadioBrowser: tag=...)
       if (tag) params.append("tag", tag);
 
       let data = [];
@@ -1364,8 +1557,6 @@
       if (!append){ stations = []; offset = 0; hasMore = true; }
 
       let normalized = (data||[]).map(normalizeStation).filter(s => s.url);
-
-      // hide HS unless showBroken
       if (!showBroken){
         normalized = normalized.filter(s => !isBadStationByUrl(s.url));
       }
@@ -1382,7 +1573,7 @@
 
       if (!hasMore){
         endMessage.style.display = "block";
-        endMessage.textContent = "Fin des résultats.";
+        endMessage.textContent = t("endResults");
       } else {
         endMessage.style.display = "none";
       }
@@ -1419,7 +1610,7 @@
       if (!append) grid.innerHTML = "";
 
       if (!stations.length){
-        grid.innerHTML = `<div class="loading">Aucune station trouvée</div>`;
+        grid.innerHTML = `<div class="loading">${t("noResults")}</div>`;
         loadMoreBtn.style.display = "none";
         return;
       }
@@ -1457,17 +1648,18 @@
 
         const hs = isBadStationByUrl(station.url);
 
+        const countryText = safeText(station.country, "World");
         meta.innerHTML = `
           <div class="name">${station.name}</div>
           <div class="chips">
-            <span class="chip"><span class="dot"></span>${safeText(station.country,"Monde")}</span>
-            <span class="chip muted">${safeText(station.codec,"Flux")}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
-            ${hs ? `<span class="chip hs" title="Cette station a été détectée HS récemment (blacklist locale)."><span class="dot"></span>HS</span>` : ""}
+            <span class="chip"><span class="dot"></span>${countryText}</span>
+            <span class="chip muted">${safeText(station.codec,"Stream")}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
+            ${hs ? `<span class="chip hs" title="Recently detected as broken (local blacklist)."><span class="dot"></span>HS</span>` : ""}
           </div>
           <div class="chips" style="margin-top:10px;">
-            <span class="chip live"><span class="dot"></span>Écouter</span>
+            <span class="chip live"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
             <span class="chip muted" title="${safeText(station.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              ${safeText(station.tags,"Divers").slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
+              ${safeText(station.tags,"Misc").slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
             </span>
           </div>
         `;
@@ -1511,6 +1703,7 @@
 
     function populateDetail(station){
       const logoCandidates = guessStationLogoCandidates(station);
+      const titleLabel = t("titleLabel");
       document.getElementById("detailContent").innerHTML = `
         <div class="detail-top">
           <div class="detail-logo">
@@ -1519,20 +1712,20 @@
 
           <div class="detail-title">
             <h2>${station.name}</h2>
-            <p>${safeText(station.country,"Monde")} • ${safeText(station.tags,"Divers")}</p>
+            <p>${safeText(station.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(station.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
             <p style="margin-top:8px; color: rgba(169,183,214,.95);">
-              ${safeText(station.codec,"Flux")}
+              ${safeText(station.codec, LANG==="fr" ? "Flux" : "Stream")}
               ${station.bitrate ? ` • ${station.bitrate} kbps` : ""}
             </p>
 
             <div class="detail-actions">
-              <button class="btn btnPrimary" id="detailPlay">▶ Lancer la lecture</button>
-              <button class="btn" id="detailFav">${isFavorite(station) ? "❤️" : "♡"} Favori</button>
+              <button class="btn btnPrimary" id="detailPlay">${t("playStation")}</button>
+              <button class="btn" id="detailFav">${isFavorite(station) ? "❤️" : "♡"} ${t("fav")}</button>
             </div>
           </div>
         </div>
 
-        <div id="detailTitle">Titre : Chargement…</div>
+        <div id="detailTitle">${titleLabel} ${t("titleLoading")}</div>
       `;
 
       const detailLogo = document.getElementById("detailLogo");
@@ -1557,9 +1750,9 @@
       catch(e){ return null; }
     }
 
-    function cleanTitle(t){
-      if (!t) return "";
-      return String(t)
+    function cleanTitle(tit){
+      if (!tit) return "";
+      return String(tit)
         .replace(/\s+/g, " ")
         .replace(/[\u0000-\u001f]/g, "")
         .trim();
@@ -1568,9 +1761,9 @@
     async function fetchJson(url, timeoutMs=4500){
       try{
         const ctrl = new AbortController();
-        const t = setTimeout(()=> ctrl.abort(), timeoutMs);
+        const tt = setTimeout(()=> ctrl.abort(), timeoutMs);
         const r = await fetch(url, { signal: ctrl.signal, redirect: "follow" });
-        clearTimeout(t);
+        clearTimeout(tt);
         if (!r.ok) return null;
         return await r.json();
       }catch(e){ return null; }
@@ -1595,14 +1788,14 @@
       if (!base) return "";
       const data = await fetchJson(`${base}/stats?sid=1&json=1`);
       if (!data) return "";
-      const t =
+      const t0 =
         data?.songtitle ||
         data?.song ||
         data?.streamtitle ||
         data?.servertitle ||
         (data?.streams && data.streams[0] && (data.streams[0].songtitle || data.streams[0].title)) ||
         "";
-      return cleanTitle(t);
+      return cleanTitle(t0);
     }
 
     async function getTitleFromRadioBrowser(uuid){
@@ -1617,28 +1810,28 @@
 
     async function bestEffortTitle(station){
       const stream = station.url || station.url_resolved || "";
-      let t = await getTitleFromIcecast(stream);
-      if (t) return t;
+      let tit = await getTitleFromIcecast(stream);
+      if (tit) return tit;
 
-      t = await getTitleFromShoutcast(stream);
-      if (t) return t;
+      tit = await getTitleFromShoutcast(stream);
+      if (tit) return tit;
 
-      t = await getTitleFromRadioBrowser(station.uuid);
-      if (t) return t;
+      tit = await getTitleFromRadioBrowser(station.uuid);
+      if (tit) return tit;
 
       return "";
     }
 
     function setTitleUI(which, title){
-      const t = cleanTitle(title);
-      const msg = t ? t : "Titre non disponible";
+      const tt = cleanTitle(title);
+      const msg = tt ? tt : t("titleNotAvailable");
       if (which === "player"){
         document.getElementById("currentTitle").textContent = msg;
         document.getElementById("fsTitle").textContent = msg;
-        if (t) saveLastTitle(t);
+        if (tt) saveLastTitle(tt);
       } else if (which === "detail"){
         const el = document.getElementById("detailTitle");
-        if (el) el.textContent = "Titre : " + msg;
+        if (el) el.textContent = `${t("titleLabel")} ${msg}`;
       }
     }
 
@@ -1646,8 +1839,8 @@
       if (titleInterval) clearInterval(titleInterval);
 
       (async ()=>{
-        const t = await bestEffortTitle(station);
-        setTitleUI(target, t);
+        const tt = await bestEffortTitle(station);
+        setTitleUI(target, tt);
       })();
 
       titleInterval = setInterval(async ()=>{
@@ -1657,8 +1850,8 @@
         if (target === "detail"){
           if (document.getElementById("detailView").style.display !== "block") return;
         }
-        const t = await bestEffortTitle(station);
-        setTitleUI(target, t);
+        const tt = await bestEffortTitle(station);
+        setTitleUI(target, tt);
       }, 12000);
     }
 
@@ -1757,8 +1950,8 @@
       const freq=2.2+0.25*Math.sin(ts/900);
       ctx.beginPath();
       for(let x=0;x<=w;x+=2){
-        const t=x/w;
-        const y=baseY+Math.sin((t*Math.PI*2*freq)+ts/380)*amp;
+        const tt=x/w;
+        const y=baseY+Math.sin((tt*Math.PI*2*freq)+ts/380)*amp;
         if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
       ctx.stroke();
@@ -1913,7 +2106,7 @@
     }
 
     /********************
-     * Resolve stream via Vercel (Step 2)
+     * Resolve stream via server (optional)
      ********************/
     async function resolveStreamViaServer(station){
       const cached = getResolved(station.url);
@@ -1969,14 +2162,14 @@
     }
 
     async function startPlaybackWithFallbacks(station){
-      updatePlayerStatus("Connexion…");
+      updatePlayerStatus(t("statusConnecting"));
       setFooterStatus("CONNECT");
       setTitleUI("player", "");
 
       // 1) original
       if (await tryPlayUrl(station.url)){
         isPlaying = true; setPlayIcon();
-        updatePlayerStatus(currentTryIndex===0 ? "En direct" : `En direct (proxy ${currentTryIndex})`);
+        updatePlayerStatus(currentTryIndex===0 ? t("statusLive") : `${t("statusLiveProxy")} ${currentTryIndex}`);
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
         unmarkBadUrl(station.url);
         startTitlePolling(station, { target: "player" });
@@ -1985,7 +2178,7 @@
       }
 
       // 2) resolve server
-      updatePlayerStatus("Flux HS — recherche d’un flux alternatif…");
+      updatePlayerStatus(t("searchAltStream"));
       setFooterStatus("BUFFER");
 
       const resolvedUrl = await resolveStreamViaServer(station);
@@ -1997,7 +2190,7 @@
 
           station.url = resolvedUrl;
           isPlaying = true; setPlayIcon();
-          updatePlayerStatus("En direct (flux alternatif)");
+          updatePlayerStatus(t("statusAlt"));
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
           startTitlePolling(station, { target: "player" });
           saveLastStation(station);
@@ -2007,7 +2200,7 @@
 
       // 3) mark HS
       markBadUrl(station.url, "play_failed");
-      updatePlayerStatus("Impossible de lire ce flux (blacklist 7j).");
+      updatePlayerStatus(t("statusFailed"));
       setFooterStatus("ERR");
       isPlaying = false; setPlayIcon();
       setTitleUI("player", "");
@@ -2016,14 +2209,14 @@
 
     function playStation(station, { autoStart=false } = {}){
       const s = normalizeStation(station);
-      if (!s.url) return toast("Flux introuvable.");
+      if (!s.url) return toast(t("toastPick"));
 
       currentStation = s;
       setPlayerStationUI(s);
 
       if (autoStart) startPlaybackWithFallbacks(s);
       else{
-        updatePlayerStatus("Prêt — clique ▶");
+        updatePlayerStatus(t("statusSelect"));
         setFooterStatus("PAUSE");
         isPlaying = false;
         setPlayIcon();
@@ -2040,13 +2233,13 @@
       setPlayerStationUI(last);
 
       const lastTitle = loadLastTitle();
-      document.getElementById("currentTitle").textContent = lastTitle ? lastTitle : "Titre non disponible";
-      document.getElementById("fsTitle").textContent = lastTitle ? lastTitle : "Titre non disponible";
+      document.getElementById("currentTitle").textContent = lastTitle ? lastTitle : t("titleNotAvailable");
+      document.getElementById("fsTitle").textContent = lastTitle ? lastTitle : t("titleNotAvailable");
 
       isPlaying = false;
       setPlayIcon();
       setFooterStatus("PAUSE");
-      updatePlayerStatus("Dernière station — clique ▶ pour reprendre");
+      updatePlayerStatus(LANG === "fr" ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume");
     }
 
     function stopPlayback(){
@@ -2056,12 +2249,12 @@
 
       isPlaying = false;
       setPlayIcon();
-      updatePlayerStatus("Arrêté");
+      updatePlayerStatus(t("statusStopped"));
       setTitleUI("player", "");
 
       currentStation = null;
       playerEl.classList.add("isEmpty");
-      document.getElementById("playerName").textContent = "Choisis une radio";
+      document.getElementById("playerName").textContent = t("chooseRadio");
       setFooterStatus("STOP");
       updateBottomSafe();
 
@@ -2070,7 +2263,7 @@
     }
 
     function togglePlayPause(){
-      if (!currentStation) return toast("Choisis une station d’abord.");
+      if (!currentStation) return toast(t("toastPick"));
       if (isPlaying){ audio.pause(); return; }
       if (!audio.src) startPlaybackWithFallbacks(currentStation);
       else audio.play().catch(()=> startPlaybackWithFallbacks(currentStation));
@@ -2099,7 +2292,7 @@
     document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
     document.getElementById("stopBtn").addEventListener("click", stopPlayback);
     document.getElementById("retryBtn").addEventListener("click", ()=>{
-      if (!currentStation) return toast("Aucune station sélectionnée.");
+      if (!currentStation) return toast(t("toastPick"));
       startPlaybackWithFallbacks(currentStation);
     });
 
@@ -2141,7 +2334,12 @@
     document.getElementById("fsBtn").addEventListener("click", openFS);
     document.getElementById("fsClose").addEventListener("click", (e)=>{ e.stopPropagation(); closeFS(); });
     document.getElementById("fsMiniPlay").addEventListener("click", (e)=>{ e.stopPropagation(); togglePlayPause(); });
-    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{ e.stopPropagation(); document.getElementById("muteBtn").click(); });
+
+    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{
+      e.stopPropagation();
+      document.getElementById("muteBtn").click();
+    });
+
     fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
     window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
 
@@ -2151,7 +2349,7 @@
     function resetAndReload(){
       offset = 0; hasMore = true; stations = [];
       endMessage.style.display = "none";
-      document.getElementById("stationsGrid").innerHTML = `<div class="loading">Chargement des stations…</div>`;
+      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
       loadStations(false);
     }
 
@@ -2179,7 +2377,7 @@
       document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
       document.getElementById("genreSelect").value = "";
       resetAndReload();
-      toast("Filtres réinitialisés.");
+      toast(t("toastReset"));
     });
 
     // Show broken toggle
@@ -2204,9 +2402,19 @@
     scrollTopBtn.addEventListener("click", ()=> window.scrollTo({ top:0, behavior:"smooth" }));
 
     /********************
+     * Language buttons
+     ********************/
+    document.getElementById("langEN")?.addEventListener("click", ()=> { applyLang("en"); resetAndReload(); });
+    document.getElementById("langFR")?.addEventListener("click", ()=> { applyLang("fr"); resetAndReload(); });
+
+    /********************
      * Init
      ********************/
     (async function init(){
+      // Option 1: EN default with switch (no auto FR)
+      const savedLang = localStorage.getItem("gr_lang");
+      applyLang(savedLang || "en");
+
       updateBottomSafe();
       window.addEventListener("resize", resizeViz);
       resizeViz();
@@ -2218,7 +2426,7 @@
       await loadFilters();
       resetAndReload();
 
-      toast("Bienvenue sur GlobalRadio.top ✨", 1300);
+      toast(t("toastWelcome"), 1300);
     })();
   </script>
 </body>
