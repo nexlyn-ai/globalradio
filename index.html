@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>GlobalRadio.top — Global online radio directory</title>
-  <meta name="description" content="GlobalRadio.top: a global directory of online radios. Filter by country, style, popularity, save favorites, and listen live with a stable player." />
+  <meta name="description" content="GlobalRadio.top: a global directory of online radios. Filter by country, style, popularity, save favorites, and listen live with a stable player + best-effort live metadata." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
   <link rel="canonical" href="https://globalradio.top/" />
@@ -24,6 +24,7 @@
   <link rel="preconnect" href="https://de1.api.radio-browser.info" crossorigin />
   <link rel="dns-prefetch" href="https://de1.api.radio-browser.info" />
 
+  <!-- Dynamic favicon (updated by visualizer) -->
   <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
 
   <script type="application/ld+json">
@@ -34,6 +35,7 @@
     "url": "https://globalradio.top/",
     "potentialAction": {
       "@type": "SearchAction",
+      "@id": "https://globalradio.top/#search",
       "target": "https://globalradio.top/?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
@@ -128,8 +130,6 @@
       user-select:none;
     }
     .brandLink:hover{ opacity: .92; }
-
-    .pill{ display:none !important; }
 
     .filters{
       position:relative;
@@ -395,7 +395,6 @@
     }
     .chip .dot{ width:8px; height:8px; border-radius:50%; background: rgba(77,163,255,.9); }
     .chip.muted{ color: rgba(231,238,252,.75); }
-    .chip.live .dot{ background: var(--live); box-shadow: 0 0 0 5px rgba(255,77,109,.13); }
 
     .chip.hs{
       border-color: rgba(239,68,68,.35);
@@ -640,6 +639,7 @@
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
       overflow:hidden;
+      position: relative;
     }
     .viz canvas{ width: 100%; height: 100%; display:block; }
 
@@ -713,6 +713,7 @@
     .footerStatus[data-state="ERR"] .sDot{ background: #ef4444; box-shadow: 0 0 0 6px rgba(239,68,68,.12); }
     .footerStatus[data-state="PAUSE"] .sDot{ background: rgba(231,238,252,.75); box-shadow: 0 0 0 6px rgba(231,238,252,.10); }
     .footerStatus[data-state="STOP"] .sDot{ background: rgba(148,163,184,.9); box-shadow: 0 0 0 6px rgba(148,163,184,.10); }
+
     @keyframes pulse{
       0%{ transform: scale(1); opacity: 1; }
       50%{ transform: scale(1.18); opacity: .85; }
@@ -762,7 +763,6 @@
     }
     #scrollTopBtn:hover{ transform: translateY(-2px); }
 
-    /* Fullscreen */
     #fsMode{
       position: fixed;
       inset: 0;
@@ -931,7 +931,6 @@
       <input type="text" id="searchInput" data-i18n-placeholder="searchPh" placeholder="Search by name…" />
       <select id="countrySelect"><option value="" data-i18n="allCountries">All countries</option></select>
 
-      <!-- ✅ restored main styles list -->
       <select id="genreSelect">
         <option value="" data-i18n="allStyles">All styles</option>
       </select>
@@ -1000,7 +999,7 @@
       <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
     </div>
 
-    <div class="viz">
+    <div class="viz" title="Bars + waveform">
       <canvas id="viz"></canvas>
     </div>
 
@@ -1024,7 +1023,7 @@
   </div>
 
   <div id="fsMode" aria-hidden="true">
-    <div class="aurora" id="aurora"></div>
+    <div class="aurora"></div>
 
     <div class="fsTop">
       <button class="fsBtn" id="fsClose" type="button" data-i18n="fsClose">✕ Close</button>
@@ -1050,6 +1049,9 @@
   </div>
 
   <script>
+    // -----------------------
+    // i18n
+    // -----------------------
     const I18N = {
       en: {
         siteName: "GlobalRadio.top",
@@ -1162,16 +1164,18 @@
       return (I18N[LANG] && I18N[LANG][key]) || (I18N.en[key] || key);
     }
 
+    // -----------------------
+    // Constants / Settings
+    // -----------------------
     const API_BASE = "https://de1.api.radio-browser.info/json";
     const limit = 48;
     const SITE_LOGO = "assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
+
     const RESOLVE_API = "/api/resolve-stream";
 
-    // ✅ Infinite scroll only on Home
     const INFINITE_SCROLL = true;
     const SCROLL_THRESHOLD_PX = 950;
-    let scrollTicking = false;
 
     const PROXY_CHAIN = [
       (u) => u,
@@ -1187,35 +1191,38 @@
     const LAST_STATION_KEY = "gr_last_station_v1";
     const LAST_TITLE_KEY = "gr_last_title_v1";
 
-    // ✅ Main styles (clean list)
     const MAIN_STYLES = [
-      { key: "pop", en: "Pop", fr: "Pop", tag: "pop" },
-      { key: "rock", en: "Rock", fr: "Rock", tag: "rock" },
-      { key: "hiphop", en: "Hip-Hop / Rap", fr: "Hip-Hop / Rap", tag: "hiphop" },
-      { key: "electronic", en: "Electronic", fr: "Électronique", tag: "electronic" },
-      { key: "house", en: "House", fr: "House", tag: "house" },
-      { key: "techno", en: "Techno", fr: "Techno", tag: "techno" },
-      { key: "dance", en: "Dance", fr: "Dance", tag: "dance" },
-      { key: "jazz", en: "Jazz", fr: "Jazz", tag: "jazz" },
-      { key: "classical", en: "Classical", fr: "Classique", tag: "classical" },
-      { key: "reggae", en: "Reggae", fr: "Reggae", tag: "reggae" },
-      { key: "latin", en: "Latin", fr: "Latino", tag: "latin" },
-      { key: "rnb", en: "R&B / Soul", fr: "R&B / Soul", tag: "rnb" },
-      { key: "blues", en: "Blues", fr: "Blues", tag: "blues" },
-      { key: "metal", en: "Metal", fr: "Metal", tag: "metal" },
-      { key: "country", en: "Country", fr: "Country", tag: "country" },
-      { key: "world", en: "World", fr: "World", tag: "world" },
-      { key: "chill", en: "Chill / Lounge", fr: "Chill / Lounge", tag: "chill" },
-      { key: "news", en: "News / Talk", fr: "Actu / Talk", tag: "news" }
+      { en: "Pop", fr: "Pop", tag: "pop" },
+      { en: "Rock", fr: "Rock", tag: "rock" },
+      { en: "Hip-Hop / Rap", fr: "Hip-Hop / Rap", tag: "hiphop" },
+      { en: "Electronic", fr: "Électronique", tag: "electronic" },
+      { en: "House", fr: "House", tag: "house" },
+      { en: "Techno", fr: "Techno", tag: "techno" },
+      { en: "Dance", fr: "Dance", tag: "dance" },
+      { en: "Jazz", fr: "Jazz", tag: "jazz" },
+      { en: "Classical", fr: "Classique", tag: "classical" },
+      { en: "Reggae", fr: "Reggae", tag: "reggae" },
+      { en: "Latin", fr: "Latino", tag: "latin" },
+      { en: "R&B / Soul", fr: "R&B / Soul", tag: "rnb" },
+      { en: "Blues", fr: "Blues", tag: "blues" },
+      { en: "Metal", fr: "Metal", tag: "metal" },
+      { en: "Country", fr: "Country", tag: "country" },
+      { en: "World", fr: "World", tag: "world" },
+      { en: "Chill / Lounge", fr: "Chill / Lounge", tag: "chill" },
+      { en: "News / Talk", fr: "Actu / Talk", tag: "news" }
     ];
+
+    // -----------------------
+    // Helpers
+    // -----------------------
+    function now(){ return Date.now(); }
+    function isExpired(ts, ttl){ return !ts || (now() - ts > ttl); }
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
       catch(e){ return {}; }
     }
     function saveMap(key, map){ localStorage.setItem(key, JSON.stringify(map)); }
-    function now(){ return Date.now(); }
-    function isExpired(ts, ttl){ return !ts || (now() - ts > ttl); }
 
     let badMap = loadMap(BAD_KEY);
     let resolvedMap = loadMap(RESOLVED_KEY);
@@ -1260,144 +1267,6 @@
       saveMap(RESOLVED_KEY, resolvedMap);
     }
 
-    let stations = [], offset = 0, hasMore = true, loading = false;
-    let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
-
-    let showBroken = (localStorage.getItem("gr_show_broken") === "1");
-
-    const audio = document.getElementById("audioPlayer");
-    let audioCtx = null, analyser = null, sourceNode = null, gainNode = null;
-    let vizRaf = null;
-
-    let isPlaying = false;
-    let isMuted = false;
-    let vizLowEnergy = false;
-
-    let currentTryIndex = 0;
-    let currentStation = null;
-    let titleInterval = null;
-
-    let playerStateKey = "statusSelect";
-    let playerStateText = "";
-
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    const endMessage = document.getElementById("endMessage");
-    const playerEl = document.getElementById("player");
-    const fixedFooterEl = document.getElementById("fixedFooter");
-    const bottomSpacerEl = document.getElementById("bottomSpacer");
-
-    const featuredStation = {
-      name: "Radio ABF - Alternative Bass Fréquence | The DJs' Frequency",
-      favicon: "https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png",
-      url: "https://play.radioabf.com:2590/stream",
-      homepage: "https://radioabf.com",
-      country: "France",
-      tags: "Techno, House, Electronic, Club",
-      bitrate: 320,
-      codec: "MP3",
-      uuid: null
-    };
-
-    function buildMainStyles(){
-      const sel = document.getElementById("genreSelect");
-      const keep = sel.value || "";
-      sel.innerHTML = `<option value="" data-i18n="allStyles">${t("allStyles")}</option>`;
-      MAIN_STYLES.forEach(s=>{
-        const opt = document.createElement("option");
-        opt.value = s.tag;
-        opt.textContent = (LANG === "fr") ? s.fr : s.en;
-        sel.appendChild(opt);
-      });
-      sel.value = keep;
-    }
-
-    function applyLang(lang){
-      LANG = (lang === "fr") ? "fr" : "en";
-      localStorage.setItem("gr_lang", LANG);
-      document.documentElement.lang = LANG;
-
-      const playerIsEmpty = playerEl.classList.contains("isEmpty");
-      const hasStationLoaded =
-        !!currentStation ||
-        (localStorage.getItem(LAST_STATION_KEY) && !playerIsEmpty) ||
-        !!(audio && audio.src && audio.src.trim().length > 0);
-
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const k = el.dataset.i18n;
-
-        // ✅ do not overwrite dynamic player name/title if a station is loaded
-        if (hasStationLoaded && (el.id === "playerName" || el.id === "currentTitle")) return;
-
-        if (k) el.textContent = t(k);
-      });
-
-      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-        const k = el.dataset.i18nPlaceholder;
-        if (k) el.placeholder = t(k);
-      });
-
-      document.querySelectorAll("[data-i18n-title]").forEach(el=>{
-        const k = el.dataset.i18nTitle;
-        if (k) el.title = t(k);
-      });
-
-      const enBtn = document.getElementById("langEN");
-      const frBtn = document.getElementById("langFR");
-      if (enBtn && frBtn){
-        enBtn.classList.toggle("isActive", LANG === "en");
-        frBtn.classList.toggle("isActive", LANG === "fr");
-      }
-
-      // ✅ rebuild main styles list with correct language
-      buildMainStyles();
-
-      const statusEl = document.getElementById("playerStatus");
-      if (statusEl) statusEl.textContent = playerStateText || t(playerStateKey || "statusSelect");
-
-      if (!hasStationLoaded){
-        document.getElementById("playerName").textContent = t("chooseRadio");
-        document.getElementById("currentTitle").textContent = t("titleNotAvailable");
-        setPlayerStatusKey("statusSelect");
-      } else {
-        const ct = document.getElementById("currentTitle");
-        if (ct && (!ct.textContent || ct.textContent.trim() === "")) {
-          ct.textContent = t("titleNotAvailable");
-        }
-      }
-
-      if (endMessage && endMessage.style.display !== "none"){
-        endMessage.textContent = t("endResults");
-      }
-
-      document.getElementById("fsMiniMute").textContent =
-        (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
-    }
-
-    function toast(msg, ms = 2400){
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.classList.add("show");
-      clearTimeout(el._t);
-      el._t = setTimeout(()=> el.classList.remove("show"), ms);
-    }
-
-    function setFooterStatus(state){
-      const el = document.getElementById("footerStatus");
-      el.dataset.state = state;
-      el.querySelector(".sText").textContent = state;
-    }
-
-    function updatePlayerStatus(text){
-      playerStateText = String(text || "");
-      document.getElementById("playerStatus").textContent = playerStateText;
-    }
-    function setPlayerStatusKey(key, overrideText = ""){
-      playerStateKey = key || "statusSelect";
-      playerStateText = overrideText ? String(overrideText) : "";
-      document.getElementById("playerStatus").textContent = playerStateText || t(playerStateKey);
-    }
-
-    function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
     function safeText(v, fallback=""){ return (v && String(v).trim()) ? String(v).trim() : fallback; }
 
     function normalizeStation(st){
@@ -1471,6 +1340,155 @@
       tryNext();
     }
 
+    function normalizeHomepage(hp){
+      const s = safeText(hp,"");
+      if (!s) return "";
+      try{
+        const u = new URL(s);
+        return u.href;
+      }catch(e){
+        try{
+          const u = new URL("https://" + s.replace(/^\/\//,""));
+          return u.href;
+        }catch(e2){
+          return "";
+        }
+      }
+    }
+
+    // -----------------------
+    // UI refs
+    // -----------------------
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    const endMessage = document.getElementById("endMessage");
+    const playerEl = document.getElementById("player");
+    const fixedFooterEl = document.getElementById("fixedFooter");
+    const bottomSpacerEl = document.getElementById("bottomSpacer");
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+    // -----------------------
+    // State
+    // -----------------------
+    let stations = [], offset = 0, hasMore = true, loading = false;
+    let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
+
+    let showBroken = (localStorage.getItem("gr_show_broken") === "1");
+
+    const audio = document.getElementById("audioPlayer");
+    let audioCtx = null, analyser = null, sourceNode = null, gainNode = null;
+    let vizRaf = null;
+
+    let isPlaying = false;
+    let isMuted = false;
+    let vizLowEnergy = false;
+
+    let currentTryIndex = 0;
+    let currentStation = null;
+
+    let playerStateKey = "statusSelect";
+    let playerStateText = "";
+
+    let scrollTicking = false;
+
+    const featuredStation = {
+      name: "Radio ABF - Alternative Bass Fréquence | The DJs' Frequency",
+      favicon: "https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png",
+      url: "https://play.radioabf.com:2590/stream",
+      homepage: "https://radioabf.com",
+      country: "France",
+      tags: "Techno, House, Electronic, Club",
+      bitrate: 320,
+      codec: "MP3",
+      uuid: null
+    };
+
+    // -----------------------
+    // i18n apply
+    // -----------------------
+    function buildMainStyles(){
+      const sel = document.getElementById("genreSelect");
+      const keep = sel.value || "";
+      sel.innerHTML = `<option value="" data-i18n="allStyles">${t("allStyles")}</option>`;
+      MAIN_STYLES.forEach(s=>{
+        const opt = document.createElement("option");
+        opt.value = s.tag;
+        opt.textContent = (LANG === "fr") ? s.fr : s.en;
+        sel.appendChild(opt);
+      });
+      sel.value = keep;
+    }
+
+    function applyLang(lang){
+      LANG = (lang === "fr") ? "fr" : "en";
+      localStorage.setItem("gr_lang", LANG);
+      document.documentElement.lang = LANG;
+
+      const keepPlayerText = !!currentStation || (!!audio && !!audio.src);
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.dataset.i18n;
+        if (!k) return;
+        if (keepPlayerText && (el.id === "playerName" || el.id === "currentTitle" || el.id === "fsTitle")) return;
+        el.textContent = t(k);
+      });
+
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        const k = el.dataset.i18nPlaceholder;
+        if (k) el.placeholder = t(k);
+      });
+
+      document.querySelectorAll("[data-i18n-title]").forEach(el=>{
+        const k = el.dataset.i18nTitle;
+        if (k) el.title = t(k);
+      });
+
+      document.getElementById("langEN")?.classList.toggle("isActive", LANG === "en");
+      document.getElementById("langFR")?.classList.toggle("isActive", LANG === "fr");
+
+      buildMainStyles();
+
+      const statusEl = document.getElementById("playerStatus");
+      if (statusEl) statusEl.textContent = playerStateText || t(playerStateKey || "statusSelect");
+    }
+
+    // -----------------------
+    // Toast
+    // -----------------------
+    function toast(msg, ms = 2400){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(el._t);
+      el._t = setTimeout(()=> el.classList.remove("show"), ms);
+    }
+
+    // -----------------------
+    // Footer status
+    // -----------------------
+    function setFooterStatus(state){
+      const el = document.getElementById("footerStatus");
+      el.dataset.state = state;
+      el.querySelector(".sText").textContent = state;
+    }
+
+    // -----------------------
+    // Player status helpers
+    // -----------------------
+    function updatePlayerStatus(text){
+      playerStateText = String(text || "");
+      document.getElementById("playerStatus").textContent = playerStateText;
+    }
+    function setPlayerStatusKey(key, overrideText = ""){
+      playerStateKey = key || "statusSelect";
+      playerStateText = overrideText ? String(overrideText) : "";
+      document.getElementById("playerStatus").textContent = playerStateText || t(playerStateKey);
+    }
+
+    function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
+
+    // -----------------------
+    // Bottom safe area (fix overlap)
+    // -----------------------
     function updateBottomSafe(){
       const footerH = fixedFooterEl.getBoundingClientRect().height;
       const playerRect = playerEl.getBoundingClientRect();
@@ -1483,22 +1501,16 @@
     new ResizeObserver(updateBottomSafe).observe(playerEl);
     new ResizeObserver(updateBottomSafe).observe(fixedFooterEl);
 
-    function isDetailOpen(){
-      return document.getElementById("detailView").style.display === "block";
-    }
-    function isHome(){
-      return !isDetailOpen();
-    }
-    function isFavorites(){
-      return document.getElementById("viewMode").value === "favorites";
-    }
+    // -----------------------
+    // Views
+    // -----------------------
+    function isDetailOpen(){ return document.getElementById("detailView").style.display === "block"; }
+    function isHome(){ return !isDetailOpen(); }
+    function isFavorites(){ return document.getElementById("viewMode").value === "favorites"; }
 
-    document.getElementById("homeLink").addEventListener("click", (e)=>{
-      e.preventDefault();
-      if (isDetailOpen()) showList();
-      else window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
+    // -----------------------
+    // Favorites
+    // -----------------------
     function saveFavorites(){ localStorage.setItem("gr_favorites", JSON.stringify(favorites)); }
     function isFavorite(station){
       return favorites.some(f =>
@@ -1519,8 +1531,10 @@
       animateGridEntrance();
     }
 
+    // -----------------------
+    // Filters
+    // -----------------------
     async function loadFilters(){
-      // ✅ countries
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
         countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
@@ -1532,21 +1546,16 @@
           opt.textContent=`${c.name} (${c.stationcount})`;
           cs.appendChild(opt);
         });
+
         const hasFrance = countries.some(c => (c.name||"").toLowerCase() === "france");
-        if (hasFrance) cs.value = "France";
+        if (hasFrance) cs.value = DEFAULT_COUNTRY;
       }catch(e){}
-
-      // ✅ main styles list
       buildMainStyles();
-
-      // deep link search
-      try{
-        const url = new URL(location.href);
-        const q = url.searchParams.get("q");
-        if (q) document.getElementById("searchInput").value = q;
-      }catch(e){}
     }
 
+    // -----------------------
+    // Load stations
+    // -----------------------
     async function loadStations(append=false){
       if (loading) return;
       if (!hasMore && append) return;
@@ -1567,7 +1576,7 @@
       }
 
       const name = document.getElementById("searchInput").value.trim();
-      const country = document.getElementById("countrySelect").value || "France";
+      const country = document.getElementById("countrySelect").value || DEFAULT_COUNTRY;
       const tag = document.getElementById("genreSelect").value;
       const sortMode = document.getElementById("sortMode").value || "votes";
       const hideBroken = !showBroken;
@@ -1601,17 +1610,17 @@
 
       loading = false;
 
-      // ✅ Load more button remains as fallback
       loadMoreBtn.style.display = (hasMore && mode !== "favorites") ? "block" : "none";
-
-      if (!hasMore){
-        endMessage.style.display = "block";
-        endMessage.textContent = t("endResults");
-      } else {
-        endMessage.style.display = "none";
-      }
-
+      endMessage.style.display = hasMore ? "none" : "block";
       updateBottomSafe();
+    }
+
+    function resetAndReload(){
+      if (isDetailOpen()) return;
+      offset = 0; hasMore = true; stations = [];
+      endMessage.style.display = "none";
+      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
+      loadStations(false);
     }
 
     function animateGridEntrance(){
@@ -1690,7 +1699,7 @@
             ${hs ? `<span class="chip hs" title="Recently detected as broken (local blacklist)."><span class="dot"></span>HS</span>` : ""}
           </div>
           <div class="chips" style="margin-top:10px;">
-            <span class="chip live"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
+            <span class="chip"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
             <span class="chip muted" title="${safeText(station.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
               ${safeText(station.tags,(LANG==="fr"?"Divers":"Misc")).slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
             </span>
@@ -1707,22 +1716,9 @@
       grid.appendChild(frag);
     }
 
-    function normalizeHomepage(hp){
-      const s = safeText(hp,"");
-      if (!s) return "";
-      try{
-        const u = new URL(s);
-        return u.href;
-      }catch(e){
-        try{
-          const u = new URL("https://" + s.replace(/^\/\//,""));
-          return u.href;
-        }catch(e2){
-          return "";
-        }
-      }
-    }
-
+    // -----------------------
+    // Detail view
+    // -----------------------
     function showDetail(station){
       currentStation = normalizeStation(station);
       document.getElementById("detailView").style.display = "block";
@@ -1802,19 +1798,20 @@
         populateDetail(station);
       };
 
-      startTitlePolling(station, { target: "detail" });
+      requestTitleRefresh();
+    }
 
-      loadMoreBtn.style.display = "none";
-      endMessage.style.display = "none";
+    // -----------------------
+    // Title engine (Icecast/Shoutcast/RadioBrowser best effort)
+    // -----------------------
+    function cleanTitle(tit){
+      if (!tit) return "";
+      return String(tit).replace(/\s+/g, " ").replace(/[\u0000-\u001f]/g, "").trim();
     }
 
     function baseFromUrl(u){
       try{ const url = new URL(u); return `${url.protocol}//${url.host}`; }
       catch(e){ return null; }
-    }
-    function cleanTitle(tit){
-      if (!tit) return "";
-      return String(tit).replace(/\s+/g, " ").replace(/[\u0000-\u001f]/g, "").trim();
     }
     async function fetchJson(url, timeoutMs=4500){
       try{
@@ -1862,294 +1859,326 @@
       }catch(e){ return ""; }
     }
     async function bestEffortTitle(station){
-      const stream = station.url || station.url_resolved || "";
+      const stream = station?.url || station?.url_resolved || "";
       let tit = await getTitleFromIcecast(stream);
       if (tit) return tit;
       tit = await getTitleFromShoutcast(stream);
       if (tit) return tit;
-      tit = await getTitleFromRadioBrowser(station.uuid);
+      tit = await getTitleFromRadioBrowser(station?.uuid);
       if (tit) return tit;
       return "";
     }
 
-    function setTitleUI(which, title){
-      const tt = cleanTitle(title);
-      const msg = tt ? tt : t("titleNotAvailable");
-      if (which === "player"){
-        document.getElementById("currentTitle").textContent = msg;
-        document.getElementById("fsTitle").textContent = msg;
-        if (tt) saveLastTitle(tt);
-      } else if (which === "detail"){
-        const el = document.getElementById("detailTitle");
-        if (el) el.textContent = `${t("titleLabel")} ${msg}`;
-      }
+    function setTitleUIPlayer(title){
+      const msg = cleanTitle(title) || t("titleNotAvailable");
+      document.getElementById("currentTitle").textContent = msg;
+      document.getElementById("fsTitle").textContent = msg;
+      if (cleanTitle(title)) saveLastTitle(cleanTitle(title));
+    }
+    function setTitleUIDetail(title){
+      const el = document.getElementById("detailTitle");
+      if (!el) return;
+      const msg = cleanTitle(title) || t("titleNotAvailable");
+      el.textContent = `${t("titleLabel")} ${msg}`;
     }
 
-    function startTitlePolling(station, { target="player" } = {}){
-      if (titleInterval) clearInterval(titleInterval);
+    let titleTimer = null;
+    let lastTitleForUrl = "";
+    let titleBusy = false;
 
-      (async ()=>{
-        const tt = await bestEffortTitle(station);
-        setTitleUI(target, tt);
-      })();
-
-      titleInterval = setInterval(async ()=>{
-        if (target === "player"){
-          if (!currentStation) return;
-        }
-        if (target === "detail"){
-          if (!isDetailOpen()) return;
-        }
-        const tt = await bestEffortTitle(station);
-        setTitleUI(target, tt);
-      }, 12000);
+    function stopTitleEngine(){
+      if (titleTimer) clearInterval(titleTimer);
+      titleTimer = null;
+      lastTitleForUrl = "";
+      titleBusy = false;
     }
 
-    const vizCanvas = document.getElementById("viz");
-    const vizCtx = vizCanvas.getContext("2d");
-    const fsCanvas = document.getElementById("fsViz");
-    const fsCtx = fsCanvas.getContext("2d");
+    async function requestTitleRefresh(){
+      if (!currentStation) return;
+      if (titleBusy) return;
+      titleBusy = true;
 
-    const fsMode = document.getElementById("fsMode");
-    const fsLogoWrap = document.getElementById("fsLogoWrap");
-    const aurora = document.getElementById("aurora");
+      const stationSnapshot = currentStation;
+      const urlSnapshot = stationSnapshot.url || "";
 
-    const faviconLink = document.getElementById("favicon");
-    const favCanvas = document.createElement("canvas");
-    favCanvas.width = 32; favCanvas.height = 32;
-    const favCtx = favCanvas.getContext("2d");
-    let lastFavUpdate = 0;
-    const FAV_INTERVAL = 1000 / 6;
+      try{
+        const title = await bestEffortTitle(stationSnapshot);
 
-    function faviconStateColor(){
-      const st = document.getElementById("footerStatus")?.dataset?.state || "STOP";
-      if (st === "LIVE") return [255, 77, 109];
-      if (st === "BUFFER") return [34, 211, 238];
-      if (st === "CONNECT") return [34, 197, 94];
-      if (st === "MUTE") return [245, 158, 11];
-      if (st === "ERR") return [239, 68, 68];
-      if (st === "PAUSE") return [231, 238, 252];
-      return [148, 163, 184];
-    }
+        if (!currentStation || (currentStation.url || "") !== urlSnapshot) return;
 
-    function updateDynamicFavicon(freqData){
-      const ts = Date.now();
-      if (ts - lastFavUpdate < FAV_INTERVAL) return;
-      lastFavUpdate = ts;
-
-      const [r,g,b] = faviconStateColor();
-      favCtx.clearRect(0,0,32,32);
-      favCtx.fillStyle = "rgba(6,9,20,1)";
-      favCtx.fillRect(0,0,32,32);
-
-      const bars = 7, pad=3;
-      const bw = Math.floor((32 - pad*2)/bars) - 1;
-
-      for (let i=0;i<bars;i++){
-        let amp = 0.10;
-        if (freqData && freqData.length){
-          const idx = Math.floor((i/bars)*(freqData.length-1));
-          amp = Math.max(0.08, freqData[idx]/255);
+        const clean = cleanTitle(title);
+        if (clean && clean !== lastTitleForUrl){
+          lastTitleForUrl = clean;
+          setTitleUIPlayer(clean);
+          if (isDetailOpen()) setTitleUIDetail(clean);
+        } else if (!clean){
+          const cur = document.getElementById("currentTitle").textContent.trim();
+          if (!cur || cur === lastTitleForUrl){
+            setTitleUIPlayer("");
+            if (isDetailOpen()) setTitleUIDetail("");
+          } else {
+            if (isDetailOpen()) setTitleUIDetail(cur);
+          }
         } else {
-          amp = 0.08 + 0.05*(0.5+0.5*Math.sin(ts/420+i));
+          if (isDetailOpen()) setTitleUIDetail(lastTitleForUrl);
         }
-        const barH = Math.max(2, Math.floor(amp*(32-10)));
-        favCtx.fillStyle = `rgba(${r},${g},${b},0.95)`;
-        favCtx.fillRect(pad + i*(bw+1), 32-pad-barH, bw, barH);
-      }
-
-      favCtx.beginPath();
-      favCtx.arc(26, 6, 3, 0, Math.PI*2);
-      favCtx.fillStyle = `rgba(${r},${g},${b},0.95)`;
-      favCtx.fill();
-
-      try{ faviconLink.href = favCanvas.toDataURL("image/png"); }catch(e){}
-    }
-
-    function resizeViz(){
-      const vizWrap = document.querySelector(".viz");
-      if (vizWrap){
-        const wCss = vizWrap.clientWidth || 600;
-        const hCss = vizWrap.clientHeight || 54;
-        const dpr = Math.max(1, window.devicePixelRatio || 1);
-        vizCanvas.width = Math.max(1, Math.floor(wCss * dpr));
-        vizCanvas.height = Math.max(1, Math.floor(hCss * dpr));
-        vizCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-
-      const fsWrap = document.querySelector(".fsCanvas");
-      if (fsWrap){
-        const rect = fsWrap.getBoundingClientRect();
-        const wCss = rect.width;
-        const hCss = rect.height;
-        const dpr = Math.max(1, window.devicePixelRatio || 1);
-        fsCanvas.width = Math.max(1, Math.floor(wCss * dpr));
-        fsCanvas.height = Math.max(1, Math.floor(hCss * dpr));
-        fsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      } finally {
+        titleBusy = false;
       }
     }
 
-    function drawLowEnergy(ctx,w,h,ts){
-      ctx.strokeStyle="rgba(231,238,252,0.55)";
-      ctx.lineWidth=2.0;
-      const baseY=h*0.52;
-      const amp=h*0.08*(0.6+0.4*Math.sin(ts/700));
-      const freq=2.2+0.25*Math.sin(ts/900);
-      ctx.beginPath();
-      for(let x=0;x<=w;x+=2){
-        const tt=x/w;
-        const y=baseY+Math.sin((tt*Math.PI*2*freq)+ts/380)*amp;
-        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      }
-      ctx.stroke();
+    function startTitleEngine(){
+      stopTitleEngine();
+      requestTitleRefresh();
+      titleTimer = setInterval(requestTitleRefresh, 12000);
     }
 
-    function pump(energy, ts){
-      const st = document.getElementById("footerStatus")?.dataset?.state || "STOP";
-      const active = (st==="LIVE"||st==="BUFFER"||st==="CONNECT") && !vizLowEnergy;
-
-      fsLogoWrap.classList.toggle("active", active);
-
-      const scale = active ? (1 + energy*0.10 + 0.01*Math.sin(ts/420)) : 1;
-      fsLogoWrap.style.transform = `scale(${scale})`;
-      fsLogoWrap.style.filter = active ? `brightness(${1+energy*0.14})` : "brightness(1)";
-
-      if (aurora){
-        const a = active ? (0.65 + energy*0.35) : 0.55;
-        aurora.style.opacity = String(a);
-      }
-    }
-
-    function startViz(){
-      if (vizRaf) return;
-
-      const timeData = new Uint8Array(2048);
-      const freqData = new Uint8Array(1024);
-
-      const draw = ()=>{
-        vizRaf = requestAnimationFrame(draw);
-
-        const dpr = Math.max(1, window.devicePixelRatio || 1);
-        const ts = Date.now();
-
-        {
-          const w = vizCanvas.width / dpr;
-          const h = vizCanvas.height / dpr;
-          if (w>10 && h>10){
-            vizCtx.clearRect(0,0,w,h);
-            const g = vizCtx.createLinearGradient(0,0,w,h);
-            g.addColorStop(0,"rgba(77,163,255,0.18)");
-            g.addColorStop(1,"rgba(124,92,255,0.14)");
-            vizCtx.fillStyle=g;
-            vizCtx.fillRect(0,0,w,h);
-
-            if (vizLowEnergy || !analyser){
-              drawLowEnergy(vizCtx,w,h,ts);
-              updateDynamicFavicon(null);
-            } else {
-              analyser.getByteTimeDomainData(timeData);
-              vizCtx.strokeStyle="rgba(231,238,252,0.92)";
-              vizCtx.lineWidth=2.2;
-              vizCtx.beginPath();
-              const step = w/timeData.length;
-              let x=0;
-              for(let i=0;i<timeData.length;i++){
-                const v=timeData[i]/128.0;
-                const y=(v*h)/2;
-                if(i===0) vizCtx.moveTo(x,y); else vizCtx.lineTo(x,y);
-                x += step;
-              }
-              vizCtx.stroke();
-
-              analyser.getByteFrequencyData(freqData);
-              const bins=48, barW=w/bins;
-              vizCtx.fillStyle="rgba(255,77,109,0.18)";
-              for(let i=0;i<bins;i++){
-                const idx=Math.floor(i*(freqData.length/bins));
-                const amp=freqData[idx]/255;
-                const barH=amp*(h*0.92);
-                vizCtx.fillRect(i*barW, h-barH, Math.max(1,barW-2), barH);
-              }
-              updateDynamicFavicon(freqData);
-            }
-          }
-        }
-
-        {
-          const w = fsCanvas.width / dpr;
-          const h = fsCanvas.height / dpr;
-          if (w>10 && h>10){
-            fsCtx.clearRect(0,0,w,h);
-
-            const bg = fsCtx.createLinearGradient(0,0,w,h);
-            bg.addColorStop(0,"rgba(77,163,255,0.12)");
-            bg.addColorStop(1,"rgba(255,77,109,0.10)");
-            fsCtx.fillStyle=bg;
-            fsCtx.fillRect(0,0,w,h);
-
-            if (vizLowEnergy || !analyser){
-              drawLowEnergy(fsCtx,w,h,ts);
-              pump(0.0, ts);
-            } else {
-              analyser.getByteFrequencyData(freqData);
-              const bins=120;
-              const barW = w / bins;
-              for(let i=0;i<bins;i++){
-                const idx = Math.floor(i*(freqData.length/bins));
-                const amp = freqData[idx]/255;
-                const barH = amp*(h*0.98);
-                const x = i*barW;
-                fsCtx.fillStyle = "rgba(231,238,252,0.14)";
-                fsCtx.fillRect(x, h-barH, barW+0.8, barH);
-              }
-
-              const low = freqData[2]/255;
-              const mid = freqData[12]/255;
-              const energy = Math.min(1, (low*0.65 + mid*0.35));
-              pump(energy, ts);
-            }
-          }
-        }
-      };
-      draw();
-    }
-
+    // -----------------------
+    // WebAudio graph (stable)
+    // -----------------------
     async function ensureAudioGraph(){
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!audioCtx) audioCtx = new AC();
 
-      if (!analyser){
+      if (audioCtx.state === "suspended"){
+        try { await audioCtx.resume(); } catch(e){}
+      }
+
+      if (!sourceNode){
+        sourceNode = audioCtx.createMediaElementSource(audio);
+
+        gainNode = audioCtx.createGain();
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 2048;
-        analyser.smoothingTimeConstant = 0.85;
+        analyser.smoothingTimeConstant = 0.82;
+
+        sourceNode.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
       }
-      if (!gainNode){
-        gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.9;
-      }
-      if (!sourceNode){
-        try{
-          sourceNode = audioCtx.createMediaElementSource(audio);
-          sourceNode.connect(analyser);
-          analyser.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-        }catch(e){
-          analyser=null; sourceNode=null; gainNode=null;
-        }
-      }
-      if (audioCtx.state === "suspended"){
-        try{ await audioCtx.resume(); }catch(e){}
-      }
-      resizeViz();
-      startViz();
     }
 
     function applyVolume(v){
       const vol = Math.max(0, Math.min(1, v));
-      if (gainNode) gainNode.gain.value = isMuted ? 0 : vol;
-      else audio.volume = isMuted ? 0 : vol;
+      audio.volume = isMuted ? 0 : vol;
     }
 
+    // -----------------------
+    // Visualizer: Bars + Waveform V2 + favicon
+    // -----------------------
+    const vizCanvas = document.getElementById("viz");
+    const vizCtx = vizCanvas.getContext("2d");
+
+    const fsCanvas = document.getElementById("fsViz");
+    const fsCtx = fsCanvas.getContext("2d");
+
+    const favCanvas = document.createElement("canvas");
+    favCanvas.width = 32; favCanvas.height = 32;
+    const favCtx = favCanvas.getContext("2d");
+    const faviconEl = document.getElementById("favicon");
+
+    function resizeCanvasToCSS(c){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const rect = c.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width * dpr));
+      const h = Math.max(1, Math.floor(rect.height * dpr));
+      if (c.width !== w || c.height !== h){
+        c.width = w; c.height = h;
+      }
+      return dpr;
+    }
+
+    function roundRect(ctx, x, y, w, h, r){
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.arcTo(x+w, y, x+w, y+h, r);
+      ctx.arcTo(x+w, y+h, x, y+h, r);
+      ctx.arcTo(x, y+h, x, y, r);
+      ctx.arcTo(x, y, x+w, y, r);
+      ctx.closePath();
+    }
+
+    function drawBars(ctx, canvas, data, opts){
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0,0,w,h);
+
+      const bars = opts.bars;
+      const step = Math.max(1, Math.floor(data.length / bars));
+      const gap = opts.gap;
+      const bw = (w - gap*(bars-1)) / bars;
+
+      for (let i=0;i<bars;i++){
+        let sum = 0;
+        for (let j=0;j<step;j++) sum += data[i*step + j];
+        const v = sum / step;
+        const amp = v / 255;
+
+        const baseH = Math.max(2, amp * h);
+        const mul = vizLowEnergy ? 0.18 : 1.0;
+        const finalH = Math.max(2, baseH * mul);
+
+        const x = i * (bw + gap);
+        const y = h - finalH;
+
+        const g = ctx.createLinearGradient(0, y, 0, h);
+        g.addColorStop(0, "rgba(231,238,252,0.95)");
+        g.addColorStop(1, "rgba(231,238,252,0.18)");
+        ctx.fillStyle = g;
+
+        const r = Math.min(14, Math.max(6, bw/2));
+        roundRect(ctx, x, y, bw, finalH, r);
+        ctx.fill();
+      }
+    }
+
+    // Waveform V2: double line + gradient + soft glow + smoothing
+    function drawWaveformV2(ctx, canvas, timeData){
+      const w = canvas.width, h = canvas.height;
+      const mid = h * 0.52;
+
+      // amplitude
+      const amp = h * (vizLowEnergy ? 0.12 : 0.30);
+
+      ctx.save();
+
+      // Slight dark wash for contrast (without clearing bars)
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(0,0,0,0.08)";
+      ctx.fillRect(0, 0, w, h);
+
+      // Wave gradient
+      const grad = ctx.createLinearGradient(0, 0, w, 0);
+      grad.addColorStop(0.00, "rgba(77,163,255,0.00)");
+      grad.addColorStop(0.12, "rgba(77,163,255,0.85)");
+      grad.addColorStop(0.50, "rgba(124,92,255,0.90)");
+      grad.addColorStop(0.88, "rgba(77,163,255,0.85)");
+      grad.addColorStop(1.00, "rgba(77,163,255,0.00)");
+
+      // Glow line
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.shadowColor = "rgba(77,163,255,0.42)";
+      ctx.shadowBlur = 12;
+
+      const thickness = Math.max(1.4, h * 0.045);
+      ctx.lineWidth = thickness;
+      ctx.strokeStyle = grad;
+
+      // Smooth path with downsampling
+      const len = timeData.length;
+      const step = Math.max(1, Math.floor(len / 240)); // limit points for smoothness
+
+      ctx.beginPath();
+      let first = true;
+      for (let i=0;i<len;i+=step){
+        const x = (i / (len - 1)) * w;
+        const v = (timeData[i] - 128) / 128; // -1..1
+        const y = mid + v * amp;
+        if (first){ ctx.moveTo(x,y); first = false; }
+        else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      // Secondary thin line (crisper highlight)
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = Math.max(1.0, h * 0.018);
+      ctx.strokeStyle = "rgba(231,238,252,0.70)";
+      ctx.stroke();
+
+      // Mirror subtle waveform under mid (gives “club” feel)
+      ctx.globalAlpha = vizLowEnergy ? 0.20 : 0.32;
+      ctx.lineWidth = Math.max(1.0, h * 0.022);
+      ctx.strokeStyle = "rgba(77,163,255,0.38)";
+      ctx.beginPath();
+      first = true;
+      for (let i=0;i<len;i+=step){
+        const x = (i / (len - 1)) * w;
+        const v = (timeData[i] - 128) / 128;
+        const y = mid - v * amp * 0.78; // mirror inverted
+        if (first){ ctx.moveTo(x,y); first = false; }
+        else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function updateDynamicFavicon(level01){
+      favCtx.clearRect(0,0,32,32);
+      favCtx.fillStyle = "rgba(11,18,39,1)";
+      favCtx.fillRect(0,0,32,32);
+
+      const bars = 6, gap = 2;
+      const bw = Math.floor((32 - gap*(bars+1)) / bars);
+
+      for (let i=0;i<bars;i++){
+        const amp = Math.max(0.08, level01) * (0.45 + i*0.09);
+        const bh = Math.max(3, Math.min(26, amp * 26));
+        const x = gap + i*(bw+gap);
+        const y = 30 - bh;
+
+        favCtx.fillStyle = isMuted ? "rgba(245,158,11,0.95)" : "rgba(77,163,255,0.95)";
+        favCtx.fillRect(x, y, bw, bh);
+      }
+
+      try{ faviconEl.href = favCanvas.toDataURL("image/png"); }catch(e){}
+    }
+
+    function startVizLoop(){
+      if (vizRaf) return;
+
+      const freq = new Uint8Array(1024);
+      const time = new Uint8Array(2048);
+
+      const loop = ()=>{
+        vizRaf = requestAnimationFrame(loop);
+        if (!analyser) return;
+
+        resizeCanvasToCSS(vizCanvas);
+        resizeCanvasToCSS(fsCanvas);
+
+        analyser.getByteFrequencyData(freq);
+        analyser.getByteTimeDomainData(time);
+
+        let sum = 0;
+        for (let i=0;i<freq.length;i++) sum += freq[i];
+        const level01 = (sum / freq.length) / 255;
+
+        // Player: bars + waveform V2 overlay
+        drawBars(vizCtx, vizCanvas, freq, { bars: 26, gap: 6 });
+        drawWaveformV2(vizCtx, vizCanvas, time);
+
+        // Fullscreen: bars + waveform V2 overlay (optional but nice)
+        drawBars(fsCtx, fsCanvas, freq, { bars: 92, gap: 6 });
+        drawWaveformV2(fsCtx, fsCanvas, time);
+
+        if (!loop._t || performance.now() - loop._t > 250){
+          loop._t = performance.now();
+          updateDynamicFavicon(level01);
+        }
+
+        const wrap = document.getElementById("fsLogoWrap");
+        if (wrap){
+          const boost = vizLowEnergy ? 0.08 : 0.22;
+          const s = 1 + level01 * boost;
+          wrap.style.transform = `scale(${s.toFixed(3)})`;
+          wrap.classList.toggle("active", !vizLowEnergy && level01 > 0.20);
+        }
+      };
+      loop();
+    }
+
+    function stopVizLoop(){
+      if (vizRaf){
+        cancelAnimationFrame(vizRaf);
+        vizRaf = null;
+      }
+    }
+
+    // -----------------------
+    // Resolver placeholder (Part 2 later)
+    // -----------------------
     async function resolveStreamViaServer(station){
       const cached = getResolved(station.url);
       if (cached) return cached;
@@ -2171,6 +2200,9 @@
       return null;
     }
 
+    // -----------------------
+    // Player
+    // -----------------------
     function setPlayerStationUI(station){
       playerEl.classList.remove("isEmpty");
       document.getElementById("playerName").textContent = station.name || "Radio";
@@ -2192,6 +2224,7 @@
         setAudioSourceWithProxy(url, i);
         try{
           await ensureAudioGraph();
+          startVizLoop();
           applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
           await audio.play();
           return true;
@@ -2203,16 +2236,18 @@
     async function startPlaybackWithFallbacks(station){
       setPlayerStatusKey("statusConnecting");
       setFooterStatus("CONNECT");
-      setTitleUI("player", "");
+
+      setTitleUIPlayer("");
+      if (isDetailOpen()) setTitleUIDetail("");
 
       if (await tryPlayUrl(station.url)){
-        isPlaying = true; setPlayIcon();
+        isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
         if (currentTryIndex===0) setPlayerStatusKey("statusLive");
         else updatePlayerStatus(`${t("statusLiveProxy")} ${currentTryIndex}`);
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
         unmarkBadUrl(station.url);
-        startTitlePolling(station, { target: "player" });
         saveLastStation(station);
+        startTitleEngine();
         return true;
       }
 
@@ -2227,11 +2262,11 @@
           unmarkBadUrl(resolvedUrl);
 
           station.url = resolvedUrl;
-          isPlaying = true; setPlayIcon();
+          isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
           setPlayerStatusKey("statusAlt");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
-          startTitlePolling(station, { target: "player" });
           saveLastStation(station);
+          startTitleEngine();
           return true;
         }
       }
@@ -2239,8 +2274,9 @@
       markBadUrl(station.url, "play_failed");
       setPlayerStatusKey("statusFailed");
       setFooterStatus("ERR");
-      isPlaying = false; setPlayIcon();
-      setTitleUI("player", "");
+      isPlaying = false; document.getElementById("playPauseBtn").textContent = "▶";
+      setTitleUIPlayer("");
+      if (isDetailOpen()) setTitleUIDetail("");
       return false;
     }
 
@@ -2251,14 +2287,17 @@
       currentStation = s;
       setPlayerStationUI(s);
 
+      // Reset title memory for the new station
+      lastTitleForUrl = "";
+      setTitleUIPlayer("");
+      if (isDetailOpen()) setTitleUIDetail("");
+
       if (autoStart) startPlaybackWithFallbacks(s);
       else{
         setPlayerStatusKey("statusSelect");
         setFooterStatus("PAUSE");
         isPlaying = false;
-        setPlayIcon();
-        if (titleInterval) clearInterval(titleInterval);
-        titleInterval = null;
+        document.getElementById("playPauseBtn").textContent = "▶";
       }
     }
 
@@ -2270,15 +2309,18 @@
       setPlayerStationUI(last);
 
       const lastTitle = loadLastTitle();
-      document.getElementById("currentTitle").textContent = lastTitle ? lastTitle : t("titleNotAvailable");
-      document.getElementById("fsTitle").textContent = lastTitle ? lastTitle : t("titleNotAvailable");
+      const msg = lastTitle ? lastTitle : t("titleNotAvailable");
+      document.getElementById("currentTitle").textContent = msg;
+      document.getElementById("fsTitle").textContent = msg;
 
       isPlaying = false;
-      setPlayIcon();
+      document.getElementById("playPauseBtn").textContent = "▶";
       setFooterStatus("PAUSE");
       playerStateKey = "statusPaused";
       playerStateText = (LANG === "fr") ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume";
       updatePlayerStatus(playerStateText);
+
+      startTitleEngine();
     }
 
     function stopPlayback(){
@@ -2287,18 +2329,20 @@
       audio.load();
 
       isPlaying = false;
-      setPlayIcon();
+      document.getElementById("playPauseBtn").textContent = "▶";
       setPlayerStatusKey("statusStopped");
-      setTitleUI("player", "");
+
+      stopTitleEngine();
+      stopVizLoop();
+
+      setTitleUIPlayer("");
+      if (isDetailOpen()) setTitleUIDetail("");
 
       currentStation = null;
       playerEl.classList.add("isEmpty");
       document.getElementById("playerName").textContent = t("chooseRadio");
       setFooterStatus("STOP");
       updateBottomSafe();
-
-      if (titleInterval) clearInterval(titleInterval);
-      titleInterval = null;
     }
 
     function togglePlayPause(){
@@ -2308,19 +2352,20 @@
       else audio.play().catch(()=> startPlaybackWithFallbacks(currentStation));
     }
 
+    // Audio events
     audio.addEventListener("playing", ()=>{
       isPlaying = true;
-      setPlayIcon();
+      document.getElementById("playPauseBtn").textContent = "⏸";
       setFooterStatus(isMuted ? "MUTE" : "LIVE");
-      if (currentStation) startTitlePolling(currentStation, { target: "player" });
       if (!playerStateText) setPlayerStatusKey("statusLive");
+      startVizLoop();
+      startTitleEngine();
     });
     audio.addEventListener("pause", ()=>{
       isPlaying = false;
-      setPlayIcon();
+      document.getElementById("playPauseBtn").textContent = "▶";
       if (currentStation){
-        if (isMuted) setFooterStatus("MUTE");
-        else setFooterStatus("PAUSE");
+        setFooterStatus(isMuted ? "MUTE" : "PAUSE");
         setPlayerStatusKey("statusPaused");
       } else {
         setFooterStatus("STOP");
@@ -2338,6 +2383,29 @@
       setPlayerStatusKey("statusFailed");
     });
 
+    // -----------------------
+    // Fullscreen
+    // -----------------------
+    const fsMode = document.getElementById("fsMode");
+    function openFS(){ fsMode.classList.add("show"); document.body.style.overflow = "hidden"; }
+    function closeFS(){ fsMode.classList.remove("show"); document.body.style.overflow = ""; }
+
+    document.getElementById("fsBtn").addEventListener("click", openFS);
+    document.getElementById("fsClose").addEventListener("click", (e)=>{ e.stopPropagation(); closeFS(); });
+    document.getElementById("fsMiniPlay").addEventListener("click", (e)=>{ e.stopPropagation(); togglePlayPause(); });
+    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{ e.stopPropagation(); document.getElementById("muteBtn").click(); });
+    fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
+    window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
+
+    // -----------------------
+    // Events wiring
+    // -----------------------
+    document.getElementById("homeLink").addEventListener("click", (e)=>{
+      e.preventDefault();
+      if (isDetailOpen()) showList();
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
     document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
     document.getElementById("stopBtn").addEventListener("click", stopPlayback);
     document.getElementById("retryBtn").addEventListener("click", ()=>{
@@ -2348,25 +2416,13 @@
     document.getElementById("muteBtn").addEventListener("click", ()=>{
       isMuted = !isMuted;
       vizLowEnergy = isMuted;
-
       document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔊";
       document.getElementById("fsMiniMute").textContent =
         (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
-
       applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
 
-      if (currentStation){
-        if (isMuted){
-          setFooterStatus("MUTE");
-          setPlayerStatusKey(isPlaying ? "statusLive" : "statusPaused");
-        } else {
-          setFooterStatus(isPlaying ? "LIVE" : "PAUSE");
-          setPlayerStatusKey(isPlaying ? "statusLive" : "statusPaused");
-        }
-      } else {
-        setFooterStatus("STOP");
-        setPlayerStatusKey("statusStopped");
-      }
+      if (currentStation) setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
+      else setFooterStatus("STOP");
     });
 
     document.getElementById("volume").addEventListener("input", (e)=>{
@@ -2374,33 +2430,7 @@
     });
     applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
 
-    function openFS(){
-      fsMode.classList.add("show");
-      fsMode.setAttribute("aria-hidden","false");
-      resizeViz(); startViz();
-      document.body.style.overflow = "hidden";
-    }
-    function closeFS(){
-      fsMode.classList.remove("show");
-      fsMode.setAttribute("aria-hidden","true");
-      document.body.style.overflow = "";
-    }
-    document.getElementById("fsBtn").addEventListener("click", openFS);
-    document.getElementById("fsClose").addEventListener("click", (e)=>{ e.stopPropagation(); closeFS(); });
-    document.getElementById("fsMiniPlay").addEventListener("click", (e)=>{ e.stopPropagation(); togglePlayPause(); });
-    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{ e.stopPropagation(); document.getElementById("muteBtn").click(); });
-
-    fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
-    window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
-
-    function resetAndReload(){
-      if (isDetailOpen()) return;
-      offset = 0; hasMore = true; stations = [];
-      endMessage.style.display = "none";
-      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
-      loadStations(false);
-    }
-
+    // Filters
     document.getElementById("viewMode").addEventListener("change", resetAndReload);
     document.getElementById("sortMode").addEventListener("change", resetAndReload);
 
@@ -2418,56 +2448,43 @@
       });
     });
 
+    // Show broken toggle
+    const showBrokenEl = document.getElementById("showBroken");
+    showBrokenEl.checked = showBroken;
+    showBrokenEl.addEventListener("change", ()=>{
+      showBroken = showBrokenEl.checked;
+      localStorage.setItem("gr_show_broken", showBroken ? "1" : "0");
+      resetAndReload();
+    });
+
+    // Clear filters
     document.getElementById("clearBtn").addEventListener("click", ()=>{
       if (isDetailOpen()) showList();
-
       document.getElementById("viewMode").value = "all";
       document.getElementById("sortMode").value = "votes";
       document.getElementById("searchInput").value = "";
-      document.getElementById("countrySelect").value = "France";
+      document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
       document.getElementById("genreSelect").value = "";
       resetAndReload();
       toast(t("toastReset"));
     });
 
-    const showBrokenEl = document.getElementById("showBroken");
-    if (showBrokenEl){
-      showBrokenEl.checked = showBroken;
-      showBrokenEl.addEventListener("change", ()=>{
-        showBroken = showBrokenEl.checked;
-        localStorage.setItem("gr_show_broken", showBroken ? "1" : "0");
-        resetAndReload();
-      });
-    }
-
-    loadMoreBtn.addEventListener("click", ()=> loadStations(true));
-    document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredStation));
+    // Detail nav
     document.getElementById("backBtn").addEventListener("click", showList);
-    document.getElementById("year").textContent = new Date().getFullYear();
 
-    const scrollTopBtn = document.getElementById("scrollTopBtn");
-    window.addEventListener("scroll", ()=>{ scrollTopBtn.style.display = window.scrollY > 400 ? "block" : "none"; });
+    // Featured
+    document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredStation));
+
+    // Load more fallback
+    loadMoreBtn.addEventListener("click", ()=> loadStations(true));
+
+    // Scroll-to-top button
+    window.addEventListener("scroll", ()=>{
+      scrollTopBtn.style.display = window.scrollY > 400 ? "block" : "none";
+    }, { passive: true });
     scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-    function refreshDetailLang(){
-      if (!currentStation) return;
-      populateDetail(currentStation);
-      loadMoreBtn.style.display = "none";
-      endMessage.style.display = "none";
-    }
-
-    document.getElementById("langEN")?.addEventListener("click", ()=>{
-      applyLang("en");
-      if (isDetailOpen()) refreshDetailLang();
-      else resetAndReload();
-    });
-    document.getElementById("langFR")?.addEventListener("click", ()=>{
-      applyLang("fr");
-      if (isDetailOpen()) refreshDetailLang();
-      else resetAndReload();
-    });
-
-    // ✅ Infinite scroll on Home
+    // Infinite scroll (home only)
     function handleInfiniteScroll(){
       if (!INFINITE_SCROLL) return;
       if (!isHome()) return;
@@ -2480,7 +2497,6 @@
         loadStations(true);
       }
     }
-
     window.addEventListener("scroll", ()=>{
       if (!INFINITE_SCROLL) return;
       if (scrollTicking) return;
@@ -2491,17 +2507,38 @@
       });
     }, { passive: true });
 
+    // Language switch (no player reset)
+    function refreshDetailLang(){
+      if (!currentStation) return;
+      populateDetail(currentStation);
+      loadMoreBtn.style.display = "none";
+      endMessage.style.display = "none";
+    }
+
+    document.getElementById("langEN").addEventListener("click", ()=>{
+      applyLang("en");
+      if (isDetailOpen()) refreshDetailLang();
+      else resetAndReload();
+    });
+    document.getElementById("langFR").addEventListener("click", ()=>{
+      applyLang("fr");
+      if (isDetailOpen()) refreshDetailLang();
+      else resetAndReload();
+    });
+
+    // -----------------------
+    // Init
+    // -----------------------
+    document.getElementById("year").textContent = new Date().getFullYear();
+
     (async function init(){
       const savedLang = localStorage.getItem("gr_lang");
       applyLang(savedLang || "en");
 
-      window.addEventListener("resize", resizeViz);
-      resizeViz();
-      startViz();
-
       restoreLastPlayedIntoPlayer();
 
       await loadFilters();
+
       offset = 0; hasMore = true;
       document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
       loadStations(false);
