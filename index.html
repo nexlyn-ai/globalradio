@@ -10,27 +10,22 @@
   <meta name="theme-color" content="#0b1227" />
   <link rel="canonical" href="https://globalradio.top/" />
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="GlobalRadio.top — Global online radio directory" />
   <meta property="og:description" content="Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata." />
   <meta property="og:url" content="https://globalradio.top/" />
   <meta property="og:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="GlobalRadio.top — Global online radio directory" />
   <meta name="twitter:description" content="Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata." />
   <meta name="twitter:image" content="https://globalradio.top/assets/globalradio-logo.jpg" />
 
-  <!-- Preconnect -->
   <link rel="preconnect" href="https://de1.api.radio-browser.info" crossorigin />
   <link rel="dns-prefetch" href="https://de1.api.radio-browser.info" />
 
-  <!-- Favicon (will be replaced dynamically) -->
   <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
 
-  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -134,7 +129,6 @@
     }
     .brandLink:hover{ opacity: .92; }
 
-    /* safety: hide any old debug pill */
     .pill{ display:none !important; }
 
     .filters{
@@ -223,7 +217,6 @@
       box-shadow: 0 0 0 1px rgba(77,163,255,.55), 0 10px 25px rgba(0,0,0,.12);
     }
 
-    /* checkbox label styled as button */
     .btnCheck{
       display:inline-flex;
       align-items:center;
@@ -495,7 +488,37 @@
       text-align:center;
     }
 
-    /* Player */
+    .detailHome{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:10px;
+      flex-wrap: wrap;
+    }
+    .detailHome a{
+      color: rgba(231,238,252,.95);
+      font-weight: 800;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(231,238,252,.35);
+      padding-bottom: 2px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      max-width: 100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .detailHome a:hover{
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .detailHome .hint{
+      color: rgba(169,183,214,.92);
+      font-size: .92rem;
+    }
+
     .player{
       position:fixed;
       left: 10px; right: 10px;
@@ -525,7 +548,19 @@
     }
     .pLogo img{ width: 44px; height: 44px; object-fit: contain; }
 
-    .pInfo{ flex: 1; min-width: 220px; }
+    /* ✅ Player info: 1 line each + ellipsis */
+    .pInfo{
+      flex: 1 1 320px;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .pName, .pTitle, .pStatus{
+      display:block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
     .pName{ font-weight: 800; }
     .pTitle{ color: rgba(231,238,252,.90); font-style: italic; margin-top: 2px; }
     .pStatus{ color: rgba(169,183,214,.92); font-size: .92rem; margin-top: 3px; }
@@ -627,7 +662,6 @@
     }
     .toast.show{ display:block; }
 
-    /* Footer */
     #fixedFooter{
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -889,7 +923,7 @@
         <option value="favorites" data-i18n="viewFavs">Favorites</option>
       </select>
 
-      <select id="sortMode" title="Sort">
+      <select id="sortMode">
         <option value="votes" data-i18n="sortVotes">By popularity</option>
         <option value="clickcount" data-i18n="sortClick">By listeners</option>
         <option value="name" data-i18n="sortName">By name</option>
@@ -902,7 +936,7 @@
         <option value="" data-i18n="allStyles">All styles</option>
       </select>
 
-      <label class="btn btnCheck" title="Show broken stations">
+      <label class="btn btnCheck">
         <input id="showBroken" type="checkbox">
         <span data-i18n="showBroken">Show broken stations</span>
       </label>
@@ -955,14 +989,14 @@
     </div>
 
     <div class="pControls">
-      <div class="miniBtn" id="stopBtn" title="Stop">⏹</div>
-      <div class="playBtn" id="playPauseBtn" title="Play / Pause">▶</div>
-      <div class="miniBtn" id="retryBtn" title="Reconnect">↻</div>
-      <div class="miniBtn" id="muteBtn" title="Mute / Unmute">🔊</div>
-      <div class="miniBtn" id="fsBtn" title="Fullscreen">⛶</div>
+      <div class="miniBtn" id="stopBtn" data-i18n-title="ttStop" title="Stop">⏹</div>
+      <div class="playBtn" id="playPauseBtn" data-i18n-title="ttPlayPause" title="Play / Pause">▶</div>
+      <div class="miniBtn" id="retryBtn" data-i18n-title="ttRetry" title="Reconnect">↻</div>
+      <div class="miniBtn" id="muteBtn" data-i18n-title="ttMute" title="Mute / Unmute">🔊</div>
+      <div class="miniBtn" id="fsBtn" data-i18n-title="ttFullscreen" title="Fullscreen">⛶</div>
     </div>
 
-    <div class="vol" title="Volume">
+    <div class="vol" data-i18n-title="ttVolume" title="Volume">
       <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
     </div>
 
@@ -973,7 +1007,7 @@
     <audio id="audioPlayer" preload="none" crossorigin="anonymous"></audio>
   </div>
 
-  <button id="scrollTopBtn" title="Scroll to top">⬆</button>
+  <button id="scrollTopBtn" data-i18n-title="ttScrollTop" title="Scroll to top">⬆</button>
 
   <div id="fixedFooter">
     <a href="https://globalradio.top">© <span id="year"></span> GlobalRadio.top</a>
@@ -989,7 +1023,6 @@
     </span>
   </div>
 
-  <!-- Fullscreen -->
   <div id="fsMode" aria-hidden="true">
     <div class="aurora" id="aurora"></div>
 
@@ -997,7 +1030,7 @@
       <button class="fsBtn" id="fsClose" type="button" data-i18n="fsClose">✕ Close</button>
       <div style="display:flex; gap:10px;">
         <button class="fsBtn" id="fsMiniPlay" type="button" data-i18n="fsPlay">⏯ Play</button>
-        <button class="fsBtn" id="fsMiniMute" type="button">🔊 Mute</button>
+        <button class="fsBtn" id="fsMiniMute" type="button" data-i18n="fsMute">🔊 Mute</button>
       </div>
     </div>
 
@@ -1017,9 +1050,6 @@
   </div>
 
   <script>
-    /********************
-     * I18N (Option 1) — EN default + FR switch (localStorage)
-     ********************/
     const I18N = {
       en: {
         siteName: "GlobalRadio.top",
@@ -1060,9 +1090,18 @@
         with: "with",
         fsClose: "✕ Close",
         fsPlay: "⏯ Play",
+        fsMute: "Mute",
         toastWelcome: "Welcome to GlobalRadio.top ✨",
         toastPick: "Pick a station first.",
-        toastReset: "Filters reset."
+        toastReset: "Filters reset.",
+        stationWebsite: "Station website",
+        ttStop: "Stop",
+        ttPlayPause: "Play / Pause",
+        ttRetry: "Reconnect",
+        ttMute: "Mute / Unmute",
+        ttFullscreen: "Fullscreen",
+        ttVolume: "Volume",
+        ttScrollTop: "Scroll to top"
       },
       fr: {
         siteName: "GlobalRadio.top",
@@ -1103,9 +1142,18 @@
         with: "with",
         fsClose: "✕ Fermer",
         fsPlay: "⏯ Lecture",
+        fsMute: "Muet",
         toastWelcome: "Bienvenue sur GlobalRadio.top ✨",
         toastPick: "Choisis une station d’abord.",
-        toastReset: "Filtres réinitialisés."
+        toastReset: "Filtres réinitialisés.",
+        stationWebsite: "Site web de la radio",
+        ttStop: "Arrêter",
+        ttPlayPause: "Lecture / Pause",
+        ttRetry: "Reconnecter",
+        ttMute: "Muet / Son",
+        ttFullscreen: "Plein écran",
+        ttVolume: "Volume",
+        ttScrollTop: "Remonter"
       }
     };
 
@@ -1114,129 +1162,25 @@
       return (I18N[LANG] && I18N[LANG][key]) || (I18N.en[key] || key);
     }
 
-    function applyLang(lang){
-      LANG = (lang === "fr") ? "fr" : "en";
-      localStorage.setItem("gr_lang", LANG);
-
-      document.querySelectorAll("[data-i18n]").forEach(el=>{
-        const k = el.dataset.i18n;
-        if (k) el.textContent = t(k);
-      });
-      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-        const k = el.dataset.i18nPlaceholder;
-        if (k) el.placeholder = t(k);
-      });
-
-      const enBtn = document.getElementById("langEN");
-      const frBtn = document.getElementById("langFR");
-      if (enBtn && frBtn){
-        enBtn.classList.toggle("isActive", LANG === "en");
-        frBtn.classList.toggle("isActive", LANG === "fr");
-      }
-
-      // If player is empty, keep it translated
-      if (!currentStation){
-        document.getElementById("playerName").textContent = t("chooseRadio");
-        document.getElementById("currentTitle").textContent = t("titleNotAvailable");
-        updatePlayerStatus(t("statusSelect"));
-      }
-
-      // If end message visible
-      const endMsg = document.getElementById("endMessage");
-      if (endMsg && endMsg.style.display !== "none"){
-        endMsg.textContent = t("endResults");
-      }
-    }
-
-    /********************
-     * CONFIG
-     ********************/
     const API_BASE = "https://de1.api.radio-browser.info/json";
     const limit = 48;
     const SITE_LOGO = "assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
-
-    // Stream resolver endpoint (optional, if you have it)
     const RESOLVE_API = "/api/resolve-stream";
 
-    // Proxy chain for playback
     const PROXY_CHAIN = [
       (u) => u,
       (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
     ];
 
-    // Blacklist 7 days
     const BAD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
     const BAD_KEY = "gr_bad_stations_v1";
 
-    // Cache resolved streams 30 days
     const RESOLVED_KEY = "gr_resolved_streams_v1";
     const RESOLVED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-    // Last played (player memory)
     const LAST_STATION_KEY = "gr_last_station_v1";
     const LAST_TITLE_KEY = "gr_last_title_v1";
-
-    // Main styles (clean list). Value stays stable; label is translated via i18n.
-    const MAIN_STYLES = [
-      { key: "stylePop", value: "pop" },
-      { key: "styleRock", value: "rock" },
-      { key: "styleHipHop", value: "hip hop" },
-      { key: "styleRnB", value: "rnb" },
-      { key: "styleElectro", value: "electronic" },
-      { key: "styleHouse", value: "house" },
-      { key: "styleTechno", value: "techno" },
-      { key: "styleDance", value: "dance" },
-      { key: "styleJazz", value: "jazz" },
-      { key: "styleClassical", value: "classical" },
-      { key: "styleReggae", value: "reggae" },
-      { key: "styleLatin", value: "latin" },
-      { key: "styleCountry", value: "country" },
-      { key: "styleMetal", value: "metal" },
-      { key: "styleChill", value: "chill" },
-      { key: "styleNews", value: "news" },
-      { key: "styleSport", value: "sport" }
-    ];
-
-    // Add missing i18n labels for styles (kept here for clarity)
-    Object.assign(I18N.en, {
-      stylePop: "Pop",
-      styleRock: "Rock",
-      styleHipHop: "Hip-Hop / Rap",
-      styleRnB: "R&B / Soul",
-      styleElectro: "Electronic",
-      styleHouse: "House",
-      styleTechno: "Techno",
-      styleDance: "Dance",
-      styleJazz: "Jazz",
-      styleClassical: "Classical",
-      styleReggae: "Reggae",
-      styleLatin: "Latin",
-      styleCountry: "Country",
-      styleMetal: "Metal",
-      styleChill: "Ambient / Chill",
-      styleNews: "News / Talk",
-      styleSport: "Sport"
-    });
-    Object.assign(I18N.fr, {
-      stylePop: "Pop",
-      styleRock: "Rock",
-      styleHipHop: "Hip-Hop / Rap",
-      styleRnB: "R&B / Soul",
-      styleElectro: "Electro",
-      styleHouse: "House",
-      styleTechno: "Techno",
-      styleDance: "Dance",
-      styleJazz: "Jazz",
-      styleClassical: "Classique",
-      styleReggae: "Reggae",
-      styleLatin: "Latin",
-      styleCountry: "Country",
-      styleMetal: "Metal",
-      styleChill: "Ambient / Chill",
-      styleNews: "News / Talk",
-      styleSport: "Sport"
-    });
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
@@ -1289,9 +1233,6 @@
       saveMap(RESOLVED_KEY, resolvedMap);
     }
 
-    /********************
-     * STATE
-     ********************/
     let stations = [], offset = 0, hasMore = true, loading = false;
     let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
 
@@ -1308,6 +1249,9 @@
     let currentTryIndex = 0;
     let currentStation = null;
     let titleInterval = null;
+
+    let playerStateKey = "statusSelect";
+    let playerStateText = "";
 
     const loadMoreBtn = document.getElementById("loadMoreBtn");
     const endMessage = document.getElementById("endMessage");
@@ -1327,9 +1271,66 @@
       uuid: null
     };
 
-    /********************
-     * UI HELPERS
-     ********************/
+    function applyLang(lang){
+      LANG = (lang === "fr") ? "fr" : "en";
+      localStorage.setItem("gr_lang", LANG);
+      document.documentElement.lang = LANG;
+
+      const playerIsEmpty = playerEl.classList.contains("isEmpty");
+      const hasStationLoaded =
+        !!currentStation ||
+        (localStorage.getItem(LAST_STATION_KEY) && !playerIsEmpty) ||
+        !!(audio && audio.src && audio.src.trim().length > 0);
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.dataset.i18n;
+
+        // ✅ PATCH: ne pas écraser le nom/titre du player si une station est chargée
+        if (hasStationLoaded && (el.id === "playerName" || el.id === "currentTitle")) return;
+
+        if (k) el.textContent = t(k);
+      });
+
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        const k = el.dataset.i18nPlaceholder;
+        if (k) el.placeholder = t(k);
+      });
+
+      document.querySelectorAll("[data-i18n-title]").forEach(el=>{
+        const k = el.dataset.i18nTitle;
+        if (k) el.title = t(k);
+      });
+
+      const enBtn = document.getElementById("langEN");
+      const frBtn = document.getElementById("langFR");
+      if (enBtn && frBtn){
+        enBtn.classList.toggle("isActive", LANG === "en");
+        frBtn.classList.toggle("isActive", LANG === "fr");
+      }
+
+      // (le statut est OK à traduire)
+      const statusEl = document.getElementById("playerStatus");
+      if (statusEl) statusEl.textContent = playerStateText || t(playerStateKey || "statusSelect");
+
+      if (!hasStationLoaded){
+        document.getElementById("playerName").textContent = t("chooseRadio");
+        document.getElementById("currentTitle").textContent = t("titleNotAvailable");
+        setPlayerStatusKey("statusSelect");
+      } else {
+        const ct = document.getElementById("currentTitle");
+        if (ct && (!ct.textContent || ct.textContent.trim() === "")) {
+          ct.textContent = t("titleNotAvailable");
+        }
+      }
+
+      if (endMessage && endMessage.style.display !== "none"){
+        endMessage.textContent = t("endResults");
+      }
+
+      document.getElementById("fsMiniMute").textContent =
+        (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
+    }
+
     function toast(msg, ms = 2400){
       const el = document.getElementById("toast");
       el.textContent = msg;
@@ -1344,13 +1345,19 @@
       el.querySelector(".sText").textContent = state;
     }
 
-    function updatePlayerStatus(text){ document.getElementById("playerStatus").textContent = text; }
+    function updatePlayerStatus(text){
+      playerStateText = String(text || "");
+      document.getElementById("playerStatus").textContent = playerStateText;
+    }
+    function setPlayerStatusKey(key, overrideText = ""){
+      playerStateKey = key || "statusSelect";
+      playerStateText = overrideText ? String(overrideText) : "";
+      document.getElementById("playerStatus").textContent = playerStateText || t(playerStateKey);
+    }
+
     function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
     function safeText(v, fallback=""){ return (v && String(v).trim()) ? String(v).trim() : fallback; }
 
-    /********************
-     * Station normalization
-     ********************/
     function normalizeStation(st){
       const stream = st.url_resolved || st.url || st.stream || "";
       return {
@@ -1366,9 +1373,6 @@
       };
     }
 
-    /********************
-     * Last played memory
-     ********************/
     function saveLastStation(st){
       try{
         const s = normalizeStation(st);
@@ -1396,9 +1400,6 @@
       }catch(e){ return ""; }
     }
 
-    /********************
-     * Logo fallbacks
-     ********************/
     function safeDomainFromStation(st){
       const src = st.homepage || st.url || "";
       try{ return new URL(src).hostname.replace(/^www\./,""); }
@@ -1428,9 +1429,6 @@
       tryNext();
     }
 
-    /********************
-     * Bottom safe spacing
-     ********************/
     function updateBottomSafe(){
       const footerH = fixedFooterEl.getBoundingClientRect().height;
       const playerRect = playerEl.getBoundingClientRect();
@@ -1443,16 +1441,16 @@
     new ResizeObserver(updateBottomSafe).observe(playerEl);
     new ResizeObserver(updateBottomSafe).observe(fixedFooterEl);
 
-    // Home link
+    function isDetailOpen(){
+      return document.getElementById("detailView").style.display === "block";
+    }
+
     document.getElementById("homeLink").addEventListener("click", (e)=>{
       e.preventDefault();
-      if (document.getElementById("detailView").style.display === "block") showList();
+      if (isDetailOpen()) showList();
       else window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    /********************
-     * Favorites
-     ********************/
     function saveFavorites(){ localStorage.setItem("gr_favorites", JSON.stringify(favorites)); }
     function isFavorite(station){
       return favorites.some(f =>
@@ -1473,9 +1471,6 @@
       animateGridEntrance();
     }
 
-    /********************
-     * Filters loading
-     ********************/
     async function loadFilters(){
       try{
         const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
@@ -1488,33 +1483,17 @@
           opt.textContent=`${c.name} (${c.stationcount})`;
           cs.appendChild(opt);
         });
-        const hasFrance = countries.some(c => (c.name||"").toLowerCase() === DEFAULT_COUNTRY.toLowerCase());
-        if (hasFrance) cs.value = DEFAULT_COUNTRY;
+        const hasFrance = countries.some(c => (c.name||"").toLowerCase() === "france");
+        if (hasFrance) cs.value = "France";
       }catch(e){}
 
-      // styles
-      const gs = document.getElementById("genreSelect");
-      gs.innerHTML = `<option value="" data-i18n="allStyles">${t("allStyles")}</option>`;
-      MAIN_STYLES.forEach(s=>{
-        const opt = document.createElement("option");
-        opt.value = s.value;
-        opt.textContent = t(s.key);
-        gs.appendChild(opt);
-      });
-
-      // prefill search from ?q=
       try{
         const url = new URL(location.href);
         const q = url.searchParams.get("q");
-        if (q){
-          document.getElementById("searchInput").value = q;
-        }
+        if (q) document.getElementById("searchInput").value = q;
       }catch(e){}
     }
 
-    /********************
-     * Stations loading
-     ********************/
     async function loadStations(append=false){
       if (loading) return;
       if (!hasMore && append) return;
@@ -1535,9 +1514,10 @@
       }
 
       const name = document.getElementById("searchInput").value.trim();
-      const country = document.getElementById("countrySelect").value || DEFAULT_COUNTRY;
+      const country = document.getElementById("countrySelect").value || "France";
       const tag = document.getElementById("genreSelect").value;
       const sortMode = document.getElementById("sortMode").value || "votes";
+      const hideBroken = !showBroken;
 
       const params = new URLSearchParams({
         limit: String(limit),
@@ -1557,9 +1537,7 @@
       if (!append){ stations = []; offset = 0; hasMore = true; }
 
       let normalized = (data||[]).map(normalizeStation).filter(s => s.url);
-      if (!showBroken){
-        normalized = normalized.filter(s => !isBadStationByUrl(s.url));
-      }
+      if (hideBroken) normalized = normalized.filter(s => !isBadStationByUrl(s.url));
 
       stations = stations.concat(normalized);
       offset += normalized.length;
@@ -1647,19 +1625,19 @@
         meta.className="meta";
 
         const hs = isBadStationByUrl(station.url);
+        const countryText = safeText(station.country, (LANG === "fr" ? "Monde" : "World"));
 
-        const countryText = safeText(station.country, "World");
         meta.innerHTML = `
           <div class="name">${station.name}</div>
           <div class="chips">
             <span class="chip"><span class="dot"></span>${countryText}</span>
-            <span class="chip muted">${safeText(station.codec,"Stream")}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
+            <span class="chip muted">${safeText(station.codec,(LANG==="fr"?"Flux":"Stream"))}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
             ${hs ? `<span class="chip hs" title="Recently detected as broken (local blacklist)."><span class="dot"></span>HS</span>` : ""}
           </div>
           <div class="chips" style="margin-top:10px;">
             <span class="chip live"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
             <span class="chip muted" title="${safeText(station.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              ${safeText(station.tags,"Misc").slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
+              ${safeText(station.tags,(LANG==="fr"?"Divers":"Misc")).slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
             </span>
           </div>
         `;
@@ -1674,9 +1652,22 @@
       grid.appendChild(frag);
     }
 
-    /********************
-     * Detail page
-     ********************/
+    function normalizeHomepage(hp){
+      const s = safeText(hp,"");
+      if (!s) return "";
+      try{
+        const u = new URL(s);
+        return u.href;
+      }catch(e){
+        try{
+          const u = new URL("https://" + s.replace(/^\/\//,""));
+          return u.href;
+        }catch(e2){
+          return "";
+        }
+      }
+    }
+
     function showDetail(station){
       currentStation = normalizeStation(station);
       document.getElementById("detailView").style.display = "block";
@@ -1703,7 +1694,24 @@
 
     function populateDetail(station){
       const logoCandidates = guessStationLogoCandidates(station);
-      const titleLabel = t("titleLabel");
+
+      const home = normalizeHomepage(station.homepage);
+      const host = (()=>{
+        try{ return home ? new URL(home).host.replace(/^www\./,"") : ""; }catch(e){ return ""; }
+      })();
+
+      const homeBlock = home ? `
+        <div class="detailHome">
+          <a href="${home}" target="_blank" rel="noopener noreferrer" title="${home}">
+            🌐 <span>${t("stationWebsite")}</span>: <span style="opacity:.92">${host}</span> ↗
+          </a>
+        </div>
+      ` : `
+        <div class="detailHome">
+          <span class="hint" style="opacity:.85;">${LANG==="fr" ? "Site web non renseigné" : "Website not provided"}</span>
+        </div>
+      `;
+
       document.getElementById("detailContent").innerHTML = `
         <div class="detail-top">
           <div class="detail-logo">
@@ -1718,6 +1726,8 @@
               ${station.bitrate ? ` • ${station.bitrate} kbps` : ""}
             </p>
 
+            ${homeBlock}
+
             <div class="detail-actions">
               <button class="btn btnPrimary" id="detailPlay">${t("playStation")}</button>
               <button class="btn" id="detailFav">${isFavorite(station) ? "❤️" : "♡"} ${t("fav")}</button>
@@ -1725,39 +1735,32 @@
           </div>
         </div>
 
-        <div id="detailTitle">${titleLabel} ${t("titleLoading")}</div>
+        <div id="detailTitle">${t("titleLabel")} ${t("titleLoading")}</div>
       `;
 
       const detailLogo = document.getElementById("detailLogo");
       setImgWithFallbacks(detailLogo, logoCandidates);
 
-      document.getElementById("detailPlay").onclick = ()=>{
-        playStation(station, { autoStart: true });
-      };
+      document.getElementById("detailPlay").onclick = ()=> playStation(station, { autoStart: true });
       document.getElementById("detailFav").onclick = ()=>{
         toggleFavorite(station);
         populateDetail(station);
       };
 
       startTitlePolling(station, { target: "detail" });
+
+      loadMoreBtn.style.display = "none";
+      endMessage.style.display = "none";
     }
 
-    /********************
-     * Best effort title (Icecast / Shoutcast / RadioBrowser)
-     ********************/
     function baseFromUrl(u){
       try{ const url = new URL(u); return `${url.protocol}//${url.host}`; }
       catch(e){ return null; }
     }
-
     function cleanTitle(tit){
       if (!tit) return "";
-      return String(tit)
-        .replace(/\s+/g, " ")
-        .replace(/[\u0000-\u001f]/g, "")
-        .trim();
+      return String(tit).replace(/\s+/g, " ").replace(/[\u0000-\u001f]/g, "").trim();
     }
-
     async function fetchJson(url, timeoutMs=4500){
       try{
         const ctrl = new AbortController();
@@ -1768,7 +1771,6 @@
         return await r.json();
       }catch(e){ return null; }
     }
-
     async function getTitleFromIcecast(streamUrl){
       const base = baseFromUrl(streamUrl);
       if (!base) return "";
@@ -1777,12 +1779,10 @@
       const ic = data.icestats || data;
       let src = ic.source;
       if (!src) return "";
-
       const pick = (s)=> cleanTitle(s.title || s.streamtitle || s.server_name || "");
       if (Array.isArray(src)) return pick(src[0]);
       return pick(src);
     }
-
     async function getTitleFromShoutcast(streamUrl){
       const base = baseFromUrl(streamUrl);
       if (!base) return "";
@@ -1797,7 +1797,6 @@
         "";
       return cleanTitle(t0);
     }
-
     async function getTitleFromRadioBrowser(uuid){
       if (!uuid) return "";
       try{
@@ -1807,18 +1806,14 @@
         return cleanTitle(data?.song || "");
       }catch(e){ return ""; }
     }
-
     async function bestEffortTitle(station){
       const stream = station.url || station.url_resolved || "";
       let tit = await getTitleFromIcecast(stream);
       if (tit) return tit;
-
       tit = await getTitleFromShoutcast(stream);
       if (tit) return tit;
-
       tit = await getTitleFromRadioBrowser(station.uuid);
       if (tit) return tit;
-
       return "";
     }
 
@@ -1848,16 +1843,13 @@
           if (!currentStation) return;
         }
         if (target === "detail"){
-          if (document.getElementById("detailView").style.display !== "block") return;
+          if (!isDetailOpen()) return;
         }
         const tt = await bestEffortTitle(station);
         setTitleUI(target, tt);
       }, 12000);
     }
 
-    /********************
-     * Dynamic favicon + Visualizers
-     ********************/
     const vizCanvas = document.getElementById("viz");
     const vizCtx = vizCanvas.getContext("2d");
     const fsCanvas = document.getElementById("fsViz");
@@ -1985,7 +1977,6 @@
         const dpr = Math.max(1, window.devicePixelRatio || 1);
         const ts = Date.now();
 
-        // mini viz
         {
           const w = vizCanvas.width / dpr;
           const h = vizCanvas.height / dpr;
@@ -2029,7 +2020,6 @@
           }
         }
 
-        // fullscreen viz
         {
           const w = fsCanvas.width / dpr;
           const h = fsCanvas.height / dpr;
@@ -2105,9 +2095,6 @@
       else audio.volume = isMuted ? 0 : vol;
     }
 
-    /********************
-     * Resolve stream via server (optional)
-     ********************/
     async function resolveStreamViaServer(station){
       const cached = getResolved(station.url);
       if (cached) return cached;
@@ -2129,9 +2116,6 @@
       return null;
     }
 
-    /********************
-     * Playback
-     ********************/
     function setPlayerStationUI(station){
       playerEl.classList.remove("isEmpty");
       document.getElementById("playerName").textContent = station.name || "Radio";
@@ -2162,14 +2146,14 @@
     }
 
     async function startPlaybackWithFallbacks(station){
-      updatePlayerStatus(t("statusConnecting"));
+      setPlayerStatusKey("statusConnecting");
       setFooterStatus("CONNECT");
       setTitleUI("player", "");
 
-      // 1) original
       if (await tryPlayUrl(station.url)){
         isPlaying = true; setPlayIcon();
-        updatePlayerStatus(currentTryIndex===0 ? t("statusLive") : `${t("statusLiveProxy")} ${currentTryIndex}`);
+        if (currentTryIndex===0) setPlayerStatusKey("statusLive");
+        else updatePlayerStatus(`${t("statusLiveProxy")} ${currentTryIndex}`);
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
         unmarkBadUrl(station.url);
         startTitlePolling(station, { target: "player" });
@@ -2177,8 +2161,7 @@
         return true;
       }
 
-      // 2) resolve server
-      updatePlayerStatus(t("searchAltStream"));
+      setPlayerStatusKey("searchAltStream");
       setFooterStatus("BUFFER");
 
       const resolvedUrl = await resolveStreamViaServer(station);
@@ -2190,7 +2173,7 @@
 
           station.url = resolvedUrl;
           isPlaying = true; setPlayIcon();
-          updatePlayerStatus(t("statusAlt"));
+          setPlayerStatusKey("statusAlt");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
           startTitlePolling(station, { target: "player" });
           saveLastStation(station);
@@ -2198,9 +2181,8 @@
         }
       }
 
-      // 3) mark HS
       markBadUrl(station.url, "play_failed");
-      updatePlayerStatus(t("statusFailed"));
+      setPlayerStatusKey("statusFailed");
       setFooterStatus("ERR");
       isPlaying = false; setPlayIcon();
       setTitleUI("player", "");
@@ -2216,7 +2198,7 @@
 
       if (autoStart) startPlaybackWithFallbacks(s);
       else{
-        updatePlayerStatus(t("statusSelect"));
+        setPlayerStatusKey("statusSelect");
         setFooterStatus("PAUSE");
         isPlaying = false;
         setPlayIcon();
@@ -2239,7 +2221,9 @@
       isPlaying = false;
       setPlayIcon();
       setFooterStatus("PAUSE");
-      updatePlayerStatus(LANG === "fr" ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume");
+      playerStateKey = "statusPaused";
+      playerStateText = (LANG === "fr") ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume";
+      updatePlayerStatus(playerStateText);
     }
 
     function stopPlayback(){
@@ -2249,7 +2233,7 @@
 
       isPlaying = false;
       setPlayIcon();
-      updatePlayerStatus(t("statusStopped"));
+      setPlayerStatusKey("statusStopped");
       setTitleUI("player", "");
 
       currentStation = null;
@@ -2274,21 +2258,31 @@
       setPlayIcon();
       setFooterStatus(isMuted ? "MUTE" : "LIVE");
       if (currentStation) startTitlePolling(currentStation, { target: "player" });
+      if (!playerStateText) setPlayerStatusKey("statusLive");
     });
     audio.addEventListener("pause", ()=>{
       isPlaying = false;
       setPlayIcon();
-      if (currentStation) setFooterStatus(isMuted ? "MUTE" : "PAUSE");
-      else setFooterStatus("STOP");
+      if (currentStation){
+        if (isMuted) setFooterStatus("MUTE");
+        else setFooterStatus("PAUSE");
+        setPlayerStatusKey("statusPaused");
+      } else {
+        setFooterStatus("STOP");
+        setPlayerStatusKey("statusStopped");
+      }
     });
     audio.addEventListener("waiting", ()=>{
-      if (currentStation) setFooterStatus(isMuted ? "MUTE" : "BUFFER");
+      if (currentStation){
+        setFooterStatus(isMuted ? "MUTE" : "BUFFER");
+        setPlayerStatusKey("statusBuffer");
+      }
     });
     audio.addEventListener("error", ()=>{
       setFooterStatus("ERR");
+      setPlayerStatusKey("statusFailed");
     });
 
-    // Player buttons
     document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
     document.getElementById("stopBtn").addEventListener("click", stopPlayback);
     document.getElementById("retryBtn").addEventListener("click", ()=>{
@@ -2301,25 +2295,30 @@
       vizLowEnergy = isMuted;
 
       document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔊";
-      document.getElementById("fsMiniMute").textContent = isMuted ? "🔇 Mute" : "🔊 Mute";
+      document.getElementById("fsMiniMute").textContent =
+        (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
 
       applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+
       if (currentStation){
-        setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
+        if (isMuted){
+          setFooterStatus("MUTE");
+          setPlayerStatusKey(isPlaying ? "statusLive" : "statusPaused");
+        } else {
+          setFooterStatus(isPlaying ? "LIVE" : "PAUSE");
+          setPlayerStatusKey(isPlaying ? "statusLive" : "statusPaused");
+        }
       } else {
         setFooterStatus("STOP");
+        setPlayerStatusKey("statusStopped");
       }
     });
 
     document.getElementById("volume").addEventListener("input", (e)=>{
       applyVolume(parseFloat(e.target.value || "0.9"));
     });
-
     applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
 
-    /********************
-     * Fullscreen controls
-     ********************/
     function openFS(){
       fsMode.classList.add("show");
       fsMode.setAttribute("aria-hidden","false");
@@ -2334,19 +2333,13 @@
     document.getElementById("fsBtn").addEventListener("click", openFS);
     document.getElementById("fsClose").addEventListener("click", (e)=>{ e.stopPropagation(); closeFS(); });
     document.getElementById("fsMiniPlay").addEventListener("click", (e)=>{ e.stopPropagation(); togglePlayPause(); });
-
-    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{
-      e.stopPropagation();
-      document.getElementById("muteBtn").click();
-    });
+    document.getElementById("fsMiniMute").addEventListener("click", (e)=>{ e.stopPropagation(); document.getElementById("muteBtn").click(); });
 
     fsMode.addEventListener("click", (e)=>{ if (e.target === fsMode) closeFS(); });
     window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
 
-    /********************
-     * Load/Reset events
-     ********************/
     function resetAndReload(){
+      if (isDetailOpen()) return;
       offset = 0; hasMore = true; stations = [];
       endMessage.style.display = "none";
       document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
@@ -2371,16 +2364,17 @@
     });
 
     document.getElementById("clearBtn").addEventListener("click", ()=>{
+      if (isDetailOpen()) showList();
+
       document.getElementById("viewMode").value = "all";
       document.getElementById("sortMode").value = "votes";
       document.getElementById("searchInput").value = "";
-      document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
+      document.getElementById("countrySelect").value = "France";
       document.getElementById("genreSelect").value = "";
       resetAndReload();
       toast(t("toastReset"));
     });
 
-    // Show broken toggle
     const showBrokenEl = document.getElementById("showBroken");
     if (showBrokenEl){
       showBrokenEl.checked = showBroken;
@@ -2396,36 +2390,44 @@
     document.getElementById("backBtn").addEventListener("click", showList);
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Scroll top
     const scrollTopBtn = document.getElementById("scrollTopBtn");
     window.addEventListener("scroll", ()=>{ scrollTopBtn.style.display = window.scrollY > 400 ? "block" : "none"; });
-    scrollTopBtn.addEventListener("click", ()=> window.scrollTo({ top:0, behavior:"smooth" }));
+    scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-    /********************
-     * Language buttons
-     ********************/
-    document.getElementById("langEN")?.addEventListener("click", ()=> { applyLang("en"); resetAndReload(); });
-    document.getElementById("langFR")?.addEventListener("click", ()=> { applyLang("fr"); resetAndReload(); });
+    function refreshDetailLang(){
+      if (!currentStation) return;
+      populateDetail(currentStation);
+      loadMoreBtn.style.display = "none";
+      endMessage.style.display = "none";
+    }
 
-    /********************
-     * Init
-     ********************/
+    document.getElementById("langEN")?.addEventListener("click", ()=>{
+      applyLang("en");
+      if (isDetailOpen()) refreshDetailLang();
+      else resetAndReload();
+    });
+    document.getElementById("langFR")?.addEventListener("click", ()=>{
+      applyLang("fr");
+      if (isDetailOpen()) refreshDetailLang();
+      else resetAndReload();
+    });
+
     (async function init(){
-      // Option 1: EN default with switch (no auto FR)
       const savedLang = localStorage.getItem("gr_lang");
       applyLang(savedLang || "en");
 
-      updateBottomSafe();
       window.addEventListener("resize", resizeViz);
       resizeViz();
-      startViz(); // favicon + low-energy idle
+      startViz();
 
-      // Restore last played into player (no autoplay)
       restoreLastPlayedIntoPlayer();
 
       await loadFilters();
-      resetAndReload();
+      offset = 0; hasMore = true;
+      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
+      loadStations(false);
 
+      updateBottomSafe();
       toast(t("toastWelcome"), 1300);
     })();
   </script>
