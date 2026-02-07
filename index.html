@@ -892,6 +892,50 @@
       .player{ bottom: 52px; }
       #scrollTopBtn{ bottom: 210px; }
     }
+
+    /* ===== Mobile compact player (NEW) ===== */
+    @media (max-width: 640px){
+      :root{ --bottom-safe: 210px; }
+
+      .player{
+        left: 8px; right: 8px;
+        bottom: 50px;
+        padding: 10px;
+        gap: 10px;
+      }
+
+      /* Default in mobile -> compact */
+      .player.isCompact .viz,
+      .player.isCompact .vol{
+        display: none !important;
+      }
+
+      .player .pLogo{ width: 46px; height: 46px; border-radius: 14px; }
+      .player .pLogo img{ width: 38px; height: 38px; }
+
+      .player .playBtn{ width: 50px; height: 50px; border-radius: 16px; font-size: 24px; }
+      .player .miniBtn{ width: 40px; height: 40px; border-radius: 14px; }
+
+      .player .pInfo{ flex: 1 1 220px; }
+      .player .pName{ font-size: .98rem; }
+      .player .pTitle{ font-size: .90rem; opacity: .92; }
+      .player .pStatus{ font-size: .86rem; opacity: .9; }
+
+      .playerToggle{ display: grid !important; }
+    }
+
+    .playerToggle{
+      display:none;
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      place-items:center;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .playerToggle:hover{ background: rgba(255,255,255,.085); transform: translateY(-1px); }
   </style>
 </head>
 
@@ -988,6 +1032,9 @@
     </div>
 
     <div class="pControls">
+      <!-- NEW: mobile collapse/expand -->
+      <div class="playerToggle" id="playerToggle" title="Expand / Collapse">▲</div>
+
       <div class="miniBtn" id="stopBtn" data-i18n-title="ttStop" title="Stop">⏹</div>
       <div class="playBtn" id="playPauseBtn" data-i18n-title="ttPlayPause" title="Play / Pause">▶</div>
       <div class="miniBtn" id="retryBtn" data-i18n-title="ttRetry" title="Reconnect">↻</div>
@@ -1483,8 +1530,6 @@
       playerStateText = overrideText ? String(overrideText) : "";
       document.getElementById("playerStatus").textContent = playerStateText || t(playerStateKey);
     }
-
-    function setPlayIcon(){ document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸" : "▶"; }
 
     // -----------------------
     // Bottom safe area (fix overlap)
@@ -2036,17 +2081,16 @@
       const w = canvas.width, h = canvas.height;
       const mid = h * 0.52;
 
-      // amplitude
       const amp = h * (vizLowEnergy ? 0.12 : 0.30);
 
       ctx.save();
 
-      // Slight dark wash for contrast (without clearing bars)
+      // Light wash for contrast (without clearing bars)
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = "rgba(0,0,0,0.08)";
       ctx.fillRect(0, 0, w, h);
 
-      // Wave gradient
+      // Gradient across X
       const grad = ctx.createLinearGradient(0, 0, w, 0);
       grad.addColorStop(0.00, "rgba(77,163,255,0.00)");
       grad.addColorStop(0.12, "rgba(77,163,255,0.85)");
@@ -2054,7 +2098,6 @@
       grad.addColorStop(0.88, "rgba(77,163,255,0.85)");
       grad.addColorStop(1.00, "rgba(77,163,255,0.00)");
 
-      // Glow line
       ctx.globalCompositeOperation = "lighter";
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -2065,28 +2108,27 @@
       ctx.lineWidth = thickness;
       ctx.strokeStyle = grad;
 
-      // Smooth path with downsampling
       const len = timeData.length;
-      const step = Math.max(1, Math.floor(len / 240)); // limit points for smoothness
+      const step = Math.max(1, Math.floor(len / 240));
 
       ctx.beginPath();
       let first = true;
       for (let i=0;i<len;i+=step){
         const x = (i / (len - 1)) * w;
-        const v = (timeData[i] - 128) / 128; // -1..1
+        const v = (timeData[i] - 128) / 128;
         const y = mid + v * amp;
         if (first){ ctx.moveTo(x,y); first = false; }
         else ctx.lineTo(x,y);
       }
       ctx.stroke();
 
-      // Secondary thin line (crisper highlight)
+      // Crisp highlight line
       ctx.shadowBlur = 0;
       ctx.lineWidth = Math.max(1.0, h * 0.018);
       ctx.strokeStyle = "rgba(231,238,252,0.70)";
       ctx.stroke();
 
-      // Mirror subtle waveform under mid (gives “club” feel)
+      // Mirror under line
       ctx.globalAlpha = vizLowEnergy ? 0.20 : 0.32;
       ctx.lineWidth = Math.max(1.0, h * 0.022);
       ctx.strokeStyle = "rgba(77,163,255,0.38)";
@@ -2095,7 +2137,7 @@
       for (let i=0;i<len;i+=step){
         const x = (i / (len - 1)) * w;
         const v = (timeData[i] - 128) / 128;
-        const y = mid - v * amp * 0.78; // mirror inverted
+        const y = mid - v * amp * 0.78;
         if (first){ ctx.moveTo(x,y); first = false; }
         else ctx.lineTo(x,y);
       }
@@ -2145,11 +2187,9 @@
         for (let i=0;i<freq.length;i++) sum += freq[i];
         const level01 = (sum / freq.length) / 255;
 
-        // Player: bars + waveform V2 overlay
         drawBars(vizCtx, vizCanvas, freq, { bars: 26, gap: 6 });
         drawWaveformV2(vizCtx, vizCanvas, time);
 
-        // Fullscreen: bars + waveform V2 overlay (optional but nice)
         drawBars(fsCtx, fsCanvas, freq, { bars: 92, gap: 6 });
         drawWaveformV2(fsCtx, fsCanvas, time);
 
@@ -2287,7 +2327,6 @@
       currentStation = s;
       setPlayerStationUI(s);
 
-      // Reset title memory for the new station
       lastTitleForUrl = "";
       setTitleUIPlayer("");
       if (isDetailOpen()) setTitleUIDetail("");
@@ -2525,6 +2564,40 @@
       if (isDetailOpen()) refreshDetailLang();
       else resetAndReload();
     });
+
+    // ===== Mobile player compact/expanded (NEW) =====
+    (function initMobilePlayerCompact(){
+      const player = document.getElementById("player");
+      const toggle = document.getElementById("playerToggle");
+      if (!player || !toggle) return;
+
+      const mq = window.matchMedia("(max-width: 640px)");
+
+      const applyDefault = () => {
+        const saved = localStorage.getItem("gr_player_compact");
+        if (mq.matches){
+          const compact = (saved === null) ? true : (saved === "1");
+          player.classList.toggle("isCompact", compact);
+          toggle.textContent = compact ? "▲" : "▼";
+          toggle.title = compact ? "Expand" : "Collapse";
+        } else {
+          player.classList.remove("isCompact");
+        }
+        updateBottomSafe();
+      };
+
+      applyDefault();
+      mq.addEventListener?.("change", applyDefault);
+
+      toggle.addEventListener("click", () => {
+        const compact = !player.classList.contains("isCompact");
+        player.classList.toggle("isCompact", compact);
+        localStorage.setItem("gr_player_compact", compact ? "1" : "0");
+        toggle.textContent = compact ? "▲" : "▼";
+        toggle.title = compact ? "Expand" : "Collapse";
+        updateBottomSafe();
+      });
+    })();
 
     // -----------------------
     // Init
