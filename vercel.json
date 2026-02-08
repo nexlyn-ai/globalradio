@@ -1,34 +1,87 @@
 {
-  "rewrites": [
-    { "source": "/country/:slug*", "destination": "/index.html" },
-    { "source": "/genre/:slug*", "destination": "/index.html" },
-    { "source": "/radio/:slug*", "destination": "/index.html" }
+  "redirects": [
+    {
+      "source": "/country/:slug*/",
+      "destination": "/country/:slug*",
+      "permanent": true
+    },
+    {
+      "source": "/genre/:slug*/",
+      "destination": "/genre/:slug*",
+      "permanent": true
+    },
+    {
+      "source": "/radio/:slug*/",
+      "destination": "/radio/:slug*",
+      "permanent": true
+    }
   ],
+
+  "rewrites": [
+    {
+      "source": "/country/:slug*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/genre/:slug*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/radio/:slug*",
+      "destination": "/index.html"
+    }
+  ],
+
   "headers": [
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400" },
-
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Accept-Ranges", "value": "bytes" },
-
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Accept-Ranges",
+          "value": "bytes"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        }
       ]
     }
   ]
