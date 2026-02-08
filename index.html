@@ -61,6 +61,21 @@
       --bottom-safe: 260px;
     }
 
+	:root{
+  --footer-h: 46px;   /* hauteur réelle du footer (mise à jour en JS) */
+  --player-gap: 10px;
+}
+
+/* 🔧 le player se place AU-DESSUS du footer */
+.player{
+  bottom: calc(var(--footer-h) + var(--player-gap));
+}
+
+/* bouton scroll-top aussi au-dessus */
+#scrollTopBtn{
+  bottom: calc(var(--footer-h) + var(--player-gap) + 140px);
+}
+
     *{ box-sizing:border-box; }
     html, body{ height:100%; }
 
@@ -1897,13 +1912,22 @@ function isBlockedMixedContent(finalUrl){
     // Bottom safe area (fix overlap)
     // -----------------------
     function updateBottomSafe(){
-      const footerH = fixedFooterEl.getBoundingClientRect().height;
-      const playerRect = playerEl.getBoundingClientRect();
-      const playerBottom = parseFloat(getComputedStyle(playerEl).bottom || "0");
-      const safe = Math.ceil(playerBottom + playerRect.height + footerH + 24);
-      document.documentElement.style.setProperty("--bottom-safe", safe + "px");
-      bottomSpacerEl.style.height = safe + "px";
-    }
+  const footerH = fixedFooterEl.getBoundingClientRect().height;
+
+  /* ✅ NOUVEAU : on informe le CSS de la vraie hauteur du footer */
+  document.documentElement.style.setProperty(
+    "--footer-h",
+    Math.ceil(footerH) + "px"
+  );
+
+  const playerRect = playerEl.getBoundingClientRect();
+  const playerBottom = parseFloat(getComputedStyle(playerEl).bottom || "0");
+  const safe = Math.ceil(playerBottom + playerRect.height + footerH + 24);
+
+  document.documentElement.style.setProperty("--bottom-safe", safe + "px");
+  bottomSpacerEl.style.height = safe + "px";
+}
+
     window.addEventListener("resize", updateBottomSafe);
     new ResizeObserver(updateBottomSafe).observe(playerEl);
     new ResizeObserver(updateBottomSafe).observe(fixedFooterEl);
