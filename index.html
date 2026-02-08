@@ -25,7 +25,7 @@
   <link rel="dns-prefetch" href="https://de1.api.radio-browser.info" />
 
   <!-- Dynamic favicon (updated by visualizer) -->
-  <link id="favicon" rel="icon" type="image/png" href="assets/favicon.png" />
+  <link id="favicon" rel="icon" type="image/png" href="/assets/favicon.png" />
 
   <script type="application/ld+json">
   {
@@ -1266,7 +1266,7 @@
     <div class="wrap topbar">
       <div class="brand">
         <a href="#" class="brandLink" id="homeLink" title="Home">
-          <img class="siteLogo" id="siteLogoHeader" src="assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
+          <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
           <h1 data-i18n="siteName">GlobalRadio.top</h1>
         </a>
         <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
@@ -1344,7 +1344,7 @@
   <div id="bottomSpacer" aria-hidden="true"></div>
 
   <div class="player isEmpty" id="player">
-    <div class="pLogo"><img id="playerLogo" src="assets/globalradio-logo.jpg" alt="Logo"></div>
+    <div class="pLogo"><img id="playerLogo" src="/assets/globalradio-logo.jpg" alt="Logo"></div>
 
     <div class="pInfo">
       <div class="pName" id="playerName" data-i18n="chooseRadio">Choose a radio</div>
@@ -1420,7 +1420,7 @@
 
     <div class="fsCenter">
       <div class="fsLogoWrap" id="fsLogoWrap">
-        <img id="fsLogo" src="assets/globalradio-logo.jpg" alt="Station logo">
+        <img id="fsLogo" src="/assets/globalradio-logo.jpg" alt="Station logo">
       </div>
       <div class="fsText">
         <div class="fsName" id="fsName">—</div>
@@ -1640,7 +1640,7 @@
     // -----------------------
     const API_BASE = "https://de1.api.radio-browser.info/json";
     const limit = 48;
-    const SITE_LOGO = "assets/globalradio-logo.jpg";
+    const SITE_LOGO = "/assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
 
     const RESOLVE_API = "/api/resolve-stream";
@@ -3805,28 +3805,36 @@ if (topAddBtn){
   <script>
   const path = window.location.pathname.toLowerCase();
 
-  let seoTitle = "GlobalRadio.top — Global online radio directory";
+  const brand = "GlobalRadio.top";
+  let seoTitle = `${brand} — Global online radio directory`;
   let seoDescription = "Listen to radios worldwide by country and music style.";
 
+  const cap = (s) => s ? (s.charAt(0).toUpperCase() + s.slice(1)) : "";
+  const cleanSlug = (s) => (s || "").split("/")[0].trim(); // gère slash final
+
   if (path.startsWith("/country/")) {
-    const country = path.split("/country/")[1];
-    seoTitle = `Radio ${country.charAt(0).toUpperCase() + country.slice(1)} — Live stations`;
+    const countrySlug = cleanSlug(path.split("/country/")[1]);
+    const country = cap(countrySlug.replace(/-/g, " "));
+    seoTitle = `${brand}: Radio ${country} — Live stations`;
     seoDescription = `Listen to the best radio stations from ${country}. Live streaming worldwide.`;
   }
 
   if (path.startsWith("/genre/")) {
-    const genre = path.split("/genre/")[1];
-    seoTitle = `${genre.charAt(0).toUpperCase() + genre.slice(1)} Radio — Live music stations`;
-    seoDescription = `Listen to the best ${genre} radio stations online.`;
+    const genreSlug = cleanSlug(path.split("/genre/")[1]);
+    const genre = cap(genreSlug.replace(/-/g, " "));
+    seoTitle = `${brand}: ${genre} Radio — Live music stations`;
+    seoDescription = `Listen to the best ${genreSlug} radio stations online.`;
   }
 
   document.title = seoTitle;
 
   const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) {
-    metaDesc.setAttribute("content", seoDescription);
-  }
+  if (metaDesc) metaDesc.setAttribute("content", seoDescription);
+
+  const h1 = document.getElementById("seo-title");
+  if (h1) h1.textContent = seoTitle;
 </script>
+
 
 <h1 id="seo-title"></h1>
 
