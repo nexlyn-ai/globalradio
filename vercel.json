@@ -1,4 +1,9 @@
 {
+  "rewrites": [
+    { "source": "/country/:slug*", "destination": "/index.html" },
+    { "source": "/genre/:slug*", "destination": "/index.html" },
+    { "source": "/radio/:slug*", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
