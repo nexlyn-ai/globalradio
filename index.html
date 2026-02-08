@@ -423,6 +423,36 @@
       box-shadow: 0 0 0 5px rgba(239,68,68,.10);
     }
 
+	.chip.ok{
+  border-color: rgba(34,197,94,.35);
+  background: rgba(34,197,94,.10);
+}
+.chip.ok .dot{
+  background:#22c55e;
+  box-shadow:0 0 0 5px rgba(34,197,94,.10);
+}
+
+.chip.multi{
+  border-color: rgba(59,130,246,.35);
+  background: rgba(59,130,246,.12);
+}
+.chip.multi .dot{
+  background:#3b82f6;
+  box-shadow:0 0 0 5px rgba(59,130,246,.12);
+}
+
+.chip.best{
+  border-color: rgba(245,158,11,.45);
+  background: rgba(245,158,11,.14);
+  font-weight: 900;
+  letter-spacing: .3px;
+}
+.chip.best .dot{
+  background:#f59e0b;
+  box-shadow:0 0 0 6px rgba(245,158,11,.18);
+}
+
+
     .heart{
       position:absolute;
       top: 12px; right: 12px;
@@ -575,7 +605,7 @@
       align-items:center;
       flex-wrap: wrap;
       min-width: 220px;
-    }
+	}
     .streamTag{
       font-size:.82rem;
       color: rgba(231,238,252,.92);
@@ -1900,6 +1930,8 @@ function isBlockedMixedContent(finalUrl){
     })();
 
     let showBroken = (localStorage.getItem("gr_show_broken") === "1");
+	let showBrokenDetail = (localStorage.getItem("gr_show_broken_detail") === "1");
+
 
     const audio = document.getElementById("audioPlayer");
     let audioCtx = null, analyser = null, sourceNode = null, gainNode = null;
@@ -2268,18 +2300,38 @@ function isBlockedMixedContent(finalUrl){
         meta.className="meta";
 
         const allBroken = isGroupAllBroken(group);
-        const countryText = safeText(group.country, (LANG === "fr" ? "Monde" : "World"));
+const good = goodStreams(group);
+const goodCount = good.length;
 
-        const best = pickBestPlayableStream(group) || (group.streams && group.streams[0]) || null;
-        const codecBit = best ? `${safeText(best.codec,(LANG==="fr"?"Flux":"Stream"))}${best.bitrate ? ` • ${best.bitrate} kbps` : ""}` : (LANG==="fr"?"Flux":"Stream");
-        const streamCount = (group.streams||[]).length;
+const bestGood = good[0] || null;          // streams déjà triés “best”
+const isBestHQ = !!(bestGood && (bestGood.bitrate >= 320));
+
+const countryText = safeText(group.country, (LANG === "fr" ? "Monde" : "World"));
+
+const bestAny = pickBestPlayableStream(group) || (group.streams && group.streams[0]) || null;
+const codecBit = bestAny
+  ? `${safeText(bestAny.codec,(LANG==="fr"?"Flux":"Stream"))}${bestAny.bitrate ? ` • ${bestAny.bitrate} kbps` : ""}`
+  : (LANG==="fr"?"Flux":"Stream");
+
+const streamCount = (group.streams||[]).length;
+
+
 
         meta.innerHTML = `
           <div class="name">${group.name}</div>
           <div class="chips">
             <span class="chip"><span class="dot"></span>${countryText}</span>
             <span class="chip muted">${codecBit}${streamCount>1 ? ` • ${streamCount} ${LANG==="fr"?"flux":"streams"}` : ""}</span>
-            ${allBroken ? `<span class="chip hs" title="${t("allStreamsBroken")}"><span class="dot"></span>HS</span>` : ""}
+            ${
+  allBroken
+    ? `<span class="chip hs" title="${t("allStreamsBroken")}"><span class="dot"></span>HS</span>`
+    : isBestHQ
+      ? `<span class="chip best" title="${LANG==="fr" ? "Meilleur flux haute qualité" : "Best high quality stream"}"><span class="dot"></span>BEST</span>`
+      : goodCount > 1
+        ? `<span class="chip multi" title="${LANG==="fr" ? "Plusieurs flux disponibles" : "Multiple streams available"}"><span class="dot"></span>MULTI</span>`
+        : `<span class="chip ok" title="${LANG==="fr" ? "Flux opérationnel" : "Stream OK"}"><span class="dot"></span>OK</span>`
+}
+
           </div>
           <div class="chips" style="margin-top:10px;">
             <span class="chip"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
@@ -2351,19 +2403,27 @@ function isBlockedMixedContent(finalUrl){
         </div>
       `;
 
-      const gs = goodStreams(group);
-      const allBroken = !gs.length;
+		const gs = showBrokenDetail ? (group.streams || []) : goodStreams(group);
+		const all = (group.streams || []);
+		const visible = showBrokenDetail ? all : gs;
+		const allBroken = !gs.length;
 
-      const streamRows = gs.map((s, idx)=>{
+		const streamRows = visible.map((s, idx)=>{
+			const isBad = isBadStationByUrl(s.url);
+
         const label = `${safeText(s.codec,"")} ${s.bitrate ? `• ${s.bitrate} kbps` : ""}`.trim() || (LANG==="fr"?"Flux":"Stream");
         const shortUrl = String(s.url || "").replace(/^https?:\/\//,"");
         return `
           <div class="streamRow">
             <div style="min-width: 260px; flex: 1;">
               <div class="streamMeta">
-                <span class="streamTag"><span class="dot"></span>${label}</span>
-                <span class="streamTag" style="opacity:.85;"><span class="dot"></span>#${idx+1}</span>
-              </div>
+  <span class="streamTag"><span class="dot"></span>${label}</span>
+  <span class="streamTag" style="opacity:.85;"><span class="dot"></span>#${idx+1}</span>
+  ${isBad ? `<span class="streamTag" style="border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.10);">
+    <span class="dot" style="background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.10)"></span>HS
+  </span>` : ``}
+</div>
+
               <div class="streamUrl" title="${s.url}">${shortUrl}</div>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
@@ -2378,7 +2438,9 @@ function isBlockedMixedContent(finalUrl){
           <div class="detail-logo">
             <img id="detailLogo" alt="${group.name}">
           </div>
-
+		
+		
+		
           <div class="detail-title">
             <h2>${group.name}</h2>
             <p>${safeText(group.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(group.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
@@ -2406,13 +2468,39 @@ function isBlockedMixedContent(finalUrl){
 
         <div class="streams">
           <div class="streamsHeader">
-            <div><strong>${t("streamsTitle")}</strong> <span class="hint">• ${t("streamsHidden")}</span></div>
-            <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
-          </div>
+  <div>
+    <strong>${t("streamsTitle")}</strong>
+    <span class="hint">
+      • ${showBrokenDetail ? (LANG==="fr" ? "Les flux HS sont affichés" : "Broken streams are shown")
+                           : t("streamsHidden")}
+      <span id="toggleHS" style="margin-left:10px; font-weight:900; cursor:pointer; text-decoration:underline;">
+
+  ${
+    showBrokenDetail
+      ? (LANG==="fr" ? "Masquer HS" : "Hide HS")
+      : (LANG==="fr" ? "Afficher HS" : "Show HS")
+  }
+</a>
+
+    </span>
+  </div>
+  <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
+</div>
+
           ${allBroken ? `<div class="streamRow"><div class="modalHint">${t("allStreamsBroken")}</div></div>` : streamRows}
         </div>
       `;
+	
+	const toggleHS = document.getElementById("toggleHS");
+if (toggleHS){
+  toggleHS.onclick = ()=>{
+    showBrokenDetail = !showBrokenDetail;
+    localStorage.setItem("gr_show_broken_detail", showBrokenDetail ? "1" : "0");
+    populateDetail(group);
+  };
+}
 
+	
       const detailLogo = document.getElementById("detailLogo");
       setImgWithFallbacks(detailLogo, logoCandidates);
 
