@@ -1077,6 +1077,47 @@
       justify-content: flex-end;
       flex-wrap: wrap;
     }
+	
+	/* ===== Mobile player buttons: match detail page style ===== */
+@media (max-width: 640px){
+
+  .player .playBtn,
+  .player .miniBtn{
+    background: linear-gradient(
+      135deg,
+      rgba(77,163,255,.95),
+      rgba(124,92,255,.90)
+    );
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 14px 36px rgba(77,163,255,.22);
+    color: #fff;
+  }
+
+  .player .miniBtn{
+    background: rgba(255,255,255,.08);
+    box-shadow: 0 10px 26px rgba(0,0,0,.35);
+  }
+
+  /* hover / tap feedback */
+  .player .playBtn:active,
+  .player .miniBtn:active{
+    transform: scale(0.96);
+    filter: brightness(1.08);
+  }
+
+  /* mute button visual feedback */
+  .player .miniBtn#muteBtn{
+    background: rgba(255,255,255,.10);
+  }
+
+  /* stop button a bit softer */
+  .player .miniBtn#stopBtn{
+    background: rgba(255,255,255,.06);
+    opacity: .9;
+  }
+}
+
+	
   </style>
 </head>
 
