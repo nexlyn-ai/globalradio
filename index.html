@@ -1831,10 +1831,16 @@ function isBlockedMixedContent(finalUrl){
 	
 	function applyRouteToFilters(){
   const path = (location.pathname || "").toLowerCase();
-
   const cs = document.getElementById("countrySelect");
   const gs = document.getElementById("genreSelect");
   if (!cs || !gs) return;
+  
+  window.addEventListener("popstate", () => {
+  if (isDetailOpen()) showList();
+  applyRouteToFilters();
+  resetAndReload();
+});
+
 
   // Home => défaut France (comme avant)
   if (path === "/" || path === "/index.html") {
