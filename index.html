@@ -3511,10 +3511,30 @@ if (topAddBtn){
     // Events wiring
     // -----------------------
     document.getElementById("homeLink").addEventListener("click", (e)=>{
-      e.preventDefault();
-      if (isDetailOpen()) showList();
-      else window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+  e.preventDefault();
+
+  // 1) fermer la page détail si besoin
+  if (isDetailOpen()) showList();
+
+  // 2) revenir sur l'URL home (important pour /genre/... et /country/...)
+  if (location.pathname !== "/") {
+    history.pushState({}, "", "/");
+  }
+
+  // 3) reset filtres comme la home
+  document.getElementById("viewMode").value = "all";
+  document.getElementById("sortMode").value = "votes";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("countrySelect").value = DEFAULT_COUNTRY;
+  document.getElementById("genreSelect").value = "";
+
+  // 4) reload liste
+  resetAndReload();
+
+  // 5) scroll top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
 
     document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
     document.getElementById("stopBtn").addEventListener("click", stopPlayback);
