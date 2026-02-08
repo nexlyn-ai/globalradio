@@ -600,7 +600,7 @@
     .player{
       position:fixed;
       left: 10px; right: 10px;
-      bottom: 46px;
+      bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px));
       z-index: 110;
       border-radius: 22px;
       border: 1px solid rgba(255,255,255,.12);
@@ -758,6 +758,8 @@
       user-select:none;
       flex-wrap: wrap;
       line-height: 1.25;
+	  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+
     }
     #fixedFooter a{
       color: rgba(231,238,252,.92);
@@ -970,7 +972,7 @@
     .fsCanvas canvas{ width: 100%; height: 100%; display:block; }
 
     @media (max-width: 860px){
-      .player{ bottom: 52px; }
+      .player{ bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px)); }
       #scrollTopBtn{ bottom: 210px; }
     }
 
@@ -980,7 +982,7 @@
 
       .player{
         left: 8px; right: 8px;
-        bottom: 50px;
+        bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px));
         padding: 10px;
         gap: 10px;
       }
@@ -1912,14 +1914,12 @@ function isBlockedMixedContent(finalUrl){
     // Bottom safe area (fix overlap)
     // -----------------------
     function updateBottomSafe(){
-  const footerH = fixedFooterEl.getBoundingClientRect().height;
+  const footerH = Math.ceil(fixedFooterEl.getBoundingClientRect().height);
 
-  /* ✅ NOUVEAU : on informe le CSS de la vraie hauteur du footer */
-  document.documentElement.style.setProperty(
-    "--footer-h",
-    Math.ceil(footerH) + "px"
-  );
+  // ✅ variable utilisée par le CSS pour placer le player au-dessus du footer
+  document.documentElement.style.setProperty("--footer-h", footerH + "px");
 
+  // ✅ garde ton spacer cohérent
   const playerRect = playerEl.getBoundingClientRect();
   const playerBottom = parseFloat(getComputedStyle(playerEl).bottom || "0");
   const safe = Math.ceil(playerBottom + playerRect.height + footerH + 24);
@@ -1927,6 +1927,7 @@ function isBlockedMixedContent(finalUrl){
   document.documentElement.style.setProperty("--bottom-safe", safe + "px");
   bottomSpacerEl.style.height = safe + "px";
 }
+
 
     window.addEventListener("resize", updateBottomSafe);
     new ResizeObserver(updateBottomSafe).observe(playerEl);
