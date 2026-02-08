@@ -3832,8 +3832,9 @@ if (topAddBtn){
   const path = window.location.pathname.toLowerCase();
 
   const brand = "GlobalRadio.top";
-  let seoTitle = `${brand} — Global online radio directory`;
-  let seoDescription = "Listen to radios worldwide by country and music style.";
+  let seoTitle = `${brand} — Listen to radio stations worldwide`;
+  let seoDescription = "GlobalRadio.top: Discover and listen to radio stations worldwide by country and music style. Live streaming.";
+
 
   const cap = (s) => s ? (s.charAt(0).toUpperCase() + s.slice(1)) : "";
   const cleanSlug = (s) => (s || "").split("/")[0].trim(); // gère slash final
@@ -3859,6 +3860,20 @@ if (topAddBtn){
 
   const h1 = document.getElementById("seo-title");
   if (h1) h1.textContent = seoTitle;
+  
+  // OG + Twitter title/description update (SPA-safe)
+const ogTitle = document.querySelector('meta[property="og:title"]');
+if (ogTitle) ogTitle.setAttribute("content", seoTitle);
+
+const ogDesc = document.querySelector('meta[property="og:description"]');
+if (ogDesc) ogDesc.setAttribute("content", seoDescription);
+
+const twTitle = document.querySelector('meta[name="twitter:title"]');
+if (twTitle) twTitle.setAttribute("content", seoTitle);
+
+const twDesc = document.querySelector('meta[name="twitter:description"]');
+if (twDesc) twDesc.setAttribute("content", seoDescription);
+
 </script>
 
 
