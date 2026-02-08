@@ -1116,6 +1116,57 @@
     opacity: .9;
   }
 }
+	/* ===== Player icons (SVG mask) - no emoji colors ===== */
+.ico{
+  width: 20px;
+  height: 20px;
+  display:inline-block;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+/* Icon shapes (inline SVG as mask) */
+.ico-play{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+}
+.ico-pause{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 5h4v14H6zm8 0h4v14h-4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 5h4v14H6zm8 0h4v14h-4z'/%3E%3C/svg%3E");
+}
+.ico-stop{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 6h12v12H6z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 6h12v12H6z'/%3E%3C/svg%3E");
+}
+.ico-retry{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-9.9 1H5.02A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-9.9 1H5.02A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7z'/%3E%3C/svg%3E");
+}
+.ico-volume{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 10v4h4l5 4V6L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 10v4h4l5 4V6L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12z'/%3E%3C/svg%3E");
+}
+.ico-mute{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 10v4h4l5 4V6L7 10H3zm13.59 2 2.7 2.7-1.41 1.41L16.17 13.4l-1.71 1.71-1.41-1.41 2.7-2.7-2.7-2.7 1.41-1.41 1.71 1.71 1.71-1.71 1.41 1.41z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M3 10v4h4l5 4V6L7 10H3zm13.59 2 2.7 2.7-1.41 1.41L16.17 13.4l-1.71 1.71-1.41-1.41 2.7-2.7-2.7-2.7 1.41-1.41 1.71 1.71 1.71-1.71 1.41 1.41z'/%3E%3C/svg%3E");
+}
+.ico-fs{
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H5v5zm10 9h-3v-2h3v-3h2v5h-2zM14 5h5v5h-2V7h-3V5z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H5v5zm10 9h-3v-2h3v-3h2v5h-2zM14 5h5v5h-2V7h-3V5z'/%3E%3C/svg%3E");
+}
+
+/* Make icon buttons look "premium" like detail page */
+.player .playBtn,
+.player .miniBtn{
+  display:grid;
+  place-items:center;
+  color: rgba(231,238,252,.98);
+}
 
 	
   </style>
@@ -1217,11 +1268,27 @@
     <div class="pControls">
       <div class="playerToggle" id="playerToggle" title="Expand / Collapse">▲</div>
 
-      <div class="miniBtn" id="stopBtn" data-i18n-title="ttStop" title="Stop">⏹</div>
-      <div class="playBtn" id="playPauseBtn" data-i18n-title="ttPlayPause" title="Play / Pause">▶</div>
-      <div class="miniBtn" id="retryBtn" data-i18n-title="ttRetry" title="Reconnect">↻</div>
-      <div class="miniBtn" id="muteBtn" data-i18n-title="ttMute" title="Mute / Unmute">🔊</div>
-      <div class="miniBtn" id="fsBtn" data-i18n-title="ttFullscreen" title="Fullscreen">⛶</div>
+    <div class="miniBtn" id="stopBtn" data-i18n-title="ttStop" title="Stop">
+  <span class="ico ico-stop"></span>
+</div>
+
+<div class="playBtn" id="playPauseBtn" data-i18n-title="ttPlayPause" title="Play / Pause">
+  <span class="ico ico-play" id="icoPlayPause"></span>
+</div>
+
+<div class="miniBtn" id="retryBtn" data-i18n-title="ttRetry" title="Reconnect">
+  <span class="ico ico-retry"></span>
+</div>
+
+<div class="miniBtn" id="muteBtn" data-i18n-title="ttMute" title="Mute / Unmute">
+  <span class="ico ico-volume" id="icoMute"></span>
+</div>
+
+<div class="miniBtn" id="fsBtn" data-i18n-title="ttFullscreen" title="Fullscreen">
+  <span class="ico ico-fs"></span>
+</div>
+
+
     </div>
 
     <div class="vol" data-i18n-title="ttVolume" title="Volume">
@@ -3345,6 +3412,62 @@ if (topAddBtn){
       updateBottomSafe();
       toast(t("toastWelcome"), 1300);
     })();
+	
+	/* ===== PATCH: Replace emoji icons by SVG mask icons (no orange emojis on mobile) ===== */
+(function patchPlayerIcons(){
+  const playBtn = document.getElementById("playPauseBtn");
+  const muteBtn = document.getElementById("muteBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const audioEl = document.getElementById("audioPlayer");
+
+  // If the HTML wasn’t replaced, do nothing (safe)
+  const icoPlay = document.getElementById("icoPlayPause");
+  const icoMute = document.getElementById("icoMute");
+  if (!playBtn || !muteBtn || !stopBtn || !audioEl || !icoPlay || !icoMute) return;
+
+  function setPlayIcon(isPaused){
+    icoPlay.classList.toggle("ico-play", !!isPaused);
+    icoPlay.classList.toggle("ico-pause", !isPaused);
+  }
+  function setMuteIcon(muted){
+    icoMute.classList.toggle("ico-mute", !!muted);
+    icoMute.classList.toggle("ico-volume", !muted);
+  }
+
+  // 1) Prevent old code (emoji) from showing: clear button text nodes safely
+  // (keeps your spans/icons intact)
+  const stripTextNodes = (el)=>{
+    [...el.childNodes].forEach(n=>{
+      if (n.nodeType === Node.TEXT_NODE) n.textContent = "";
+    });
+  };
+  [playBtn, muteBtn, stopBtn].forEach(stripTextNodes);
+
+  // 2) Hook into audio events (true source of truth)
+  audioEl.addEventListener("playing", ()=> setPlayIcon(false));
+  audioEl.addEventListener("pause", ()=> setPlayIcon(true));
+  audioEl.addEventListener("ended", ()=> setPlayIcon(true));
+  audioEl.addEventListener("emptied", ()=> setPlayIcon(true));
+
+  // 3) Also sync immediately at load
+  setPlayIcon(audioEl.paused);
+
+  // 4) Sync mute state by observing button changes + clicks
+  // Your existing code toggles `isMuted` (global). We read it if it exists.
+  const readMuted = ()=>{
+    try{ return !!window.isMuted; }catch(e){ return false; }
+  };
+  setMuteIcon(readMuted());
+
+  muteBtn.addEventListener("click", ()=> {
+    // wait a tick so your existing handler updates `isMuted`
+    setTimeout(()=> setMuteIcon(readMuted()), 0);
+  });
+
+  // 5) Stop button sets paused icon right away
+  stopBtn.addEventListener("click", ()=> setPlayIcon(true));
+})();
+
   </script>
 </body>
 </html>
