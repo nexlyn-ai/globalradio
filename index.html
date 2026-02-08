@@ -1908,6 +1908,7 @@ function isBlockedMixedContent(finalUrl){
     let isPlaying = false;
     let isMuted = false;
     let vizLowEnergy = false;
+	let manualStop = false; // ✅ évite que l'event "pause" écrase l'état STOP
 
     let currentTryIndex = 0;
 
@@ -3068,30 +3069,39 @@ if (editBtn){
     }
 
     function stopPlayback(){
-      try{ audio.pause(); }catch(e){}
-      audio.removeAttribute("src");
-      audio.load();
+  // ✅ STOP = on coupe le flux mais on GARDE la station sélectionnée
+  manualStop = true;
 
-      isPlaying = false;
-      document.getElementById("playPauseBtn").textContent = "▶";
-      setPlayerStatusKey("statusStopped");
+  try{ audio.pause(); }catch(e){}
+  audio.removeAttribute("src");
+  audio.load();
 
-      stopTitleEngine();
-      stopVizLoop();
+  isPlaying = false;
+  document.getElementById("playPauseBtn").textContent = "▶";
 
-      setTitleUIPlayer("");
-      if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
-        setTitleUIDetailText("");
-      }
+  stopTitleEngine();
+  stopVizLoop();
 
-      currentGroup = null;
-      currentStream = null;
+  // ✅ On garde le nom/logo (donc pas de isEmpty / pas de null)
+  const msg = (LANG === "fr")
+    ? "Arrêté — clique ▶ pour reprendre"
+    : "Stopped — press ▶ to resume";
 
-      playerEl.classList.add("isEmpty");
-      document.getElementById("playerName").textContent = t("chooseRadio");
-      setFooterStatus("STOP");
-      updateBottomSafe();
-    }
+  setFooterStatus(isMuted ? "MUTE" : "STOP");
+  setPlayerStatusKey("statusStopped", msg);
+
+  // (Optionnel) on garde le dernier titre affiché, donc on ne fait PAS setTitleUIPlayer("")
+  // Si tu veux vider le titre malgré tout, décommente :
+  // setTitleUIPlayer("");
+  // if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+  //   setTitleUIDetailText("");
+  // }
+
+  // ✅ Ne pas vider currentGroup/currentStream
+  // ✅ Ne pas mettre le player en isEmpty
+  updateBottomSafe();
+}
+
 
     function togglePlayPause(){
       if (!currentGroup || !currentStream) return toast(t("toastPick"));
@@ -3110,16 +3120,31 @@ if (editBtn){
       startTitleEngine();
     });
     audio.addEventListener("pause", ()=>{
-      isPlaying = false;
-      document.getElementById("playPauseBtn").textContent = "▶";
-      if (currentGroup){
-        setFooterStatus(isMuted ? "MUTE" : "PAUSE");
-        setPlayerStatusKey("statusPaused");
-      } else {
-        setFooterStatus("STOP");
-        setPlayerStatusKey("statusStopped");
-      }
-    });
+  isPlaying = false;
+  document.getElementById("playPauseBtn").textContent = "▶";
+
+  // ✅ Si c'est un STOP manuel, on force l'état "Stopped — press ▶ to resume"
+  if (manualStop){
+    manualStop = false;
+    const msg = (LANG === "fr")
+      ? "Arrêté — clique ▶ pour reprendre"
+      : "Stopped — press ▶ to resume";
+
+    setFooterStatus(isMuted ? "MUTE" : "STOP");
+    setPlayerStatusKey("statusStopped", msg);
+    return;
+  }
+
+  // Pause normale
+  if (currentGroup){
+    setFooterStatus(isMuted ? "MUTE" : "PAUSE");
+    setPlayerStatusKey("statusPaused");
+  } else {
+    setFooterStatus("STOP");
+    setPlayerStatusKey("statusStopped");
+  }
+});
+
     audio.addEventListener("waiting", ()=>{
       if (currentGroup){
         setFooterStatus(isMuted ? "MUTE" : "BUFFER");
