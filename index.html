@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>GlobalRadio.top — Listen to radio stations worldwide</title>
-  <meta name="description" content="Discover and listen to radio stations worldwide by country and music style. Live streaming." />
-
-  <meta name="description" content="GlobalRadio.top: a global directory of online radios. Filter by country, style, popularity, save favorites, and listen live with a stable player + best-effort live metadata." />
+  <meta name="description" content="GlobalRadio.top: Discover and listen to radio stations worldwide by country and music style. Live streaming." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
   <link rel="canonical" href="https://globalradio.top/" />
@@ -1830,6 +1828,39 @@ function isBlockedMixedContent(finalUrl){
         .replace(/^-+|-+$/g,"")
         .slice(0, 80);
     }
+	
+	function applyRouteToFilters(){
+  const path = (location.pathname || "").toLowerCase();
+
+  const cs = document.getElementById("countrySelect");
+  const gs = document.getElementById("genreSelect");
+  if (!cs || !gs) return;
+
+  // Home => défaut France (comme avant)
+  if (path === "/" || path === "/index.html") {
+    cs.value = DEFAULT_COUNTRY;
+    gs.value = "";
+    return;
+  }
+
+  // /country/france => filtre pays
+  if (path.startsWith("/country/")) {
+    const slug = path.split("/country/")[1]?.split("/")[0] || "";
+    const country = slug.replace(/-/g, " ").trim();
+    cs.value = country ? (country.charAt(0).toUpperCase() + country.slice(1)) : "";
+    gs.value = ""; // on garde genre vide
+    return;
+  }
+
+  // /genre/techno => filtre genre + pays = tous
+  if (path.startsWith("/genre/")) {
+    const slug = path.split("/genre/")[1]?.split("/")[0] || "";
+    gs.value = slug.trim();   // IMPORTANT: tes options ont opt.value = s.tag (techno, house, etc.)
+    cs.value = "";            // tous les pays
+    return;
+  }
+}
+
 
     // ✅ Duplicate fusion: group stations by (country + normalized homepage domain + normalized name)
     function groupKeyForStation(s){
@@ -2223,7 +2254,7 @@ function setShowBrokenDetailForGroup(groupId, value){
       }
 
       const name = document.getElementById("searchInput").value.trim();
-      const country = document.getElementById("countrySelect").value || DEFAULT_COUNTRY;
+      const country = document.getElementById("countrySelect").value; // ✅ ne force plus France
       const tag = document.getElementById("genreSelect").value;
       const sortMode = document.getElementById("sortMode").value || "votes";
       const hideBroken = !showBroken;
@@ -3651,6 +3682,13 @@ if (topAddBtn){
       restoreLastPlayedIntoPlayer();
 
       await loadFilters();
+	  await loadFilters();
+	  applyRouteToFilters();
+
+      offset = 0; hasMore = true;
+      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
+      loadStations(false);
+
 
       offset = 0; hasMore = true;
       document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
