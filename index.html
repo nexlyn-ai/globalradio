@@ -1953,7 +1953,29 @@ function isBlockedMixedContent(finalUrl){
     })();
 
     let showBroken = (localStorage.getItem("gr_show_broken") === "1");
-	let showBrokenDetail = (localStorage.getItem("gr_show_broken_detail") === "1");
+	const SHOW_HS_BY_STATION_KEY = "gr_show_broken_detail_by_station_v1";
+
+function loadShowHSMap(){
+  try{ return JSON.parse(localStorage.getItem(SHOW_HS_BY_STATION_KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function saveShowHSMap(map){
+  localStorage.setItem(SHOW_HS_BY_STATION_KEY, JSON.stringify(map));
+}
+
+let showHSMap = loadShowHSMap();
+
+// valeur “courante” (pour la station ouverte)
+let showBrokenDetail = false;
+
+function getShowBrokenDetailForGroup(groupId){
+  return showHSMap[groupId] === 1;
+}
+function setShowBrokenDetailForGroup(groupId, value){
+  showHSMap[groupId] = value ? 1 : 0;
+  saveShowHSMap(showHSMap);
+}
+
 
 
     const audio = document.getElementById("audioPlayer");
@@ -2426,10 +2448,23 @@ const streamCount = (group.streams||[]).length;
         </div>
       `;
 
-		const gs = showBrokenDetail ? (group.streams || []) : goodStreams(group);
-		const all = (group.streams || []);
-		const visible = showBrokenDetail ? all : gs;
-		const allBroken = !gs.length;
+		// ---- HS per-station state (restore) ----
+showBrokenDetail = getShowBrokenDetailForGroup(group.id);
+
+// ---- streams split + ordering ----
+const all = (group.streams || []);
+const good = goodStreams(group);
+const bad = all.filter(s => isBadStationByUrl(s.url));
+
+const hsCount = bad.length;
+const goodCount = good.length;
+const allBroken = (all.length > 0 && goodCount === 0);
+
+// Visible list:
+// - if showBrokenDetail: show good first, then HS
+// - else: only good
+const visible = showBrokenDetail ? [...good, ...bad] : good;
+
 
 		const streamRows = visible.map((s, idx)=>{
 			const isBad = isBadStationByUrl(s.url);
@@ -2503,17 +2538,31 @@ const streamCount = (group.streams||[]).length;
 >
   <span class="dot"></span>
   ${
-    showBrokenDetail
-      ? (LANG==="fr" ? "Masquer HS" : "Hide HS")
-      : (LANG==="fr" ? "Afficher HS" : "Show HS")
-  }
+  showBrokenDetail
+    ? (LANG==="fr" ? `Masquer HS` : `Hide HS`)
+    : (LANG==="fr" ? `Afficher HS${hsCount ? ` (+${hsCount})` : ""}` : `Show HS${hsCount ? ` (+${hsCount})` : ""}`)
+}
+
 </span>
 
   </div>
   <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
 </div>
 
-          ${allBroken ? `<div class="streamRow"><div class="modalHint">${t("allStreamsBroken")}</div></div>` : streamRows}
+		${allBroken ? `
+  <div class="streamRow">
+    <div class="modalHint" style="opacity:.95;">
+      ${LANG==="fr"
+        ? "😕 Tous les flux connus semblent HS pour cette radio. Tu peux tenter d’afficher les flux HS pour tester quand même."
+        : "😕 All known streams look broken for this station. You can show broken streams to try them anyway."
+      }
+    </div>
+  </div>
+` : ``}
+
+
+         ${streamRows}
+
         </div>
       `;
 	
@@ -2524,10 +2573,12 @@ if (toggleHS){
 
   toggleHS.onclick = ()=>{
     showBrokenDetail = !showBrokenDetail;
-    localStorage.setItem("gr_show_broken_detail", showBrokenDetail ? "1" : "0");
+    setShowBrokenDetailForGroup(group.id, showBrokenDetail);
     populateDetail(group);
   };
 }
+
+
 
 
 	
