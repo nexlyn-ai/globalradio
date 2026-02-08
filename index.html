@@ -1084,6 +1084,30 @@
       background: rgba(0,0,0,.55);
       backdrop-filter: blur(10px);
     }
+	/* ===== FIX: modal scroll on mobile ===== */
+#addModal{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modalCard{
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modalActions{
+  position: sticky;
+  bottom: 0;
+  background: rgba(8,10,22,.92);
+  backdrop-filter: blur(10px);
+}
+
     #addModal.show{ display: flex; }
     .modalCard{
       width: min(920px, 100%);
@@ -2539,9 +2563,16 @@ const visible = showBrokenDetail ? [...good, ...bad] : good;
   <span class="dot"></span>
   ${
   showBrokenDetail
-    ? (LANG==="fr" ? `Masquer HS` : `Hide HS`)
-    : (LANG==="fr" ? `Afficher HS${hsCount ? ` (+${hsCount})` : ""}` : `Show HS${hsCount ? ` (+${hsCount})` : ""}`)
+    ? (LANG==="fr"
+        ? `Masquer HS${hsCount ? ` (${hsCount})` : ""}`
+        : `Hide HS${hsCount ? ` (${hsCount})` : ""}`
+      )
+    : (LANG==="fr"
+        ? `Afficher HS${hsCount ? ` (+${hsCount})` : ""}`
+        : `Show HS${hsCount ? ` (+${hsCount})` : ""}`
+      )
 }
+
 
 </span>
 
@@ -3347,6 +3378,7 @@ if (editBtn){
       addModal.classList.add("show");
       addModal.setAttribute("aria-hidden","false");
       document.body.style.overflow = "hidden";
+	  
     }
     function closeAddModal(){
       addModal.classList.remove("show");
