@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>GlobalRadio.top — Global online radio directory</title>
+  <title>GlobalRadio.top — Listen to radio stations worldwide</title>
+  <meta name="description" content="Discover and listen to radio stations worldwide by country and music style. Live streaming." />
+
   <meta name="description" content="GlobalRadio.top: a global directory of online radios. Filter by country, style, popularity, save favorites, and listen live with a stable player + best-effort live metadata." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
@@ -3761,5 +3763,40 @@ if (topAddBtn){
 
 
   </script>
+  
+  <script>
+  const path = window.location.pathname.toLowerCase();
+
+  let seoTitle = "GlobalRadio.top — Global online radio directory";
+  let seoDescription = "Listen to radios worldwide by country and music style.";
+
+  if (path.startsWith("/country/")) {
+    const country = path.split("/country/")[1];
+    seoTitle = `Radio ${country.charAt(0).toUpperCase() + country.slice(1)} — Live stations`;
+    seoDescription = `Listen to the best radio stations from ${country}. Live streaming worldwide.`;
+  }
+
+  if (path.startsWith("/genre/")) {
+    const genre = path.split("/genre/")[1];
+    seoTitle = `${genre.charAt(0).toUpperCase() + genre.slice(1)} Radio — Live music stations`;
+    seoDescription = `Listen to the best ${genre} radio stations online.`;
+  }
+
+  document.title = seoTitle;
+
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) {
+    metaDesc.setAttribute("content", seoDescription);
+  }
+</script>
+
+<h1 id="seo-title"></h1>
+
+<script>
+  const h1 = document.getElementById("seo-title");
+  if (h1) h1.textContent = document.title;
+</script>
+
+
 </body>
 </html>
