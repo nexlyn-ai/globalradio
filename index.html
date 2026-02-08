@@ -1479,6 +1479,23 @@
     function now(){ return Date.now(); }
     function isExpired(ts, ttl){ return !ts || (now() - ts > ttl); }
 
+	const IS_HTTPS_PAGE = location.protocol === "https:";
+
+function httpsFirst(url){
+  try{
+    const u = new URL(url);
+    if (u.protocol === "http:") u.protocol = "https:";
+    return u.href;
+  }catch(e){
+    return url;
+  }
+}
+
+function isBlockedMixedContent(finalUrl){
+  return IS_HTTPS_PAGE && /^http:\/\//i.test(finalUrl);
+}
+
+
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
       catch(e){ return {}; }
@@ -1782,12 +1799,13 @@
   country: "France",
   tags: "Techno, House, Electronic, Club",
   streams: [
-    { url: "http://play.radioabf.com:2590/stream", bitrate: 320, codec: "MP3", uuid: null, tags: "abf-hd" },
-    { url: "http://play.radioabf.com:2600/stream", bitrate: 128, codec: "MP3", uuid: null, tags: "abf-sd" },
-    { url: "http://play.radioabf.com:2610/stream", bitrate: 32,  codec: "AAC+", uuid: null, tags: "abf-bd" },
-    { url: "http://play.radioabf.com:2620/stream", bitrate: 728, codec: "FLAC", uuid: null, tags: "abf-uhd" }
+    { url: "https://play.radioabf.com:2590/stream", bitrate: 320, codec: "MP3",  uuid: null, tags: "abf-hd" },
+    { url: "https://play.radioabf.com:2600/stream", bitrate: 128, codec: "MP3",  uuid: null, tags: "abf-sd" },
+    { url: "https://play.radioabf.com:2610/stream", bitrate: 32,  codec: "AAC+", uuid: null, tags: "abf-bd" },
+    { url: "https://play.radioabf.com:2620/stream", bitrate: 728, codec: "FLAC", uuid: null, tags: "abf-uhd" }
   ]
 };
+
 
 
     // -----------------------
@@ -2315,15 +2333,35 @@ if (editBtn){
       catch(e){ return null; }
     }
     async function fetchJson(url, timeoutMs=4500){
+  const attempts = [];
+
+  // HTTPS first
+  attempts.push(httpsFirst(url));
+  if (url && url !== attempts[0]) attempts.push(url);
+
+  // pour chaque tentative, essaye direct puis proxy
+  for (const u0 of attempts){
+    for (let i=0;i<PROXY_CHAIN.length;i++){
+      const make = PROXY_CHAIN[Math.min(i, PROXY_CHAIN.length-1)];
+      const u = make(u0);
+
+      if (isBlockedMixedContent(u)) continue;
+
       try{
         const ctrl = new AbortController();
         const tt = setTimeout(()=> ctrl.abort(), timeoutMs);
-        const r = await fetch(url, { signal: ctrl.signal, redirect: "follow" });
+        const r = await fetch(u, { signal: ctrl.signal, redirect: "follow" });
         clearTimeout(tt);
-        if (!r.ok) return null;
+        if (!r.ok) continue;
         return await r.json();
-      }catch(e){ return null; }
+      }catch(e){
+        // continue
+      }
     }
+  }
+  return null;
+}
+
     async function getTitleFromIcecast(streamUrl){
       const base = baseFromUrl(streamUrl);
       if (!base) return "";
@@ -2743,20 +2781,41 @@ if (editBtn){
       audio.load();
     }
 
-    async function tryPlayUrl(url){
-      for (let i=0;i<PROXY_CHAIN.length;i++){
-        currentTryIndex = i;
-        setAudioSourceWithProxy(url, i);
-        try{
-          await ensureAudioGraph();
-          startVizLoop();
-          applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
-          await audio.play();
-          return true;
-        }catch(e){}
+	async function tryPlayUrl(url){
+  // 1) tente HTTPS en priorité, puis l’URL d’origine
+  const candidates = [];
+  const uHttps = httpsFirst(url);
+  if (uHttps) candidates.push(uHttps);
+  if (url && url !== uHttps) candidates.push(url);
+
+  for (const cand of candidates){
+    for (let i=0;i<PROXY_CHAIN.length;i++){
+      currentTryIndex = i;
+
+      // construit une source finale (direct ou proxy)
+      const make = PROXY_CHAIN[Math.min(i, PROXY_CHAIN.length-1)];
+      const finalSrc = make(cand);
+
+      // évite strictement http:// dans une page https://
+      if (isBlockedMixedContent(finalSrc)) continue;
+
+      audio.src = finalSrc;
+      audio.load();
+
+      try{
+        await ensureAudioGraph();
+        startVizLoop();
+        applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+        await audio.play();
+        return true;
+      }catch(e){
+        // continue essais
       }
-      return false;
     }
+  }
+  return false;
+}
+
 
     async function startPlaybackWithFallbacks(group, stream){
       setPlayerStatusKey("statusConnecting");
