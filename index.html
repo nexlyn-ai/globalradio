@@ -1160,6 +1160,16 @@
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H5v5zm10 9h-3v-2h3v-3h2v5h-2zM14 5h5v5h-2V7h-3V5z'/%3E%3C/svg%3E");
 }
 
+/* Ensure no emoji glyph can appear inside icon buttons */
+#playPauseBtn, #muteBtn, #stopBtn, #retryBtn, #fsBtn {
+  font-variant-emoji: text;
+}
+#playPauseBtn, #muteBtn, #stopBtn, #retryBtn, #fsBtn {
+  font-variant-emoji: text;
+}
+
+
+
 /* Make icon buttons look "premium" like detail page */
 .player .playBtn,
 .player .miniBtn{
@@ -3255,16 +3265,25 @@ if (topAddBtn){
     });
 
     document.getElementById("muteBtn").addEventListener("click", ()=>{
-      isMuted = !isMuted;
-      vizLowEnergy = isMuted;
-      document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔊";
-      document.getElementById("fsMiniMute").textContent =
-        (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
-      applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+  isMuted = !isMuted;
+  vizLowEnergy = isMuted;
 
-      if (currentGroup) setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
-      else setFooterStatus("STOP");
-    });
+  // ✅ icône via classes, pas d'emoji
+  const icoMute = document.getElementById("icoMute");
+  if (icoMute){
+    icoMute.classList.toggle("ico-mute", isMuted);
+    icoMute.classList.toggle("ico-volume", !isMuted);
+  }
+
+  document.getElementById("fsMiniMute").textContent =
+    (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
+
+  applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
+
+  if (currentGroup) setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
+  else setFooterStatus("STOP");
+});
+
 
     document.getElementById("volume").addEventListener("input", (e)=>{
       applyVolume(parseFloat(e.target.value || "0.9"));
@@ -3512,12 +3531,7 @@ if (topAddBtn){
   set();
 })();
 
-/* Ensure no emoji glyph can appear inside icon buttons */
-#playPauseBtn, #muteBtn, #stopBtn, #retryBtn, #fsBtn {
-  font-variant-emoji: text;
-}
-#playPauseBtn { color: transparent; }
-#playPauseBtn .ico { color: rgba(231,238,252,.95); }
+
 
 
   </script>
