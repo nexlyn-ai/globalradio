@@ -146,7 +146,7 @@
       align-items:center;
     }
 
-    select, input{
+    select, input, textarea{
       padding: 12px 12px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
@@ -157,10 +157,11 @@
       flex: 1;
       box-shadow: 0 10px 25px rgba(0,0,0,.12);
       backdrop-filter: blur(12px);
+      font-family: inherit;
     }
-    input::placeholder{ color: rgba(231,238,252,.55); }
+    input::placeholder, textarea::placeholder{ color: rgba(231,238,252,.55); }
 
-    input:focus, select:focus{
+    input:focus, select:focus, textarea:focus{
       outline: none;
       border-color: var(--accent);
       box-shadow:
@@ -168,6 +169,8 @@
         0 0 0 4px rgba(77,163,255,.22);
       background-color: rgba(255,255,255,.08);
     }
+
+    textarea{ min-height: 92px; resize: vertical; }
 
     select{
       appearance: none;
@@ -443,7 +446,7 @@
       min-height: calc(100vh - 260px);
     }
     .detail-card{
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 18px;
       border-radius: 24px;
@@ -467,6 +470,7 @@
     .detail-title{ flex:1; min-width: 240px; }
     .detail-title h2{ margin:0; font-size: 1.7rem; line-height:1.15; }
     .detail-title p{ margin:10px 0 0; color: var(--muted); }
+
     .detail-actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; align-items:center; }
     .btnPrimary{
       background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(124,92,255,.90));
@@ -485,6 +489,8 @@
       align-items:center;
       justify-content:center;
       text-align:center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .detailHome{
@@ -516,6 +522,64 @@
     .detailHome .hint{
       color: rgba(169,183,214,.92);
       font-size: .92rem;
+    }
+
+    .streams{
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      overflow:hidden;
+    }
+    .streamsHeader{
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .streamsHeader .hint{
+      color: rgba(169,183,214,.92);
+      font-size: .92rem;
+    }
+    .streamRow{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      flex-wrap: wrap;
+    }
+    .streamRow:first-child{ border-top: 0; }
+    .streamMeta{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+      min-width: 220px;
+    }
+    .streamTag{
+      font-size:.82rem;
+      color: rgba(231,238,252,.92);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .streamTag .dot{ width:8px; height:8px; border-radius:50%; background: rgba(77,163,255,.9); }
+    .streamUrl{
+      color: rgba(231,238,252,.78);
+      font-size: .9rem;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     .player{
@@ -661,16 +725,16 @@
     }
     .toast.show{ display:block; }
 
+    /* ✅ Footer fix: no fixed height, wraps cleanly on mobile */
     #fixedFooter{
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 42px;
       z-index: 105;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap: 12px;
-      padding: 0 12px;
+      gap: 10px 12px;
+      padding: 8px 12px;
       border-top: 1px solid rgba(255,255,255,.10);
       background: rgba(8,10,22,.78);
       backdrop-filter: blur(14px);
@@ -678,6 +742,7 @@
       font-size: .92rem;
       user-select:none;
       flex-wrap: wrap;
+      line-height: 1.25;
     }
     #fixedFooter a{
       color: rgba(231,238,252,.92);
@@ -700,6 +765,7 @@
       color: rgba(231,238,252,.95);
       font-weight: 800;
       letter-spacing: .2px;
+      white-space: nowrap;
     }
     .footerStatus .sDot{
       width: 9px; height: 9px; border-radius: 50%;
@@ -893,7 +959,7 @@
       #scrollTopBtn{ bottom: 210px; }
     }
 
-    /* ===== Mobile compact player (NEW) ===== */
+    /* ===== Mobile compact player ===== */
     @media (max-width: 640px){
       :root{ --bottom-safe: 210px; }
 
@@ -904,7 +970,6 @@
         gap: 10px;
       }
 
-      /* Default in mobile -> compact */
       .player.isCompact .viz,
       .player.isCompact .vol{
         display: none !important;
@@ -936,6 +1001,65 @@
       transition: transform .12s ease, background .12s ease;
     }
     .playerToggle:hover{ background: rgba(255,255,255,.085); transform: translateY(-1px); }
+
+    /* ===== Add Station Modal ===== */
+    #addModal{
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    #addModal.show{ display: flex; }
+    .modalCard{
+      width: min(920px, 100%);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(8,10,22,.82);
+      box-shadow: 0 30px 120px rgba(0,0,0,.55);
+      overflow: hidden;
+    }
+    .modalTop{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .modalTop .ttl{
+      font-weight: 950;
+      letter-spacing: .2px;
+      font-size: 1.05rem;
+    }
+    .modalBody{
+      padding: 14px 16px 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 860px){
+      .modalBody{ grid-template-columns: 1fr; }
+    }
+    .modalBody .full{ grid-column: 1 / -1; }
+    .modalHint{
+      font-size: .92rem;
+      color: rgba(169,183,214,.92);
+      line-height: 1.35;
+    }
+    .modalActions{
+      padding: 14px 16px 16px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 
@@ -985,6 +1109,7 @@
       </label>
 
       <button class="btn" id="clearBtn" data-i18n="reset">Reset</button>
+	  <button class="btn" id="topAddStation" data-i18n="footerAddStation">Add a station</button>
     </div>
   </div>
 
@@ -995,7 +1120,7 @@
       </div>
       <div class="featured-info">
         <p class="title"><strong>Radio ABF</strong> — Alternative Bass Fréquence</p>
-        <p class="sub" data-i18n="featuredLine">France • Techno, House, Electronic, Club • 320 kbps</p>
+        <p class="sub" data-i18n="featuredLine">France • Techno, House, Electronic, Club • Multiple streams</p>
       </div>
     </div>
   </div>
@@ -1032,7 +1157,6 @@
     </div>
 
     <div class="pControls">
-      <!-- NEW: mobile collapse/expand -->
       <div class="playerToggle" id="playerToggle" title="Expand / Collapse">▲</div>
 
       <div class="miniBtn" id="stopBtn" data-i18n-title="ttStop" title="Stop">⏹</div>
@@ -1061,6 +1185,8 @@
     <span id="footerStatus" class="footerStatus" data-state="STOP">
       <span class="sDot"></span><span class="sText">STOP</span>
     </span>
+    <span style="opacity:.55;">•</span>
+    <a href="#" id="footerAddStation" data-i18n="footerAddStation">Add a station</a>
     <span style="opacity:.55;">•</span>
     <span class="madeIn">
       <span data-i18n="madeInFrance">Made in France</span>
@@ -1095,6 +1221,44 @@
     </div>
   </div>
 
+  <!-- Add Station Modal -->
+  <div id="addModal" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-label="Add station">
+      <div class="modalTop">
+        <div class="ttl" data-i18n="addTitle">Add / update a station</div>
+        <button class="btn btnSmall" id="addClose" type="button">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <input id="addName" type="text" class="full" placeholder="Station name" data-i18n-placeholder="addNamePh">
+        <input id="addCountry" type="text" placeholder="Country" data-i18n-placeholder="addCountryPh">
+        <input id="addHomepage" type="text" placeholder="Website (https://...)" data-i18n-placeholder="addHomePh">
+
+        <input id="addFavicon" type="text" class="full" placeholder="Logo URL (optional)" data-i18n-placeholder="addFaviconPh">
+        <input id="addTags" type="text" class="full" placeholder="Tags / styles (comma separated)" data-i18n-placeholder="addTagsPh">
+
+        <div class="full modalHint" data-i18n="addStreamsHint">
+          Streams (at least 1, you can add up to 3). Broken streams will be ignored in the radio page and the station is considered HS only if all streams are broken.
+        </div>
+
+        <input id="addStream1" type="text" class="full" placeholder="Stream URL #1 (https://...)" data-i18n-placeholder="addStream1Ph">
+        <input id="addStream2" type="text" class="full" placeholder="Stream URL #2 (optional)" data-i18n-placeholder="addStream2Ph">
+        <input id="addStream3" type="text" class="full" placeholder="Stream URL #3 (optional)" data-i18n-placeholder="addStream3Ph">
+
+        <textarea id="addNote" class="full" placeholder="Optional note (codec/bitrate info, etc.)" data-i18n-placeholder="addNotePh"></textarea>
+
+        <div class="full modalHint" data-i18n="addSubmitHint">
+          Submit sends data to the Radio-Browser API. If you enter multiple streams, the app will submit one entry per stream (they’ll be merged by our duplicate fusion).
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn" id="addCancel" type="button" data-i18n="cancel">Cancel</button>
+        <button class="btn btnPrimary" id="addSubmit" type="button" data-i18n="submit">Submit</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // -----------------------
     // i18n
@@ -1113,13 +1277,14 @@
         allStyles: "All styles",
         showBroken: "Show broken stations",
         reset: "Reset",
-        featuredLine: "France • Techno, House, Electronic, Club • 320 kbps",
+        featuredLine: "France • Techno, House, Electronic, Club • Multiple streams",
         loadingStations: "Loading stations…",
         noResults: "No stations found",
         endResults: "End of results.",
         loadMore: "Load more",
         back: "← Back",
         playStation: "▶ Play",
+        playBest: "▶ Play (best stream)",
         fav: "Favorite",
         titleLabel: "Title:",
         titleLoading: "Loading title…",
@@ -1144,13 +1309,36 @@
         toastPick: "Pick a station first.",
         toastReset: "Filters reset.",
         stationWebsite: "Station website",
+        streamsTitle: "Available streams",
+        streamsHidden: "Broken streams are hidden",
+        allStreamsBroken: "All known streams look broken for this station.",
         ttStop: "Stop",
         ttPlayPause: "Play / Pause",
         ttRetry: "Reconnect",
         ttMute: "Mute / Unmute",
         ttFullscreen: "Fullscreen",
         ttVolume: "Volume",
-        ttScrollTop: "Scroll to top"
+        ttScrollTop: "Scroll to top",
+        footerAddStation: "Add a station",
+
+        addTitle: "Add / update a station",
+        addNamePh: "Station name",
+        addCountryPh: "Country",
+        addHomePh: "Website (https://...)",
+        addFaviconPh: "Logo URL (optional)",
+        addTagsPh: "Tags / styles (comma separated)",
+        addStreamsHint: "Streams (at least 1, you can add up to 3). Broken streams will be hidden; station is HS only if all streams are broken.",
+        addStream1Ph: "Stream URL #1 (https://...)",
+        addStream2Ph: "Stream URL #2 (optional)",
+        addStream3Ph: "Stream URL #3 (optional)",
+        addNotePh: "Optional note (codec/bitrate info, etc.)",
+        addSubmitHint: "Submit sends to the Radio-Browser API. Multiple streams are submitted as separate entries (our duplicate fusion groups them).",
+        cancel: "Cancel",
+        submit: "Submit",
+        toastSubmitOk: "Submitted ✅",
+        toastSubmitFail: "Submit failed (CORS or API).",
+        toastNeedName: "Please enter a station name.",
+        toastNeedStream: "Please enter at least 1 stream URL."
       },
       fr: {
         siteName: "GlobalRadio.top",
@@ -1165,13 +1353,14 @@
         allStyles: "Tous les styles",
         showBroken: "Afficher radios HS",
         reset: "Réinitialiser",
-        featuredLine: "France • Techno, House, Electronic, Club • 320 kbps",
+        featuredLine: "France • Techno, House, Electronic, Club • Multi-flux",
         loadingStations: "Chargement des stations…",
         noResults: "Aucune station trouvée",
         endResults: "Fin des résultats.",
         loadMore: "Afficher la suite",
         back: "← Retour",
         playStation: "▶ Lecture",
+        playBest: "▶ Lecture (meilleur flux)",
         fav: "Favori",
         titleLabel: "Titre :",
         titleLoading: "Chargement du titre…",
@@ -1196,13 +1385,36 @@
         toastPick: "Choisis une station d’abord.",
         toastReset: "Filtres réinitialisés.",
         stationWebsite: "Site web de la radio",
+        streamsTitle: "Flux disponibles",
+        streamsHidden: "Les flux HS sont masqués",
+        allStreamsBroken: "Tous les flux connus semblent HS pour cette radio.",
         ttStop: "Arrêter",
         ttPlayPause: "Lecture / Pause",
         ttRetry: "Reconnecter",
         ttMute: "Muet / Son",
         ttFullscreen: "Plein écran",
         ttVolume: "Volume",
-        ttScrollTop: "Remonter"
+        ttScrollTop: "Remonter",
+        footerAddStation: "Ajout d'une station",
+
+        addTitle: "Ajout / modification d'une station",
+        addNamePh: "Nom de la station",
+        addCountryPh: "Pays",
+        addHomePh: "Site web (https://...)",
+        addFaviconPh: "URL du logo (optionnel)",
+        addTagsPh: "Tags / styles (séparés par des virgules)",
+        addStreamsHint: "Flux (au moins 1, jusqu’à 3). Les flux HS sont masqués ; la station est HS seulement si tous les flux sont HS.",
+        addStream1Ph: "URL du flux #1 (https://...)",
+        addStream2Ph: "URL du flux #2 (optionnel)",
+        addStream3Ph: "URL du flux #3 (optionnel)",
+        addNotePh: "Note optionnelle (infos codec/bitrate, etc.)",
+        addSubmitHint: "Envoi vers l’API Radio-Browser. Plusieurs flux = plusieurs envois (fusionnés ensuite par notre regroupement).",
+        cancel: "Annuler",
+        submit: "Envoyer",
+        toastSubmitOk: "Envoyé ✅",
+        toastSubmitFail: "Échec de l’envoi (CORS ou API).",
+        toastNeedName: "Merci d’indiquer un nom.",
+        toastNeedStream: "Merci d’indiquer au moins 1 URL de flux."
       }
     };
 
@@ -1230,13 +1442,15 @@
     ];
 
     const BAD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-    const BAD_KEY = "gr_bad_stations_v1";
+    const BAD_KEY = "gr_bad_stations_v2";
 
     const RESOLVED_KEY = "gr_resolved_streams_v1";
     const RESOLVED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-    const LAST_STATION_KEY = "gr_last_station_v1";
+    const LAST_STATION_KEY = "gr_last_station_v2";
     const LAST_TITLE_KEY = "gr_last_title_v1";
+
+    const GROUP_FAV_KEY = "gr_favorites_groups_v2";
 
     const MAIN_STYLES = [
       { en: "Pop", fr: "Pop", tag: "pop" },
@@ -1331,33 +1545,6 @@
       };
     }
 
-    function saveLastStation(st){
-      try{
-        const s = normalizeStation(st);
-        localStorage.setItem(LAST_STATION_KEY, JSON.stringify({ ts: now(), station: s }));
-      }catch(e){}
-    }
-    function loadLastStation(){
-      try{
-        const raw = localStorage.getItem(LAST_STATION_KEY);
-        if (!raw) return null;
-        const obj = JSON.parse(raw);
-        if (!obj || !obj.station) return null;
-        return normalizeStation(obj.station);
-      }catch(e){ return null; }
-    }
-    function saveLastTitle(title){
-      try{ localStorage.setItem(LAST_TITLE_KEY, JSON.stringify({ ts: now(), title: String(title||"") })); }catch(e){}
-    }
-    function loadLastTitle(){
-      try{
-        const raw = localStorage.getItem(LAST_TITLE_KEY);
-        if (!raw) return "";
-        const obj = JSON.parse(raw);
-        return (obj && obj.title) ? String(obj.title) : "";
-      }catch(e){ return ""; }
-    }
-
     function safeDomainFromStation(st){
       const src = st.homepage || st.url || "";
       try{ return new URL(src).hostname.replace(/^www\./,""); }
@@ -1403,6 +1590,143 @@
       }
     }
 
+    function slugKey(s){
+      return String(s||"")
+        .toLowerCase()
+        .replace(/https?:\/\//g,"")
+        .replace(/www\./g,"")
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-+|-+$/g,"")
+        .slice(0, 80);
+    }
+
+    // ✅ Duplicate fusion: group stations by (country + normalized homepage domain + normalized name)
+    function groupKeyForStation(s){
+      const name = slugKey(s.name);
+      const country = slugKey(s.country);
+      const domain = slugKey(safeDomainFromStation(s));
+      return `${country}::${domain}::${name}`;
+    }
+
+    function streamKey(u){
+      return slugKey(u);
+    }
+
+    function mergeIntoGroups(list){
+      const map = new Map();
+      for (const s0 of list){
+        const s = normalizeStation(s0);
+        if (!s.url) continue;
+
+        const key = groupKeyForStation(s);
+        if (!map.has(key)){
+          map.set(key, {
+            id: key,
+            name: s.name,
+            favicon: s.favicon || "",
+            homepage: s.homepage || "",
+            country: s.country || "",
+            tags: s.tags || "",
+            streams: []
+          });
+        }
+        const g = map.get(key);
+
+        // keep best metadata
+        if (!g.favicon && s.favicon) g.favicon = s.favicon;
+        if (!g.homepage && s.homepage) g.homepage = s.homepage;
+        if (!g.country && s.country) g.country = s.country;
+        if ((!g.tags || g.tags.length < 3) && s.tags) g.tags = s.tags;
+
+        const sk = streamKey(s.url);
+        if (!g.streams.some(st => streamKey(st.url) === sk)){
+          g.streams.push({
+            url: s.url,
+            bitrate: s.bitrate || 0,
+            codec: s.codec || "",
+            uuid: s.uuid || null,
+            tags: s.tags || ""
+          });
+        }
+      }
+
+      // sort streams: highest bitrate first, prefer mp3/aac over others
+      const codecScore = (c)=>{
+        const x = String(c||"").toLowerCase();
+        if (x.includes("mp3")) return 30;
+        if (x.includes("aac")) return 25;
+        if (x.includes("m4a")) return 22;
+        if (x.includes("ogg")) return 18;
+        if (x.includes("opus")) return 16;
+        return 10;
+      };
+
+      const out = Array.from(map.values());
+      out.forEach(g=>{
+        g.streams.sort((a,b)=>{
+          const sa = codecScore(a.codec) + (a.bitrate||0)/10;
+          const sb = codecScore(b.codec) + (b.bitrate||0)/10;
+          return sb - sa;
+        });
+      });
+      return out;
+    }
+
+    function isGroupAllBroken(group){
+      const streams = group?.streams || [];
+      if (!streams.length) return true;
+      return streams.every(s => isBadStationByUrl(s.url));
+    }
+
+    function goodStreams(group){
+      const streams = group?.streams || [];
+      return streams.filter(s => !isBadStationByUrl(s.url));
+    }
+
+    function pickBestPlayableStream(group){
+      const gs = goodStreams(group);
+      return gs[0] || null;
+    }
+
+    function saveLastStationGroup(group, stream){
+      try{
+        const payload = {
+          ts: now(),
+          group: {
+            id: group.id,
+            name: group.name,
+            favicon: group.favicon,
+            homepage: group.homepage,
+            country: group.country,
+            tags: group.tags,
+            streams: group.streams
+          },
+          streamUrl: stream?.url || ""
+        };
+        localStorage.setItem(LAST_STATION_KEY, JSON.stringify(payload));
+      }catch(e){}
+    }
+    function loadLastStationGroup(){
+      try{
+        const raw = localStorage.getItem(LAST_STATION_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !obj.group) return null;
+        return obj;
+      }catch(e){ return null; }
+    }
+    function saveLastTitle(title){
+      try{ localStorage.setItem(LAST_TITLE_KEY, JSON.stringify({ ts: now(), title: String(title||"") })); }catch(e){}
+    }
+    function loadLastTitle(){
+      try{
+        const raw = localStorage.getItem(LAST_TITLE_KEY);
+        if (!raw) return "";
+        const obj = JSON.parse(raw);
+        return (obj && obj.title) ? String(obj.title) : "";
+      }catch(e){ return ""; }
+    }
+
     // -----------------------
     // UI refs
     // -----------------------
@@ -1416,8 +1740,12 @@
     // -----------------------
     // State
     // -----------------------
-    let stations = [], offset = 0, hasMore = true, loading = false;
-    let favorites = JSON.parse(localStorage.getItem("gr_favorites") || "[]");
+    let groups = [], offset = 0, hasMore = true, loading = false;
+
+    // favorites are stored as GROUPS (with streams)
+    let favorites = (()=> {
+      try{ return JSON.parse(localStorage.getItem(GROUP_FAV_KEY) || "[]"); }catch(e){ return []; }
+    })();
 
     let showBroken = (localStorage.getItem("gr_show_broken") === "1");
 
@@ -1430,24 +1758,37 @@
     let vizLowEnergy = false;
 
     let currentTryIndex = 0;
-    let currentStation = null;
+
+    // current playback = group + stream
+    let currentGroup = null;
+    let currentStream = null;
+
+    // detail open group
+    let detailGroup = null;
 
     let playerStateKey = "statusSelect";
     let playerStateText = "";
 
     let scrollTicking = false;
 
-    const featuredStation = {
-      name: "Radio ABF - Alternative Bass Fréquence | The DJs' Frequency",
-      favicon: "https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png",
-      url: "https://play.radioabf.com:2590/stream",
-      homepage: "https://radioabf.com",
-      country: "France",
-      tags: "Techno, House, Electronic, Club",
-      bitrate: 320,
-      codec: "MP3",
-      uuid: null
-    };
+    // -----------------------
+    // Featured: Radio ABF with 4 streams
+    // -----------------------
+    const featuredGroup = {
+  id: "france::radioabf-com::radio-abf",
+  name: "Radio ABF - Alternative Bass Fréquence | The DJs' Frequency",
+  favicon: "https://radioabf.com/uploads/695e69373b3b6/site/1767800015_b497cc5aceae9307cbab.png",
+  homepage: "https://radioabf.com",
+  country: "France",
+  tags: "Techno, House, Electronic, Club",
+  streams: [
+    { url: "http://play.radioabf.com:2590/stream", bitrate: 320, codec: "MP3", uuid: null, tags: "abf-hd" },
+    { url: "http://play.radioabf.com:2600/stream", bitrate: 128, codec: "MP3", uuid: null, tags: "abf-sd" },
+    { url: "http://play.radioabf.com:2610/stream", bitrate: 32,  codec: "AAC+", uuid: null, tags: "abf-bd" },
+    { url: "http://play.radioabf.com:2620/stream", bitrate: 728, codec: "FLAC", uuid: null, tags: "abf-uhd" }
+  ]
+};
+
 
     // -----------------------
     // i18n apply
@@ -1470,7 +1811,7 @@
       localStorage.setItem("gr_lang", LANG);
       document.documentElement.lang = LANG;
 
-      const keepPlayerText = !!currentStation || (!!audio && !!audio.src);
+      const keepPlayerText = !!currentGroup || (!!audio && !!audio.src);
 
       document.querySelectorAll("[data-i18n]").forEach(el => {
         const k = el.dataset.i18n;
@@ -1496,6 +1837,9 @@
 
       const statusEl = document.getElementById("playerStatus");
       if (statusEl) statusEl.textContent = playerStateText || t(playerStateKey || "statusSelect");
+
+      // refresh detail UI labels
+      if (isDetailOpen() && detailGroup) populateDetail(detailGroup);
     }
 
     // -----------------------
@@ -1554,25 +1898,18 @@
     function isFavorites(){ return document.getElementById("viewMode").value === "favorites"; }
 
     // -----------------------
-    // Favorites
+    // Favorites (GROUPS)
     // -----------------------
-    function saveFavorites(){ localStorage.setItem("gr_favorites", JSON.stringify(favorites)); }
-    function isFavorite(station){
-      return favorites.some(f =>
-        (f.uuid && station.uuid && f.uuid === station.uuid) ||
-        (!f.uuid && !station.uuid && f.name === station.name && f.url === station.url)
-      );
+    function saveFavorites(){ localStorage.setItem(GROUP_FAV_KEY, JSON.stringify(favorites)); }
+    function isFavorite(group){
+      return favorites.some(g => g.id === group.id);
     }
-    function toggleFavorite(station){
-      const s = normalizeStation(station);
-      const idx = favorites.findIndex(f =>
-        (f.uuid && s.uuid && f.uuid === s.uuid) ||
-        (!f.uuid && !s.uuid && f.name === s.name && f.url === s.url)
-      );
+    function toggleFavorite(group){
+      const idx = favorites.findIndex(g => g.id === group.id);
       if (idx > -1) favorites.splice(idx, 1);
-      else favorites.push(s);
+      else favorites.push(JSON.parse(JSON.stringify(group)));
       saveFavorites();
-      renderStations(false);
+      renderGroups(false);
       animateGridEntrance();
     }
 
@@ -1599,7 +1936,7 @@
     }
 
     // -----------------------
-    // Load stations
+    // Load stations -> GROUPS
     // -----------------------
     async function loadStations(append=false){
       if (loading) return;
@@ -1608,13 +1945,13 @@
 
       const mode = document.getElementById("viewMode").value;
       if (mode === "favorites"){
-        stations = favorites.slice();
+        groups = favorites.slice();
         hasMore = false;
-        renderStations(false);
+        renderGroups(false);
         animateGridEntrance();
         loadMoreBtn.style.display = "none";
-        endMessage.style.display = stations.length ? "none" : "block";
-        endMessage.textContent = stations.length ? "" : t("noResults");
+        endMessage.style.display = groups.length ? "none" : "block";
+        endMessage.textContent = groups.length ? "" : t("noResults");
         updateBottomSafe();
         loading = false;
         return;
@@ -1641,16 +1978,51 @@
       try{ data = await fetch(`${API_BASE}/stations/search?${params}`).then(r => r.json()); }
       catch(e){ data = []; }
 
-      if (!append){ stations = []; offset = 0; hasMore = true; }
+      if (!append){ groups = []; offset = 0; hasMore = true; }
 
       let normalized = (data||[]).map(normalizeStation).filter(s => s.url);
-      if (hideBroken) normalized = normalized.filter(s => !isBadStationByUrl(s.url));
 
-      stations = stations.concat(normalized);
-      offset += normalized.length;
-      hasMore = normalized.length === limit;
+      // If hideBroken: we only filter on group-level AFTER fusion:
+      let newGroups = mergeIntoGroups(normalized);
 
-      renderStations(append);
+      if (hideBroken){
+        newGroups = newGroups.filter(g => !isGroupAllBroken(g));
+      }
+
+      // Append logic: for infinite scroll, we keep extending groups (but also fuse across pages)
+      if (!append){
+        groups = newGroups;
+      } else {
+        // merge old+new, then fuse again to avoid dupes across pagination
+        const combinedStations = [];
+        // Expand groups into station-like entries
+        const expand = (gs)=>{
+          for (const g of gs){
+            for (const s of (g.streams||[])){
+              combinedStations.push({
+                name: g.name,
+                favicon: g.favicon,
+                homepage: g.homepage,
+                country: g.country,
+                tags: g.tags,
+                url: s.url,
+                bitrate: s.bitrate,
+                codec: s.codec,
+                uuid: s.uuid
+              });
+            }
+          }
+        };
+        expand(groups);
+        expand(newGroups);
+        const fused = mergeIntoGroups(combinedStations);
+        groups = hideBroken ? fused.filter(g => !isGroupAllBroken(g)) : fused;
+      }
+
+      offset += (normalized || []).length;
+      hasMore = (normalized.length === limit);
+
+      renderGroups(append);
       animateGridEntrance();
 
       loading = false;
@@ -1662,7 +2034,7 @@
 
     function resetAndReload(){
       if (isDetailOpen()) return;
-      offset = 0; hasMore = true; stations = [];
+      offset = 0; hasMore = true; groups = [];
       endMessage.style.display = "none";
       document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
       loadStations(false);
@@ -1692,27 +2064,27 @@
       });
     }
 
-    function renderStations(append=false){
+    function renderGroups(append=false){
       const grid = document.getElementById("stationsGrid");
       if (!append) grid.innerHTML = "";
 
-      if (!stations.length){
+      if (!groups.length){
         grid.innerHTML = `<div class="loading">${t("noResults")}</div>`;
         loadMoreBtn.style.display = "none";
         return;
       }
 
       const frag = document.createDocumentFragment();
-      stations.forEach((station)=>{
+      groups.forEach((group)=>{
         const div = document.createElement("div");
         div.className="station";
-        div.onclick=(e)=>{ if (e.target.closest(".heart")) return; showDetail(station); };
+        div.onclick=(e)=>{ if (e.target.closest(".heart")) return; showDetail(group); };
 
-        const fav = isFavorite(station);
+        const fav = isFavorite(group);
         const heart = document.createElement("div");
         heart.className = "heart" + (fav ? " filled" : "");
         heart.textContent = fav ? "❤️" : "♡";
-        heart.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(station); };
+        heart.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(group); };
 
         const inner = document.createElement("div");
         inner.className = "stationInner";
@@ -1725,28 +2097,32 @@
 
         const img = document.createElement("img");
         img.loading="lazy";
-        img.alt=station.name;
-        setImgWithFallbacks(img, guessStationLogoCandidates(station));
+        img.alt=group.name;
+        setImgWithFallbacks(img, guessStationLogoCandidates(group));
         logo.appendChild(img);
         cover.appendChild(logo);
 
         const meta = document.createElement("div");
         meta.className="meta";
 
-        const hs = isBadStationByUrl(station.url);
-        const countryText = safeText(station.country, (LANG === "fr" ? "Monde" : "World"));
+        const allBroken = isGroupAllBroken(group);
+        const countryText = safeText(group.country, (LANG === "fr" ? "Monde" : "World"));
+
+        const best = pickBestPlayableStream(group) || (group.streams && group.streams[0]) || null;
+        const codecBit = best ? `${safeText(best.codec,(LANG==="fr"?"Flux":"Stream"))}${best.bitrate ? ` • ${best.bitrate} kbps` : ""}` : (LANG==="fr"?"Flux":"Stream");
+        const streamCount = (group.streams||[]).length;
 
         meta.innerHTML = `
-          <div class="name">${station.name}</div>
+          <div class="name">${group.name}</div>
           <div class="chips">
             <span class="chip"><span class="dot"></span>${countryText}</span>
-            <span class="chip muted">${safeText(station.codec,(LANG==="fr"?"Flux":"Stream"))}${station.bitrate ? ` • ${station.bitrate} kbps` : ""}</span>
-            ${hs ? `<span class="chip hs" title="Recently detected as broken (local blacklist)."><span class="dot"></span>HS</span>` : ""}
+            <span class="chip muted">${codecBit}${streamCount>1 ? ` • ${streamCount} ${LANG==="fr"?"flux":"streams"}` : ""}</span>
+            ${allBroken ? `<span class="chip hs" title="${t("allStreamsBroken")}"><span class="dot"></span>HS</span>` : ""}
           </div>
           <div class="chips" style="margin-top:10px;">
             <span class="chip"><span class="dot"></span>${LANG==="fr" ? "Écouter" : "Listen"}</span>
-            <span class="chip muted" title="${safeText(station.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              ${safeText(station.tags,(LANG==="fr"?"Divers":"Misc")).slice(0,56)}${station.tags && station.tags.length>56 ? "…" : ""}
+            <span class="chip muted" title="${safeText(group.tags,"")}" style="max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${safeText(group.tags,(LANG==="fr"?"Divers":"Misc")).slice(0,56)}${group.tags && group.tags.length>56 ? "…" : ""}
             </span>
           </div>
         `;
@@ -1764,20 +2140,25 @@
     // -----------------------
     // Detail view
     // -----------------------
-    function showDetail(station){
-      currentStation = normalizeStation(station);
+    function showDetail(group){
+      detailGroup = JSON.parse(JSON.stringify(group));
       document.getElementById("detailView").style.display = "block";
       document.querySelector(".filters").style.display = "none";
       document.querySelector(".featured").style.display = "none";
       document.getElementById("stationsGrid").style.display = "none";
       loadMoreBtn.style.display = "none";
       endMessage.style.display = "none";
-      populateDetail(currentStation);
+
+      populateDetail(detailGroup);
+
       window.scrollTo({ top: 0, behavior: "smooth" });
       updateBottomSafe();
     }
 
     function showList(){
+      detailGroup = null;
+      stopDetailTitleEngine();
+
       document.getElementById("detailView").style.display = "none";
       document.querySelector(".filters").style.display = "block";
       document.querySelector(".featured").style.display = "block";
@@ -1788,10 +2169,10 @@
       animateGridEntrance();
     }
 
-    function populateDetail(station){
-      const logoCandidates = guessStationLogoCandidates(station);
+    function populateDetail(group){
+      const logoCandidates = guessStationLogoCandidates(group);
 
-      const home = normalizeHomepage(station.homepage);
+      const home = normalizeHomepage(group.homepage);
       const host = (()=>{
         try{ return home ? new URL(home).host.replace(/^www\./,"") : ""; }catch(e){ return ""; }
       })();
@@ -1808,42 +2189,117 @@
         </div>
       `;
 
+      const gs = goodStreams(group);
+      const allBroken = !gs.length;
+
+      const streamRows = gs.map((s, idx)=>{
+        const label = `${safeText(s.codec,"")} ${s.bitrate ? `• ${s.bitrate} kbps` : ""}`.trim() || (LANG==="fr"?"Flux":"Stream");
+        const shortUrl = String(s.url || "").replace(/^https?:\/\//,"");
+        return `
+          <div class="streamRow">
+            <div style="min-width: 260px; flex: 1;">
+              <div class="streamMeta">
+                <span class="streamTag"><span class="dot"></span>${label}</span>
+                <span class="streamTag" style="opacity:.85;"><span class="dot"></span>#${idx+1}</span>
+              </div>
+              <div class="streamUrl" title="${s.url}">${shortUrl}</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btnSmall btnPrimary" data-stream="${encodeURIComponent(s.url)}">▶</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
       document.getElementById("detailContent").innerHTML = `
         <div class="detail-top">
           <div class="detail-logo">
-            <img id="detailLogo" alt="${station.name}">
+            <img id="detailLogo" alt="${group.name}">
           </div>
 
           <div class="detail-title">
-            <h2>${station.name}</h2>
-            <p>${safeText(station.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(station.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
-            <p style="margin-top:8px; color: rgba(169,183,214,.95);">
-              ${safeText(station.codec, LANG==="fr" ? "Flux" : "Stream")}
-              ${station.bitrate ? ` • ${station.bitrate} kbps` : ""}
-            </p>
+            <h2>${group.name}</h2>
+            <p>${safeText(group.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(group.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
 
             ${homeBlock}
 
             <div class="detail-actions">
-              <button class="btn btnPrimary" id="detailPlay">${t("playStation")}</button>
-              <button class="btn" id="detailFav">${isFavorite(station) ? "❤️" : "♡"} ${t("fav")}</button>
-            </div>
+  <button class="btn btnPrimary" id="detailPlayBest">
+    ${t("playBest")}
+  </button>
+
+  <button class="btn" id="detailFav">
+    ${isFavorite(group) ? "❤️" : "♡"} ${t("fav")}
+  </button>
+
+  <button class="btn" id="detailEdit">
+    ✏️ ${LANG === "fr" ? "Soumettre une modification" : "Submit an update"}
+  </button>
+</div>
+
           </div>
         </div>
 
         <div id="detailTitle">${t("titleLabel")} ${t("titleLoading")}</div>
+
+        <div class="streams">
+          <div class="streamsHeader">
+            <div><strong>${t("streamsTitle")}</strong> <span class="hint">• ${t("streamsHidden")}</span></div>
+            <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
+          </div>
+          ${allBroken ? `<div class="streamRow"><div class="modalHint">${t("allStreamsBroken")}</div></div>` : streamRows}
+        </div>
       `;
 
       const detailLogo = document.getElementById("detailLogo");
       setImgWithFallbacks(detailLogo, logoCandidates);
 
-      document.getElementById("detailPlay").onclick = ()=> playStation(station, { autoStart: true });
-      document.getElementById("detailFav").onclick = ()=>{
-        toggleFavorite(station);
-        populateDetail(station);
+      document.getElementById("detailPlayBest").onclick = ()=>{
+        const best = pickBestPlayableStream(group);
+        if (!best) return;
+        playGroupStream(group, best, { autoStart: true });
       };
 
-      requestTitleRefresh();
+      document.getElementById("detailFav").onclick = ()=>{
+        toggleFavorite(group);
+        populateDetail(group);
+      };
+		const editBtn = document.getElementById("detailEdit");
+if (editBtn){
+  editBtn.onclick = ()=>{
+    openAddModal();
+
+    // Pré-remplissage
+    document.getElementById("addName").value = group.name || "";
+    document.getElementById("addCountry").value = group.country || "";
+    document.getElementById("addHomepage").value = group.homepage || "";
+    document.getElementById("addFavicon").value = group.favicon || "";
+    document.getElementById("addTags").value = group.tags || "";
+
+    // Streams existants
+    document.getElementById("addStream1").value = group.streams?.[0]?.url || "";
+    document.getElementById("addStream2").value = group.streams?.[1]?.url || "";
+    document.getElementById("addStream3").value = group.streams?.[2]?.url || "";
+
+    document.getElementById("addNote").value =
+      LANG === "fr"
+        ? "Modification proposée depuis GlobalRadio.top"
+        : "Update submitted via GlobalRadio.top";
+  };
+}
+
+      // stream play buttons
+      document.querySelectorAll("[data-stream]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const u = decodeURIComponent(btn.getAttribute("data-stream") || "");
+          const s = (group.streams||[]).find(x => x.url === u);
+          if (!s) return;
+          playGroupStream(group, s, { autoStart: true });
+        });
+      });
+
+      // ✅ Fix title leak: Detail title engine uses THIS detail group (not current playing station unless same group)
+      startDetailTitleEngine(group);
     }
 
     // -----------------------
@@ -1903,13 +2359,13 @@
         return cleanTitle(data?.song || "");
       }catch(e){ return ""; }
     }
-    async function bestEffortTitle(station){
-      const stream = station?.url || station?.url_resolved || "";
+    async function bestEffortTitle(streamOrStation){
+      const stream = streamOrStation?.url || streamOrStation?.url_resolved || "";
       let tit = await getTitleFromIcecast(stream);
       if (tit) return tit;
       tit = await getTitleFromShoutcast(stream);
       if (tit) return tit;
-      tit = await getTitleFromRadioBrowser(station?.uuid);
+      tit = await getTitleFromRadioBrowser(streamOrStation?.uuid);
       if (tit) return tit;
       return "";
     }
@@ -1920,52 +2376,56 @@
       document.getElementById("fsTitle").textContent = msg;
       if (cleanTitle(title)) saveLastTitle(cleanTitle(title));
     }
-    function setTitleUIDetail(title){
+
+    function setTitleUIDetailText(title){
       const el = document.getElementById("detailTitle");
       if (!el) return;
       const msg = cleanTitle(title) || t("titleNotAvailable");
       el.textContent = `${t("titleLabel")} ${msg}`;
     }
 
+    // Player title loop (only for current playing stream)
     let titleTimer = null;
-    let lastTitleForUrl = "";
+    let lastTitleForStream = "";
     let titleBusy = false;
 
     function stopTitleEngine(){
       if (titleTimer) clearInterval(titleTimer);
       titleTimer = null;
-      lastTitleForUrl = "";
+      lastTitleForStream = "";
       titleBusy = false;
     }
 
     async function requestTitleRefresh(){
-      if (!currentStation) return;
+      if (!currentStream) return;
       if (titleBusy) return;
       titleBusy = true;
 
-      const stationSnapshot = currentStation;
-      const urlSnapshot = stationSnapshot.url || "";
+      const streamSnapshot = { ...currentStream };
+      const urlSnapshot = streamSnapshot.url || "";
 
       try{
-        const title = await bestEffortTitle(stationSnapshot);
-
-        if (!currentStation || (currentStation.url || "") !== urlSnapshot) return;
+        const title = await bestEffortTitle(streamSnapshot);
+        if (!currentStream || (currentStream.url || "") !== urlSnapshot) return;
 
         const clean = cleanTitle(title);
-        if (clean && clean !== lastTitleForUrl){
-          lastTitleForUrl = clean;
+        if (clean && clean !== lastTitleForStream){
+          lastTitleForStream = clean;
           setTitleUIPlayer(clean);
-          if (isDetailOpen()) setTitleUIDetail(clean);
+
+          // only update detail if it is the same group currently playing
+          if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+            setTitleUIDetailText(clean);
+          }
         } else if (!clean){
-          const cur = document.getElementById("currentTitle").textContent.trim();
-          if (!cur || cur === lastTitleForUrl){
-            setTitleUIPlayer("");
-            if (isDetailOpen()) setTitleUIDetail("");
-          } else {
-            if (isDetailOpen()) setTitleUIDetail(cur);
+          setTitleUIPlayer("");
+          if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+            setTitleUIDetailText("");
           }
         } else {
-          if (isDetailOpen()) setTitleUIDetail(lastTitleForUrl);
+          if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+            setTitleUIDetailText(lastTitleForStream);
+          }
         }
       } finally {
         titleBusy = false;
@@ -1976,6 +2436,36 @@
       stopTitleEngine();
       requestTitleRefresh();
       titleTimer = setInterval(requestTitleRefresh, 12000);
+    }
+
+    // ✅ Detail-only title loop (prevents “title from current playing radio” showing on another radio page)
+    let detailTitleTimer = null;
+    let detailTitleToken = 0;
+    function stopDetailTitleEngine(){
+      if (detailTitleTimer) clearInterval(detailTitleTimer);
+      detailTitleTimer = null;
+    }
+    async function refreshDetailTitle(group, token){
+      if (!isDetailOpen()) return;
+      if (!detailGroup || detailGroup.id !== group.id) return;
+      if (token !== detailTitleToken) return;
+
+      const best = pickBestPlayableStream(group) || (group.streams && group.streams[0]) || null;
+      if (!best){
+        setTitleUIDetailText("");
+        return;
+      }
+      const title = await bestEffortTitle(best);
+      if (token !== detailTitleToken) return;
+      setTitleUIDetailText(title || "");
+    }
+    function startDetailTitleEngine(group){
+      stopDetailTitleEngine();
+      detailTitleToken++;
+      const token = detailTitleToken;
+      setTitleUIDetailText(""); // reset
+      refreshDetailTitle(group, token);
+      detailTitleTimer = setInterval(()=> refreshDetailTitle(group, token), 14000);
     }
 
     // -----------------------
@@ -2076,21 +2566,17 @@
       }
     }
 
-    // Waveform V2: double line + gradient + soft glow + smoothing
     function drawWaveformV2(ctx, canvas, timeData){
       const w = canvas.width, h = canvas.height;
       const mid = h * 0.52;
-
       const amp = h * (vizLowEnergy ? 0.12 : 0.30);
 
       ctx.save();
 
-      // Light wash for contrast (without clearing bars)
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = "rgba(0,0,0,0.08)";
       ctx.fillRect(0, 0, w, h);
 
-      // Gradient across X
       const grad = ctx.createLinearGradient(0, 0, w, 0);
       grad.addColorStop(0.00, "rgba(77,163,255,0.00)");
       grad.addColorStop(0.12, "rgba(77,163,255,0.85)");
@@ -2122,13 +2608,11 @@
       }
       ctx.stroke();
 
-      // Crisp highlight line
       ctx.shadowBlur = 0;
       ctx.lineWidth = Math.max(1.0, h * 0.018);
       ctx.strokeStyle = "rgba(231,238,252,0.70)";
       ctx.stroke();
 
-      // Mirror under line
       ctx.globalAlpha = vizLowEnergy ? 0.20 : 0.32;
       ctx.lineWidth = Math.max(1.0, h * 0.022);
       ctx.strokeStyle = "rgba(77,163,255,0.38)";
@@ -2217,23 +2701,24 @@
     }
 
     // -----------------------
-    // Resolver placeholder (Part 2 later)
+    // Resolver placeholder
     // -----------------------
-    async function resolveStreamViaServer(station){
-      const cached = getResolved(station.url);
+    async function resolveStreamViaServer(stream){
+      const from = stream?.url || "";
+      const cached = getResolved(from);
       if (cached) return cached;
 
       const qs = new URLSearchParams();
-      if (station.homepage) qs.set("homepage", station.homepage);
-      if (station.url) qs.set("stream", station.url);
-      if (station.name) qs.set("name", station.name);
+      if (currentGroup?.homepage) qs.set("homepage", currentGroup.homepage);
+      if (from) qs.set("stream", from);
+      if (currentGroup?.name) qs.set("name", currentGroup.name);
 
       try{
         const r = await fetch(`${RESOLVE_API}?${qs.toString()}`, { method: "GET" });
         if (!r.ok) return null;
         const data = await r.json();
         if (data && data.url){
-          setResolved(station.url, data.url);
+          setResolved(from, data.url);
           return data.url;
         }
       }catch(e){}
@@ -2241,14 +2726,14 @@
     }
 
     // -----------------------
-    // Player
+    // Player (group + stream)
     // -----------------------
-    function setPlayerStationUI(station){
+    function setPlayerStationUI(group){
       playerEl.classList.remove("isEmpty");
-      document.getElementById("playerName").textContent = station.name || "Radio";
-      setImgWithFallbacks(document.getElementById("playerLogo"), guessStationLogoCandidates(station));
-      setImgWithFallbacks(document.getElementById("fsLogo"), guessStationLogoCandidates(station));
-      document.getElementById("fsName").textContent = station.name || "Radio";
+      document.getElementById("playerName").textContent = group.name || "Radio";
+      setImgWithFallbacks(document.getElementById("playerLogo"), guessStationLogoCandidates(group));
+      setImgWithFallbacks(document.getElementById("fsLogo"), guessStationLogoCandidates(group));
+      document.getElementById("fsName").textContent = group.name || "Radio";
       updateBottomSafe();
     }
 
@@ -2273,65 +2758,78 @@
       return false;
     }
 
-    async function startPlaybackWithFallbacks(station){
+    async function startPlaybackWithFallbacks(group, stream){
       setPlayerStatusKey("statusConnecting");
       setFooterStatus("CONNECT");
 
       setTitleUIPlayer("");
-      if (isDetailOpen()) setTitleUIDetail("");
+      if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+        setTitleUIDetailText("");
+      }
 
-      if (await tryPlayUrl(station.url)){
+      // Attempt direct
+      if (await tryPlayUrl(stream.url)){
         isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
         if (currentTryIndex===0) setPlayerStatusKey("statusLive");
         else updatePlayerStatus(`${t("statusLiveProxy")} ${currentTryIndex}`);
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
-        unmarkBadUrl(station.url);
-        saveLastStation(station);
+        unmarkBadUrl(stream.url);
+        saveLastStationGroup(group, stream);
         startTitleEngine();
         return true;
       }
 
+      // Attempt resolved alt
       setPlayerStatusKey("searchAltStream");
       setFooterStatus("BUFFER");
 
-      const resolvedUrl = await resolveStreamViaServer(station);
-      if (resolvedUrl && resolvedUrl !== station.url){
+      const resolvedUrl = await resolveStreamViaServer(stream);
+      if (resolvedUrl && resolvedUrl !== stream.url){
         if (await tryPlayUrl(resolvedUrl)){
-          setResolved(station.url, resolvedUrl);
-          unmarkBadUrl(station.url);
+          setResolved(stream.url, resolvedUrl);
+          unmarkBadUrl(stream.url);
           unmarkBadUrl(resolvedUrl);
 
-          station.url = resolvedUrl;
+          stream.url = resolvedUrl;
+
           isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
           setPlayerStatusKey("statusAlt");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
-          saveLastStation(station);
+          saveLastStationGroup(group, stream);
           startTitleEngine();
           return true;
         }
       }
 
-      markBadUrl(station.url, "play_failed");
+      // Mark only THIS stream as bad
+      markBadUrl(stream.url, "play_failed");
       setPlayerStatusKey("statusFailed");
       setFooterStatus("ERR");
       isPlaying = false; document.getElementById("playPauseBtn").textContent = "▶";
       setTitleUIPlayer("");
-      if (isDetailOpen()) setTitleUIDetail("");
+      if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+        setTitleUIDetailText("");
+        // refresh detail to hide this now-bad stream
+        populateDetail(detailGroup);
+      }
       return false;
     }
 
-    function playStation(station, { autoStart=false } = {}){
-      const s = normalizeStation(station);
-      if (!s.url) return toast(t("toastPick"));
+    function playGroupStream(group, stream, { autoStart=false } = {}){
+      if (!stream?.url) return toast(t("toastPick"));
 
-      currentStation = s;
-      setPlayerStationUI(s);
+      currentGroup = JSON.parse(JSON.stringify(group));
+      currentStream = { ...stream };
 
-      lastTitleForUrl = "";
+      setPlayerStationUI(currentGroup);
+
+      lastTitleForStream = "";
       setTitleUIPlayer("");
-      if (isDetailOpen()) setTitleUIDetail("");
+      if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+        setTitleUIDetailText("");
+      }
 
-      if (autoStart) startPlaybackWithFallbacks(s);
+      if (autoStart) startPlaybackWithFallbacks(currentGroup, currentStream);
       else{
         setPlayerStatusKey("statusSelect");
         setFooterStatus("PAUSE");
@@ -2341,11 +2839,16 @@
     }
 
     function restoreLastPlayedIntoPlayer(){
-      const last = loadLastStation();
-      if (!last || !last.url) return;
+      const last = loadLastStationGroup();
+      if (!last || !last.group) return;
 
-      currentStation = last;
-      setPlayerStationUI(last);
+      currentGroup = last.group;
+      setPlayerStationUI(currentGroup);
+
+      // restore a stream reference
+      const wanted = last.streamUrl || "";
+      const found = (currentGroup.streams||[]).find(s => s.url === wanted) || pickBestPlayableStream(currentGroup) || (currentGroup.streams||[])[0] || null;
+      currentStream = found ? { ...found } : null;
 
       const lastTitle = loadLastTitle();
       const msg = lastTitle ? lastTitle : t("titleNotAvailable");
@@ -2359,7 +2862,7 @@
       playerStateText = (LANG === "fr") ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume";
       updatePlayerStatus(playerStateText);
 
-      startTitleEngine();
+      if (currentStream) startTitleEngine();
     }
 
     function stopPlayback(){
@@ -2375,9 +2878,13 @@
       stopVizLoop();
 
       setTitleUIPlayer("");
-      if (isDetailOpen()) setTitleUIDetail("");
+      if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
+        setTitleUIDetailText("");
+      }
 
-      currentStation = null;
+      currentGroup = null;
+      currentStream = null;
+
       playerEl.classList.add("isEmpty");
       document.getElementById("playerName").textContent = t("chooseRadio");
       setFooterStatus("STOP");
@@ -2385,10 +2892,10 @@
     }
 
     function togglePlayPause(){
-      if (!currentStation) return toast(t("toastPick"));
+      if (!currentGroup || !currentStream) return toast(t("toastPick"));
       if (isPlaying){ audio.pause(); return; }
-      if (!audio.src) startPlaybackWithFallbacks(currentStation);
-      else audio.play().catch(()=> startPlaybackWithFallbacks(currentStation));
+      if (!audio.src) startPlaybackWithFallbacks(currentGroup, currentStream);
+      else audio.play().catch(()=> startPlaybackWithFallbacks(currentGroup, currentStream));
     }
 
     // Audio events
@@ -2403,7 +2910,7 @@
     audio.addEventListener("pause", ()=>{
       isPlaying = false;
       document.getElementById("playPauseBtn").textContent = "▶";
-      if (currentStation){
+      if (currentGroup){
         setFooterStatus(isMuted ? "MUTE" : "PAUSE");
         setPlayerStatusKey("statusPaused");
       } else {
@@ -2412,7 +2919,7 @@
       }
     });
     audio.addEventListener("waiting", ()=>{
-      if (currentStation){
+      if (currentGroup){
         setFooterStatus(isMuted ? "MUTE" : "BUFFER");
         setPlayerStatusKey("statusBuffer");
       }
@@ -2437,6 +2944,109 @@
     window.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && fsMode.classList.contains("show")) closeFS(); });
 
     // -----------------------
+    // Add station modal
+    // -----------------------
+    const addModal = document.getElementById("addModal");
+    function openAddModal(){
+      addModal.classList.add("show");
+      addModal.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+    }
+    function closeAddModal(){
+      addModal.classList.remove("show");
+      addModal.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+	const topAddBtn = document.getElementById("topAddStation");
+if (topAddBtn){
+  topAddBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    openAddModal();
+  });
+}
+
+
+    document.getElementById("footerAddStation").addEventListener("click", (e)=>{
+      e.preventDefault();
+      openAddModal();
+    });
+    document.getElementById("addClose").addEventListener("click", closeAddModal);
+    document.getElementById("addCancel").addEventListener("click", closeAddModal);
+    addModal.addEventListener("click", (e)=>{ if (e.target === addModal) closeAddModal(); });
+
+    function normalizeUrlMaybe(u){
+      const s = safeText(u,"");
+      if (!s) return "";
+      try{ return new URL(s).href; }catch(e){
+        try{ return new URL("https://" + s.replace(/^\/\//,"")).href; }catch(e2){ return ""; }
+      }
+    }
+
+    async function submitOneToRadioBrowser(payload){
+      // Radio-Browser expects form data. Some hosts may block CORS; we do best-effort.
+      const body = new URLSearchParams(payload);
+      const ctrl = new AbortController();
+      const tt = setTimeout(()=> ctrl.abort(), 12000);
+      try{
+        const r = await fetch(`${API_BASE}/add`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body,
+          signal: ctrl.signal
+        });
+        clearTimeout(tt);
+        return r.ok;
+      }catch(e){
+        clearTimeout(tt);
+        return false;
+      }
+    }
+
+    document.getElementById("addSubmit").addEventListener("click", async ()=>{
+      const name = safeText(document.getElementById("addName").value,"");
+      if (!name) return toast(t("toastNeedName"));
+
+      const streams = [
+        normalizeUrlMaybe(document.getElementById("addStream1").value),
+        normalizeUrlMaybe(document.getElementById("addStream2").value),
+        normalizeUrlMaybe(document.getElementById("addStream3").value)
+      ].filter(Boolean);
+
+      if (!streams.length) return toast(t("toastNeedStream"));
+
+      const country = safeText(document.getElementById("addCountry").value, "");
+      const homepage = normalizeUrlMaybe(document.getElementById("addHomepage").value);
+      const favicon = normalizeUrlMaybe(document.getElementById("addFavicon").value);
+      const tags = safeText(document.getElementById("addTags").value, "");
+      const note = safeText(document.getElementById("addNote").value, "");
+
+      // submit sequentially; any success counts
+      let okAny = false;
+      for (const url of streams){
+        const payload = {
+          name,
+          url,
+          homepage,
+          favicon,
+          country,
+          tags: note ? (tags ? `${tags}, ${note}` : note) : tags
+        };
+        const ok = await submitOneToRadioBrowser(payload);
+        okAny = okAny || ok;
+      }
+
+      if (okAny){
+        toast(t("toastSubmitOk"));
+        closeAddModal();
+
+        // Optional: refresh list to pick up new entries later
+        resetAndReload();
+      } else {
+        toast(t("toastSubmitFail"), 3200);
+      }
+    });
+
+    // -----------------------
     // Events wiring
     // -----------------------
     document.getElementById("homeLink").addEventListener("click", (e)=>{
@@ -2448,8 +3058,8 @@
     document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
     document.getElementById("stopBtn").addEventListener("click", stopPlayback);
     document.getElementById("retryBtn").addEventListener("click", ()=>{
-      if (!currentStation) return toast(t("toastPick"));
-      startPlaybackWithFallbacks(currentStation);
+      if (!currentGroup || !currentStream) return toast(t("toastPick"));
+      startPlaybackWithFallbacks(currentGroup, currentStream);
     });
 
     document.getElementById("muteBtn").addEventListener("click", ()=>{
@@ -2460,7 +3070,7 @@
         (isMuted ? "🔇 " : "🔊 ") + t("fsMute").replace(/^🔊\s*/,"").replace(/^🔇\s*/,"");
       applyVolume(parseFloat(document.getElementById("volume").value || "0.9"));
 
-      if (currentStation) setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
+      if (currentGroup) setFooterStatus(isMuted ? "MUTE" : (isPlaying ? "LIVE" : "PAUSE"));
       else setFooterStatus("STOP");
     });
 
@@ -2512,7 +3122,7 @@
     document.getElementById("backBtn").addEventListener("click", showList);
 
     // Featured
-    document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredStation));
+    document.getElementById("featuredCard").addEventListener("click", ()=> showDetail(featuredGroup));
 
     // Load more fallback
     loadMoreBtn.addEventListener("click", ()=> loadStations(true));
@@ -2547,25 +3157,16 @@
     }, { passive: true });
 
     // Language switch (no player reset)
-    function refreshDetailLang(){
-      if (!currentStation) return;
-      populateDetail(currentStation);
-      loadMoreBtn.style.display = "none";
-      endMessage.style.display = "none";
-    }
-
     document.getElementById("langEN").addEventListener("click", ()=>{
       applyLang("en");
-      if (isDetailOpen()) refreshDetailLang();
-      else resetAndReload();
+      if (!isDetailOpen()) resetAndReload();
     });
     document.getElementById("langFR").addEventListener("click", ()=>{
       applyLang("fr");
-      if (isDetailOpen()) refreshDetailLang();
-      else resetAndReload();
+      if (!isDetailOpen()) resetAndReload();
     });
 
-    // ===== Mobile player compact/expanded (NEW) =====
+    // ===== Mobile player compact/expanded =====
     (function initMobilePlayerCompact(){
       const player = document.getElementById("player");
       const toggle = document.getElementById("playerToggle");
