@@ -452,6 +452,29 @@
   box-shadow:0 0 0 6px rgba(245,158,11,.18);
 }
 
+/* Toggle HS chip */
+.chipToggle{
+  border-color: rgba(148,163,184,.35);   /* gris bleuté */
+  background: rgba(148,163,184,.12);
+  user-select: none;
+}
+
+.chipToggle .dot{
+  background:#94a3b8;
+  box-shadow:0 0 0 5px rgba(148,163,184,.12);
+}
+
+/* état actif = on affiche les HS */
+.chipToggle.active{
+  border-color: rgba(239,68,68,.45);
+  background: rgba(239,68,68,.14);
+  font-weight: 900;
+}
+
+.chipToggle.active .dot{
+  background:#ef4444;
+  box-shadow:0 0 0 6px rgba(239,68,68,.18);
+}
 
     .heart{
       position:absolute;
@@ -2473,16 +2496,19 @@ const streamCount = (group.streams||[]).length;
     <span class="hint">
       • ${showBrokenDetail ? (LANG==="fr" ? "Les flux HS sont affichés" : "Broken streams are shown")
                            : t("streamsHidden")}
-      <span id="toggleHS" style="margin-left:10px; font-weight:900; cursor:pointer; text-decoration:underline;">
-
+      <span
+  id="toggleHS"
+  class="chip chipToggle"
+  style="margin-left:10px; cursor:pointer;"
+>
+  <span class="dot"></span>
   ${
     showBrokenDetail
       ? (LANG==="fr" ? "Masquer HS" : "Hide HS")
       : (LANG==="fr" ? "Afficher HS" : "Show HS")
   }
-</a>
+</span>
 
-    </span>
   </div>
   <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
 </div>
@@ -2491,14 +2517,18 @@ const streamCount = (group.streams||[]).length;
         </div>
       `;
 	
+
 	const toggleHS = document.getElementById("toggleHS");
 if (toggleHS){
+  toggleHS.classList.toggle("active", showBrokenDetail);
+
   toggleHS.onclick = ()=>{
     showBrokenDetail = !showBrokenDetail;
     localStorage.setItem("gr_show_broken_detail", showBrokenDetail ? "1" : "0");
     populateDetail(group);
   };
 }
+
 
 	
       const detailLogo = document.getElementById("detailLogo");
