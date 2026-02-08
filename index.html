@@ -9,7 +9,7 @@
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
   <link rel="canonical" href="https://globalradio.top/" />
-
+ 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="GlobalRadio.top — Global online radio directory" />
   <meta property="og:description" content="Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata." />
@@ -1392,7 +1392,7 @@
   <button id="scrollTopBtn" data-i18n-title="ttScrollTop" title="Scroll to top">⬆</button>
 
   <div id="fixedFooter">
-    <a href="https://globalradio.top">© <span id="year"></span> GlobalRadio.top</a>
+    <a href="/" id="footerHomeLink">© <span id="year"></span> GlobalRadio.top</a>
     <span style="opacity:.55;">•</span>
     <span id="footerStatus" class="footerStatus" data-state="STOP">
       <span class="sDot"></span><span class="sText">STOP</span>
@@ -3869,6 +3869,48 @@ if (topAddBtn){
   if (h1) h1.textContent = document.title;
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const footerLink = document.getElementById("footerHomeLink");
+  if (!footerLink) return;
+
+  footerLink.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // fermer la fiche radio si ouverte
+    if (typeof isDetailOpen === "function" && isDetailOpen()) {
+      showList();
+    }
+
+    // forcer l'URL home
+    if (location.pathname !== "/") {
+      history.pushState({}, "", "/");
+    }
+
+    // reset filtres home
+    const country = document.getElementById("countrySelect");
+    const genre   = document.getElementById("genreSelect");
+    const search  = document.getElementById("searchInput");
+    const view    = document.getElementById("viewMode");
+    const sort    = document.getElementById("sortMode");
+
+    if (country) country.value = DEFAULT_COUNTRY;
+    if (genre)   genre.value = "";
+    if (search)  search.value = "";
+    if (view)    view.value = "all";
+    if (sort)    sort.value = "votes";
+
+    // recharger la liste
+    if (typeof resetAndReload === "function") {
+      resetAndReload();
+    } else if (typeof loadStations === "function") {
+      loadStations(false);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+});
+</script>
 
 </body>
 </html>
