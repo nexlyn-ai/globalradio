@@ -3468,6 +3468,58 @@ if (topAddBtn){
   stopBtn.addEventListener("click", ()=> setPlayIcon(true));
 })();
 
+	/* ===== PATCH: kill emoji ⏸/▶ injected by legacy code ===== */
+(function killPlayPauseEmoji(){
+  const btn = document.getElementById("playPauseBtn");
+  const ico = document.getElementById("icoPlayPause");
+  const audioEl = document.getElementById("audioPlayer");
+  if (!btn || !ico || !audioEl) return;
+
+  // Force: button must never display text (emoji)
+  const enforce = ()=>{
+    // remove any direct text content that could show emoji
+    // but keep the icon span
+    btn.childNodes.forEach(n=>{
+      if (n.nodeType === Node.TEXT_NODE) n.textContent = "";
+    });
+
+    // If someone replaced innerHTML/textContent, restore icon span
+    if (!btn.querySelector("#icoPlayPause")){
+      btn.innerHTML = `<span class="ico ico-play" id="icoPlayPause"></span>`;
+    }
+  };
+
+  // Observe any change (legacy code sets textContent)
+  const mo = new MutationObserver(enforce);
+  mo.observe(btn, { childList: true, characterData: true, subtree: true });
+
+  // Initial enforce
+  enforce();
+
+  // Keep icon in sync with real audio state
+  const set = ()=> {
+    const paused = audioEl.paused;
+    const icon = btn.querySelector("#icoPlayPause");
+    if (!icon) return;
+    icon.classList.toggle("ico-play", paused);
+    icon.classList.toggle("ico-pause", !paused);
+  };
+
+  audioEl.addEventListener("playing", set);
+  audioEl.addEventListener("pause", set);
+  audioEl.addEventListener("ended", set);
+  audioEl.addEventListener("emptied", set);
+  set();
+})();
+
+/* Ensure no emoji glyph can appear inside icon buttons */
+#playPauseBtn, #muteBtn, #stopBtn, #retryBtn, #fsBtn {
+  font-variant-emoji: text;
+}
+#playPauseBtn { color: transparent; }
+#playPauseBtn .ico { color: rgba(231,238,252,.95); }
+
+
   </script>
 </body>
 </html>
