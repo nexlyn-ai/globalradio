@@ -1,6 +1,8 @@
 import { Redis } from "@upstash/redis";
 
 const redis = Redis.fromEnv();
+const TTL_SECONDS = 60;         // ✅ fenêtre stable 60s
+const HEARTBEAT_SECONDS = 20;   // ✅ le client “ping” toutes les 20s
 
 export default async function handler(req, res) {
   // Autorise GET + POST (pratique selon tes tests)
