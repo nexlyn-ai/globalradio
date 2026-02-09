@@ -4009,7 +4009,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ping immédiat + heartbeat
   ping();
-  setInterval(ping, 12000);
+  const HEARTBEAT_SECONDS = 20;
+  setInterval(ping, HEARTBEAT_SECONDS * 1000);
+
 
   // ping quand tu reviens sur l’onglet
   document.addEventListener("visibilitychange", ()=> {
