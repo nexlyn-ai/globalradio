@@ -63,15 +63,12 @@
 	
 /* Smooth number change */
 #footerOnline .sText{
+  display: inline-block;
   transition: transform .22s ease, opacity .22s ease;
-  display:inline-block;
-  transform-origin: center;
 }
 #footerOnline.bump .sText{
   transform: translateY(-1px) scale(1.08);
-  opacity: 1;
 }
-
 	:root{
   --footer-h: 46px;   /* hauteur réelle du footer (mise à jour en JS) */
   --player-gap: 10px;
@@ -1412,7 +1409,7 @@
 	
 	<s<span style="opacity:.55;">•</span>
 <span class="footerStatus" id="footerOnline" data-state="CONNECT" title="Visitors online">
-  <span class="sDot"></span><span class="sText">— online</span>
+  <span class="sDot"></span><span class="sText">—</span>
 </span>
 
     <span style="opacity:.55;">•</span>
@@ -3987,6 +3984,40 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 <script>
+let lastOnline = null;
+
+function setOnlineCount(n){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  const txt = el.querySelector(".sText");
+  if (!txt) return;
+
+  const label = t("onlineLabel"); // "online" / "en ligne"
+  const val = Math.max(0, Number(n) || 0);
+
+  txt.textContent = `${val} ${label}`;
+
+  if (lastOnline !== null && val !== lastOnline){
+    el.classList.remove("bump");
+    requestAnimationFrame(() => {
+      el.classList.add("bump");
+      clearTimeout(el._bumpT);
+      el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
+    });
+  }
+
+  lastOnline = val;
+}
+/* 👆 FIN de la fonction */
+
+(function initPresenceCounter(){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  // le reste de ton code presence
+})();
+</script>
 (function initPresenceCounter(){
   const el = document.getElementById("footerOnline");
   if (!el) return;
@@ -4011,7 +4042,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!Number.isFinite(n)) throw new Error("bad online");
 
       el.dataset.state = "LIVE";
-      el.querySelector(".sText").textContent = `${n} online`;
+      setOnlineCount(n);
     }catch(e){
       el.dataset.state = "ERR";
       el.querySelector(".sText").textContent = `— online`;
