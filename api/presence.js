@@ -2,56 +2,39 @@ import { Redis } from "@upstash/redis";
 
 const redis = Redis.fromEnv();
 
-// Fenêtre "online" : si on a vu le visiteur dans les 40 dernières secondes -> online
-const ONLINE_WINDOW_SEC = 40;
-// TTL des clés visiteurs (un peu plus large que la fenêtre)
-const TTL_SEC = 120;
-
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
+  // Autorise GET + POST (pratique selon tes tests)
+  if (req.method !== "GET" && req.method !== "POST") {
+    res.setHeader("Allow", ["GET", "POST"]);
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const visitorId = String(req.query.id || "").trim();
+    const now = Date.now();
+    const TTL_MS = 45_000; // un visiteur est "online" si on l'a vu dans les 45 dernières secondes
 
-    // 1) Si on a un id, on enregistre la présence
-    if (visitorId) {
-      const key = `gr:presence:${visitorId}`;
-      const now = Date.now();
-      // set + ttl
-      await redis.set(key, now, { ex: TTL_SEC });
+    // sid = identifiant onglet/navigateur
+    const sid =
+      (req.query && req.query.sid) ||
+      (req.body && req.body.sid) ||
+      null;
+
+    if (!sid) {
+      // pas de sid => on renvoie juste le compteur (utile debug)
+      const online = await redis.zcard("gr:online");
+      return res.status(200).json({ online });
     }
 
-    // 2) Compter les visiteurs actifs
-    // Upstash supporte SCAN (via sdk) -> on récupère les clés presence
-    let cursor = 0;
-    let online = 0;
-    const cutoff = Date.now() - ONLINE_WINDOW_SEC * 1000;
+    // 1) enregistre / refresh ce sid
+    await redis.zadd("gr:online", { score: now, member: String(sid) });
 
-    do {
-      // scan par lots
-      const [nextCursor, keys] = await redis.scan(cursor, {
-        match: "gr:presence:*",
-        count: 200,
-      });
+    // 2) purge les sid trop vieux
+    await redis.zremrangebyscore("gr:online", 0, now - TTL_MS);
 
-      cursor = Number(nextCursor) || 0;
-
-      if (keys && keys.length) {
-        // mget pour limiter les requêtes
-        const values = await redis.mget(...keys);
-
-        for (const v of values) {
-          const ts = Number(v || 0);
-          if (ts && ts >= cutoff) online++;
-        }
-      }
-    } while (cursor !== 0);
-
-    // (optionnel) on peut mettre un cache court, mais là on reste simple
-    res.status(200).json({ online });
+    // 3) renvoie le nombre online
+    const online = await redis.zcard("gr:online");
+    return res.status(200).json({ online });
   } catch (e) {
-    res.status(500).json({ error: "Internal", detail: String(e?.message || e) });
+    return res.status(500).json({ error: "presence_failed" });
   }
 }
