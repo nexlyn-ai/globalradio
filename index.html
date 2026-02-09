@@ -16,6 +16,17 @@
 
   gtag('config', 'G-W9Y7R89Y99');
 </script>
+
+<meta http-equiv="Content-Security-Policy"
+content="
+default-src 'self';
+media-src *;
+script-src 'self' https://www.googletagmanager.com;
+connect-src *;
+img-src 'self' data: https:;
+style-src 'self' 'unsafe-inline';
+">
+
   
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
@@ -1274,6 +1285,14 @@
   color: rgba(231,238,252,.98);
 }
 
+.legal-note{
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+  margin: 8px 0;
+  pointer-events: none;
+}
+
 	
   </style>
 </head>
@@ -2300,7 +2319,12 @@ function setShowBrokenDetailForGroup(groupId, value){
       const idx = favorites.findIndex(g => g.id === group.id);
       if (idx > -1) favorites.splice(idx, 1);
       else favorites.push(JSON.parse(JSON.stringify(group)));
-      saveFavorites();
+	  
+	  if (window.GA) {
+	GA.addFavorite({ name: group.name });
+	}
+
+	  saveFavorites();
       renderGroups(false);
       animateGridEntrance();
     }
@@ -3310,6 +3334,14 @@ if (editBtn){
         unmarkBadUrl(stream.url);
         saveLastStationGroup(group, stream);
         startTitleEngine();
+		
+		if (window.GA) {
+	GA.playRadio({
+    name: group.name,
+    country: group.country,
+    stream: stream.url
+  });
+}
         return true;
       }
 
@@ -3338,6 +3370,14 @@ if (editBtn){
 
       // Mark only THIS stream as bad
       markBadUrl(stream.url, "play_failed");
+	  
+	  if (window.GA) {
+	GA.streamError({
+    name: group.name,
+    stream: stream.url
+  });
+}
+	  
       setPlayerStatusKey("statusFailed");
       setFooterStatus("ERR");
       isPlaying = false;
@@ -3997,6 +4037,39 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+/* ===== Google Analytics custom events ===== */
+window.GA = {
+  playRadio(station){
+    if (typeof gtag !== "function") return;
+    gtag("event", "play_radio", {
+      station_name: station.name || "unknown",
+      station_country: station.country || "unknown",
+      stream_url: station.stream || "unknown"
+    });
+  },
+
+  addFavorite(station){
+    if (typeof gtag !== "function") return;
+    gtag("event", "add_favorite", {
+      station_name: station.name || "unknown"
+    });
+  },
+
+  streamError(station){
+    if (typeof gtag !== "function") return;
+    gtag("event", "stream_error", {
+      station_name: station.name || "unknown",
+      stream_url: station.stream || "unknown"
+    });
+  }
+};
+</script>
+
+<div class="legal-note">
+  Audio streams are provided by third-party radio stations.
+  GlobalRadio.top does not install software and does not collect personal data.
+</div>
 
 
 </body>
