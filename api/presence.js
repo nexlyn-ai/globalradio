@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const now = Date.now();
-    const TTL_MS = 45_000; // un visiteur est "online" si on l'a vu dans les 45 dernières secondes
+    const TTL_MS = 60_000; // un visiteur est "online" si on l'a vu dans les 45 dernières secondes
 
     // sid = identifiant onglet/navigateur
     const sid =
