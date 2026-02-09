@@ -1399,10 +1399,9 @@
       <span class="sDot"></span><span class="sText">STOP</span>
     </span>
 	
-	<span style="opacity:.55;">•</span>
-<span class="footerStatus" title="Users online">
-  <span class="sDot"></span>
-  <span class="sText"><span id="liveCount">—</span> online</span>
+	<s<span style="opacity:.55;">•</span>
+<span class="footerStatus" id="footerOnline" data-state="CONNECT" title="Visitors online">
+  <span class="sDot"></span><span class="sText">— online</span>
 </span>
 
     <span style="opacity:.55;">•</span>
@@ -3930,6 +3929,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ping();
   setInterval(ping, 15000);
+})();
+</script>
+<script>
+/* ===============================
+   Presence — online users counter
+   =============================== */
+(function initPresence(){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  // ID stable par navigateur
+  const KEY = "gr_visitor_id_v1";
+  let id = localStorage.getItem(KEY);
+  if (!id){
+    id = (crypto?.randomUUID?.() || ("v_" + Math.random().toString(16).slice(2) + Date.now()));
+    localStorage.setItem(KEY, id);
+  }
+
+  async function refresh(){
+    try{
+      const r = await fetch("/api/presence?id=" + encodeURIComponent(id), {
+        cache: "no-store"
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const data = await r.json();
+      const n = Number(data?.online ?? 0);
+
+      el.dataset.state = "LIVE";
+      const text = el.querySelector(".sText");
+      if (text) text.textContent = n + " online";
+    }catch(e){
+      el.dataset.state = "ERR";
+      const text = el.querySelector(".sText");
+      if (text) text.textContent = "— online";
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 15000);
+
+  // Rafraîchit quand on revient sur l’onglet
+  document.addEventListener("visibilitychange", ()=>{
+    if (!document.hidden) refresh();
+  });
 })();
 </script>
 
