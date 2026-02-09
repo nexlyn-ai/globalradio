@@ -1301,6 +1301,18 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* Featured – BEST badge on 3rd line */
+.featured-line{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.featured-best{
+  margin-left: auto;
+}
 	
   </style>
 </head>
@@ -1371,7 +1383,16 @@
     </span>
   </div>
 
-  <p class="sub" data-i18n="featuredLine">France • Techno, House, Electronic, Club • Multiple streams</p>
+<p class="sub featured-line" data-i18n="featuredLine">
+  <span class="featured-text">
+    France • Techno, House, Electronic, Club • Multi-flux
+  </span>
+
+  <span class="chip best featured-best" title="High quality streams (HD / FLAC)">
+    <span class="dot"></span>BEST
+  </span>
+</p>
+
 </div>
 
     </div>
