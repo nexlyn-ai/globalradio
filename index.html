@@ -17,16 +17,18 @@
   gtag('config', 'G-W9Y7R89Y99');
 </script>
 
-<meta http-equiv="Content-Security-Policy"
-content="
-default-src 'self';
-media-src *;
-script-src 'self' https://www.googletagmanager.com;
-connect-src *;
-img-src 'self' data: https:;
-style-src 'self' 'unsafe-inline';
-">
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  base-uri 'self';
+  object-src 'none';
+  frame-ancestors 'none';
 
+  script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+  connect-src 'self' https: http: data:;
+  img-src 'self' data: https:;
+  style-src 'self' 'unsafe-inline';
+  media-src 'self' https: http: blob: data:;
+">
   
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0b1227" />
