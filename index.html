@@ -1407,7 +1407,7 @@
       <span class="sDot"></span><span class="sText">STOP</span>
     </span>
 	
-	<s<span style="opacity:.55;">•</span>
+	<span style="opacity:.55;">•</span>
 <span class="footerStatus" id="footerOnline" data-state="CONNECT" title="Visitors online">
   <span class="sDot"></span><span class="sText">—</span>
 </span>
@@ -3909,81 +3909,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script>
-(function liveUsers(){
-  const el = document.getElementById("liveCount");
-  if (!el) return;
-
-  // 1 id stable par navigateur
-  const KEY = "gr_presence_id";
-  let id = localStorage.getItem(KEY);
-  if (!id){
-    id = (crypto?.randomUUID?.() || (Date.now()+"-"+Math.random()));
-    localStorage.setItem(KEY, id);
-  }
-
-  async function ping(){
-    try{
-      const r = await fetch("/api/presence", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      const j = await r.json();
-      el.textContent = String(j?.online ?? "—");
-    }catch(e){
-      el.textContent = "—";
-    }
-  }
-
-  ping();
-  setInterval(ping, 15000);
-})();
-</script>
-<script>
-/* ===============================
-   Presence — online users counter
-   =============================== */
-(function initPresence(){
-  const el = document.getElementById("footerOnline");
-  if (!el) return;
-
-  // ID stable par navigateur
-  const KEY = "gr_visitor_id_v1";
-  let id = localStorage.getItem(KEY);
-  if (!id){
-    id = (crypto?.randomUUID?.() || ("v_" + Math.random().toString(16).slice(2) + Date.now()));
-    localStorage.setItem(KEY, id);
-  }
-
-  async function refresh(){
-    try{
-      const r = await fetch("/api/presence?id=" + encodeURIComponent(id), {
-        cache: "no-store"
-      });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const data = await r.json();
-      const n = Number(data?.online ?? 0);
-
-      el.dataset.state = "LIVE";
-      const text = el.querySelector(".sText");
-      if (text) text.textContent = n + " online";
-    }catch(e){
-      el.dataset.state = "ERR";
-      const text = el.querySelector(".sText");
-      if (text) text.textContent = "— online";
-    }
-  }
-
-  refresh();
-  setInterval(refresh, 15000);
-
-  // Rafraîchit quand on revient sur l’onglet
-  document.addEventListener("visibilitychange", ()=>{
-    if (!document.hidden) refresh();
-  });
-})();
-</script>
-<script>
 let lastOnline = null;
 
 function setOnlineCount(n){
@@ -4054,6 +3979,81 @@ function setOnlineCount(n){
   const HEARTBEAT_SECONDS = 20;
   setInterval(ping, HEARTBEAT_SECONDS * 1000);
 
+
+  // ping quand tu reviens sur l’onglet
+  document.addEventListener("visibilitychange", ()=> {
+    if (!document.hidden) ping();
+  });
+})();
+</script>
+
+<script>
+/* ===============================
+   Presence — online users counter
+   =============================== */
+
+let lastOnline = null;
+
+function setOnlineCount(n){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  const txt = el.querySelector(".sText");
+  if (!txt) return;
+
+  const label = (typeof t === "function") ? t("onlineLabel") : "online";
+  const val = Math.max(0, Number(n) || 0);
+
+  txt.textContent = `${val} ${label}`;
+
+  if (lastOnline !== null && val !== lastOnline){
+    el.classList.remove("bump");
+    requestAnimationFrame(() => {
+      el.classList.add("bump");
+      clearTimeout(el._bumpT);
+      el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
+    });
+  }
+
+  lastOnline = val;
+}
+
+(function initPresenceCounter(){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  // sid UNIQUE par onglet (sessionStorage = différent pour chaque tab)
+  const KEY = "gr_sid";
+  let sid = sessionStorage.getItem(KEY);
+  if (!sid) {
+    sid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2));
+    sessionStorage.setItem(KEY, sid);
+  }
+
+  async function ping(){
+    try{
+      const r = await fetch(`/api/presence?sid=${encodeURIComponent(sid)}`, {
+        method: "GET",
+        cache: "no-store",
+        headers: { "Cache-Control": "no-store" }
+      });
+      const data = await r.json();
+      const n = Number(data && data.online);
+      if (!Number.isFinite(n)) throw new Error("bad online");
+
+      el.dataset.state = "LIVE";
+      setOnlineCount(n);
+    }catch(e){
+      el.dataset.state = "ERR";
+      const txt = el.querySelector(".sText");
+      if (txt) txt.textContent = `— ${(typeof t === "function") ? t("onlineLabel") : "online"}`;
+    }
+  }
+
+  // ping immédiat + heartbeat stable
+  ping();
+  const HEARTBEAT_SECONDS = 20;
+  setInterval(ping, HEARTBEAT_SECONDS * 1000);
 
   // ping quand tu reviens sur l’onglet
   document.addEventListener("visibilitychange", ()=> {
