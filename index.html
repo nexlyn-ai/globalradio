@@ -3975,6 +3975,48 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 })();
 </script>
+<script>
+(function initPresenceCounter(){
+  const el = document.getElementById("footerOnline");
+  if (!el) return;
+
+  // sid UNIQUE par onglet (sessionStorage = différent pour chaque tab)
+  const KEY = "gr_sid";
+  let sid = sessionStorage.getItem(KEY);
+  if (!sid) {
+    sid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2));
+    sessionStorage.setItem(KEY, sid);
+  }
+
+  async function ping(){
+    try{
+      const r = await fetch(`/api/presence?sid=${encodeURIComponent(sid)}`, {
+        method: "GET",
+        cache: "no-store",
+        headers: { "Cache-Control": "no-store" }
+      });
+      const data = await r.json();
+      const n = Number(data && data.online);
+      if (!Number.isFinite(n)) throw new Error("bad online");
+
+      el.dataset.state = "LIVE";
+      el.querySelector(".sText").textContent = `${n} online`;
+    }catch(e){
+      el.dataset.state = "ERR";
+      el.querySelector(".sText").textContent = `— online`;
+    }
+  }
+
+  // ping immédiat + heartbeat
+  ping();
+  setInterval(ping, 12000);
+
+  // ping quand tu reviens sur l’onglet
+  document.addEventListener("visibilitychange", ()=> {
+    if (!document.hidden) ping();
+  });
+})();
+</script>
 
 
 </body>
