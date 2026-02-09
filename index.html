@@ -1398,6 +1398,13 @@
     <span id="footerStatus" class="footerStatus" data-state="STOP">
       <span class="sDot"></span><span class="sText">STOP</span>
     </span>
+	
+	<span style="opacity:.55;">•</span>
+<span class="footerStatus" title="Users online">
+  <span class="sDot"></span>
+  <span class="sText"><span id="liveCount">—</span> online</span>
+</span>
+
     <span style="opacity:.55;">•</span>
     <a href="#" id="footerAddStation" data-i18n="footerAddStation">Add a station</a>
     <span style="opacity:.55;">•</span>
@@ -3893,6 +3900,39 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+
+<script>
+(function liveUsers(){
+  const el = document.getElementById("liveCount");
+  if (!el) return;
+
+  // 1 id stable par navigateur
+  const KEY = "gr_presence_id";
+  let id = localStorage.getItem(KEY);
+  if (!id){
+    id = (crypto?.randomUUID?.() || (Date.now()+"-"+Math.random()));
+    localStorage.setItem(KEY, id);
+  }
+
+  async function ping(){
+    try{
+      const r = await fetch("/api/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      const j = await r.json();
+      el.textContent = String(j?.online ?? "—");
+    }catch(e){
+      el.textContent = "—";
+    }
+  }
+
+  ping();
+  setInterval(ping, 15000);
+})();
+</script>
+
 
 </body>
 </html>
