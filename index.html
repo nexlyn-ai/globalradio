@@ -1835,13 +1835,6 @@ function isBlockedMixedContent(finalUrl){
   const cs = document.getElementById("countrySelect");
   const gs = document.getElementById("genreSelect");
   if (!cs || !gs) return;
-  
-  window.addEventListener("popstate", () => {
-  if (isDetailOpen()) showList();
-  applyRouteToFilters();
-  resetAndReload();
-});
-
 
   // Home => défaut France (comme avant)
   if (path === "/" || path === "/index.html") {
@@ -1853,8 +1846,13 @@ function isBlockedMixedContent(finalUrl){
   // /country/france => filtre pays
   if (path.startsWith("/country/")) {
     const slug = path.split("/country/")[1]?.split("/")[0] || "";
-    const country = slug.replace(/-/g, " ").trim();
-    cs.value = country ? (country.charAt(0).toUpperCase() + country.slice(1)) : "";
+    const country = slug.replace(/-/g, " ").trim()
+  .split(" ")
+  .filter(Boolean)
+  .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+  .join(" ");
+cs.value = country;
+
     gs.value = ""; // on garde genre vide
     return;
   }
@@ -1867,6 +1865,72 @@ function isBlockedMixedContent(finalUrl){
     return;
   }
 }
+
+  let _popstateBound = false;
+
+  function bindPopstateOnce(){
+    if (_popstateBound) return;
+    _popstateBound = true;
+
+    window.addEventListener("popstate", () => {
+      if (typeof isDetailOpen === "function" && isDetailOpen()) showList();
+      applyRouteToFilters();
+      applySeoFromPath();
+      if (typeof resetAndReload === "function") resetAndReload();
+    });
+  }
+
+  function applySeoFromPath(){
+    const path = window.location.pathname.toLowerCase();
+
+    const brand = "GlobalRadio.top";
+    let seoTitle = `${brand} — Listen to radio stations worldwide`;
+    let seoDescription = "GlobalRadio.top: Discover and listen to radio stations worldwide by country and music style. Live streaming.";
+
+    const cap = (s) => s ? (s.charAt(0).toUpperCase() + s.slice(1)) : "";
+    const cleanSlug = (s) => (s || "").split("/")[0].trim();
+
+    if (path.startsWith("/country/")) {
+      const countrySlug = cleanSlug(path.split("/country/")[1]);
+      const country = cap(countrySlug.replace(/-/g, " "));
+      seoTitle = `${brand}: Radio ${country} — Live stations`;
+      seoDescription = `Listen to the best radio stations from ${country}. Live streaming worldwide.`;
+    }
+
+    if (path.startsWith("/genre/")) {
+      const genreSlug = cleanSlug(path.split("/genre/")[1]);
+      const genre = cap(genreSlug.replace(/-/g, " "));
+      seoTitle = `${brand}: ${genre} Radio — Live music stations`;
+      seoDescription = `Listen to the best ${genreSlug} radio stations online.`;
+    }
+
+    document.title = seoTitle;
+
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", seoDescription);
+
+    const h1 = document.getElementById("seo-title");
+    if (h1) h1.textContent = seoTitle;
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute("content", seoTitle);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute("content", seoDescription);
+
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute("content", seoTitle);
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute("content", seoDescription);
+  }
+
+  function setPlayPauseIcon(paused){
+    const ico = document.getElementById("icoPlayPause");
+    if (!ico) return;
+    ico.classList.toggle("ico-play", !!paused);
+    ico.classList.toggle("ico-pause", !paused);
+  }
 
 
     // ✅ Duplicate fusion: group stations by (country + normalized homepage domain + normalized name)
@@ -2266,13 +2330,14 @@ function setShowBrokenDetailForGroup(groupId, value){
       const sortMode = document.getElementById("sortMode").value || "votes";
       const hideBroken = !showBroken;
 
-      const params = new URLSearchParams({
-        limit: String(limit),
-        offset: String(append ? offset : 0),
-        order: sortMode,
-        reverse: (sortMode === "name") ? "false" : "true",
-        hidebroken: "true"
-      });
+const params = new URLSearchParams({
+  limit: String(limit),
+  offset: String(append ? offset : 0),
+  order: sortMode,
+  reverse: (sortMode === "name") ? "false" : "true",
+  hidebroken: hideBroken ? "true" : "false"
+});
+
       if (name) params.append("name", name);
       if (country) params.append("country", country);
       if (tag) params.append("tag", tag);
@@ -3212,7 +3277,8 @@ if (editBtn){
 
       // Attempt direct
       if (await tryPlayUrl(stream.url)){
-        isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
+        isPlaying = true;
+        setPlayPauseIcon(false);
         if (currentTryIndex===0) setPlayerStatusKey("statusLive");
         else updatePlayerStatus(`${t("statusLiveProxy")} ${currentTryIndex}`);
         setFooterStatus(isMuted ? "MUTE" : "LIVE");
@@ -3235,7 +3301,8 @@ if (editBtn){
 
           stream.url = resolvedUrl;
 
-          isPlaying = true; document.getElementById("playPauseBtn").textContent = "⏸";
+          isPlaying = true;
+          setPlayPauseIcon(false);
           setPlayerStatusKey("statusAlt");
           setFooterStatus(isMuted ? "MUTE" : "LIVE");
           saveLastStationGroup(group, stream);
@@ -3248,7 +3315,8 @@ if (editBtn){
       markBadUrl(stream.url, "play_failed");
       setPlayerStatusKey("statusFailed");
       setFooterStatus("ERR");
-      isPlaying = false; document.getElementById("playPauseBtn").textContent = "▶";
+      isPlaying = false;
+      setPlayPauseIcon(true);
       setTitleUIPlayer("");
       if (isDetailOpen() && detailGroup && currentGroup && detailGroup.id === currentGroup.id){
         setTitleUIDetailText("");
@@ -3277,7 +3345,7 @@ if (editBtn){
         setPlayerStatusKey("statusSelect");
         setFooterStatus("PAUSE");
         isPlaying = false;
-        document.getElementById("playPauseBtn").textContent = "▶";
+        setPlayPauseIcon(true);
       }
     }
 
@@ -3299,7 +3367,7 @@ if (editBtn){
       document.getElementById("fsTitle").textContent = msg;
 
       isPlaying = false;
-      document.getElementById("playPauseBtn").textContent = "▶";
+      setPlayPauseIcon(true);
       setFooterStatus("PAUSE");
       playerStateKey = "statusPaused";
       playerStateText = (LANG === "fr") ? "Dernière station — clique ▶ pour reprendre" : "Last station — press ▶ to resume";
@@ -3317,7 +3385,7 @@ if (editBtn){
   audio.load();
 
   isPlaying = false;
-  document.getElementById("playPauseBtn").textContent = "▶";
+  setPlayPauseIcon(true);
 
   stopTitleEngine();
   stopVizLoop();
@@ -3353,7 +3421,7 @@ if (editBtn){
     // Audio events
     audio.addEventListener("playing", ()=>{
       isPlaying = true;
-      document.getElementById("playPauseBtn").textContent = "⏸";
+      setPlayPauseIcon(false);
       setFooterStatus(isMuted ? "MUTE" : "LIVE");
       if (!playerStateText) setPlayerStatusKey("statusLive");
       startVizLoop();
@@ -3361,7 +3429,7 @@ if (editBtn){
     });
     audio.addEventListener("pause", ()=>{
   isPlaying = false;
-  document.getElementById("playPauseBtn").textContent = "▶";
+  setPlayPauseIcon(true);
 
   // ✅ Si c'est un STOP manuel, on force l'état "Stopped — press ▶ to resume"
   if (manualStop){
@@ -3391,11 +3459,13 @@ if (editBtn){
         setPlayerStatusKey("statusBuffer");
       }
     });
-    audio.addEventListener("error", ()=>{
+     audio.addEventListener("error", ()=>{
       setFooterStatus("ERR");
       setPlayerStatusKey("statusFailed");
     });
-
+    audio.addEventListener("ended", ()=> setPlayPauseIcon(true));
+    audio.addEventListener("emptied", ()=> setPlayPauseIcon(true));
+	
     // -----------------------
     // Fullscreen
     // -----------------------
@@ -3524,10 +3594,11 @@ if (topAddBtn){
   if (isDetailOpen()) showList();
 
   // 2) revenir sur l'URL home (important pour /genre/... et /country/...)
-  if (location.pathname !== "/") {
+    if (location.pathname !== "/") {
     history.pushState({}, "", "/");
+    applySeoFromPath();
   }
-
+  
   // 3) reset filtres comme la home
   document.getElementById("viewMode").value = "all";
   document.getElementById("sortMode").value = "votes";
@@ -3709,30 +3780,26 @@ if (topAddBtn){
       restoreLastPlayedIntoPlayer();
 
       await loadFilters();
-	  await loadFilters();
-	  applyRouteToFilters();
+      applyRouteToFilters();
+      applySeoFromPath();
+      bindPopstateOnce();
 
-      offset = 0; hasMore = true;
+     offset = 0; hasMore = true;
       document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
-      loadStations(false);
-
-
-      offset = 0; hasMore = true;
-      document.getElementById("stationsGrid").innerHTML = `<div class="loading">${t("loadingStations")}</div>`;
-      loadStations(false);
+      loadStations(false); 
 
       updateBottomSafe();
       toast(t("toastWelcome"), 1300);
     })();
-	
-	/* ===== PATCH: Replace emoji icons by SVG mask icons (no orange emojis on mobile) ===== */
+</script>	
+<script>
+/* ===== PATCH: Replace emoji icons by SVG mask icons (no orange emojis on mobile) ===== */
 (function patchPlayerIcons(){
   const playBtn = document.getElementById("playPauseBtn");
   const muteBtn = document.getElementById("muteBtn");
   const stopBtn = document.getElementById("stopBtn");
   const audioEl = document.getElementById("audioPlayer");
 
-  // If the HTML wasn’t replaced, do nothing (safe)
   const icoPlay = document.getElementById("icoPlayPause");
   const icoMute = document.getElementById("icoMute");
   if (!playBtn || !muteBtn || !stopBtn || !audioEl || !icoPlay || !icoMute) return;
@@ -3746,8 +3813,7 @@ if (topAddBtn){
     icoMute.classList.toggle("ico-volume", !muted);
   }
 
-  // 1) Prevent old code (emoji) from showing: clear button text nodes safely
-  // (keeps your spans/icons intact)
+  // Enlève les éventuels textes/emoji restants dans les boutons (sans toucher aux <span>)
   const stripTextNodes = (el)=>{
     [...el.childNodes].forEach(n=>{
       if (n.nodeType === Node.TEXT_NODE) n.textContent = "";
@@ -3755,130 +3821,36 @@ if (topAddBtn){
   };
   [playBtn, muteBtn, stopBtn].forEach(stripTextNodes);
 
-  // 2) Hook into audio events (true source of truth)
+  // Sync play/pause d’après les events audio
   audioEl.addEventListener("playing", ()=> setPlayIcon(false));
-  audioEl.addEventListener("pause", ()=> setPlayIcon(true));
-  audioEl.addEventListener("ended", ()=> setPlayIcon(true));
+  audioEl.addEventListener("pause",   ()=> setPlayIcon(true));
+  audioEl.addEventListener("ended",   ()=> setPlayIcon(true));
   audioEl.addEventListener("emptied", ()=> setPlayIcon(true));
-
-  // 3) Also sync immediately at load
   setPlayIcon(audioEl.paused);
 
-  // 4) Sync mute state by observing button changes + clicks
-  // Your existing code toggles `isMuted` (global). We read it if it exists.
+  // Sync mute (ton code met à jour la variable globale `isMuted`)
   const readMuted = ()=>{
-    try{ return !!window.isMuted; }catch(e){ return false; }
+    try { return !!window.isMuted; } catch(e){ return icoMute.classList.contains("ico-mute"); }
   };
   setMuteIcon(readMuted());
 
   muteBtn.addEventListener("click", ()=> {
-    // wait a tick so your existing handler updates `isMuted`
     setTimeout(()=> setMuteIcon(readMuted()), 0);
   });
 
-  // 5) Stop button sets paused icon right away
   stopBtn.addEventListener("click", ()=> setPlayIcon(true));
 })();
-
-	/* ===== PATCH: kill emoji ⏸/▶ injected by legacy code ===== */
-(function killPlayPauseEmoji(){
-  const btn = document.getElementById("playPauseBtn");
-  const ico = document.getElementById("icoPlayPause");
-  const audioEl = document.getElementById("audioPlayer");
-  if (!btn || !ico || !audioEl) return;
-
-  // Force: button must never display text (emoji)
-  const enforce = ()=>{
-    // remove any direct text content that could show emoji
-    // but keep the icon span
-    btn.childNodes.forEach(n=>{
-      if (n.nodeType === Node.TEXT_NODE) n.textContent = "";
-    });
-
-    // If someone replaced innerHTML/textContent, restore icon span
-    if (!btn.querySelector("#icoPlayPause")){
-      btn.innerHTML = `<span class="ico ico-play" id="icoPlayPause"></span>`;
-    }
-  };
-
-  // Observe any change (legacy code sets textContent)
-  const mo = new MutationObserver(enforce);
-  mo.observe(btn, { childList: true, characterData: true, subtree: true });
-
-  // Initial enforce
-  enforce();
-
-  // Keep icon in sync with real audio state
-  const set = ()=> {
-    const paused = audioEl.paused;
-    const icon = btn.querySelector("#icoPlayPause");
-    if (!icon) return;
-    icon.classList.toggle("ico-play", paused);
-    icon.classList.toggle("ico-pause", !paused);
-  };
-
-  audioEl.addEventListener("playing", set);
-  audioEl.addEventListener("pause", set);
-  audioEl.addEventListener("ended", set);
-  audioEl.addEventListener("emptied", set);
-  set();
-})();
-
-
-
-
-  </script>
-  
-  <script>
-  const path = window.location.pathname.toLowerCase();
-
-  const brand = "GlobalRadio.top";
-  let seoTitle = `${brand} — Listen to radio stations worldwide`;
-  let seoDescription = "GlobalRadio.top: Discover and listen to radio stations worldwide by country and music style. Live streaming.";
-
-
-  const cap = (s) => s ? (s.charAt(0).toUpperCase() + s.slice(1)) : "";
-  const cleanSlug = (s) => (s || "").split("/")[0].trim(); // gère slash final
-
-  if (path.startsWith("/country/")) {
-    const countrySlug = cleanSlug(path.split("/country/")[1]);
-    const country = cap(countrySlug.replace(/-/g, " "));
-    seoTitle = `${brand}: Radio ${country} — Live stations`;
-    seoDescription = `Listen to the best radio stations from ${country}. Live streaming worldwide.`;
-  }
-
-  if (path.startsWith("/genre/")) {
-    const genreSlug = cleanSlug(path.split("/genre/")[1]);
-    const genre = cap(genreSlug.replace(/-/g, " "));
-    seoTitle = `${brand}: ${genre} Radio — Live music stations`;
-    seoDescription = `Listen to the best ${genreSlug} radio stations online.`;
-  }
-
-  document.title = seoTitle;
-
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.setAttribute("content", seoDescription);
-
-  const h1 = document.getElementById("seo-title");
-  if (h1) h1.textContent = seoTitle;
-  
-  // OG + Twitter title/description update (SPA-safe)
-const ogTitle = document.querySelector('meta[property="og:title"]');
-if (ogTitle) ogTitle.setAttribute("content", seoTitle);
-
-const ogDesc = document.querySelector('meta[property="og:description"]');
-if (ogDesc) ogDesc.setAttribute("content", seoDescription);
-
-const twTitle = document.querySelector('meta[name="twitter:title"]');
-if (twTitle) twTitle.setAttribute("content", seoTitle);
-
-const twDesc = document.querySelector('meta[name="twitter:description"]');
-if (twDesc) twDesc.setAttribute("content", seoDescription);
-
 </script>
 
 
-<script>
+   <script>
+    if (typeof applySeoFromPath === "function") {
+      applySeoFromPath();
+    }
+  </script>
+  
+  
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
   const footerLink = document.getElementById("footerHomeLink");
   if (!footerLink) return;
@@ -3892,8 +3864,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // forcer l'URL home
-    if (location.pathname !== "/") {
+       if (location.pathname !== "/") {
       history.pushState({}, "", "/");
+      applySeoFromPath();
     }
 
     // reset filtres home
