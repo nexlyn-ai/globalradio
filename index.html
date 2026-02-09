@@ -60,6 +60,17 @@
       --max: 1200px;
       --bottom-safe: 260px;
     }
+	
+/* Smooth number change */
+#footerOnline .sText{
+  transition: transform .22s ease, opacity .22s ease;
+  display:inline-block;
+  transform-origin: center;
+}
+#footerOnline.bump .sText{
+  transform: translateY(-1px) scale(1.08);
+  opacity: 1;
+}
 
 	:root{
   --footer-h: 46px;   /* hauteur réelle du footer (mise à jour en JS) */
