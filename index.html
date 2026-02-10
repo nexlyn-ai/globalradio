@@ -4217,7 +4217,7 @@ window.__castTitleTimer = setInterval(async () => {
     if (!window.__castMedia || !cs2 || !cs2.url) return;
 
     // Fetch title even if local player is STOP
-    const liveTitle = await bestEffortTitle({ url: cs2.url, uuid: cs2.uuid });
+    const liveTitle = document.getElementById("currentTitle")?.textContent || "";
 
     const md2 = new chrome.cast.media.GenericMediaMetadata();
     md2.title = (cg2 && cg2.name) ? cg2.name : "Radio";
