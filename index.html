@@ -4144,9 +4144,10 @@ window.__castMedia = null;
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-        receiverApplicationId: "0E475473",
-        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-      });
+		receiverApplicationId: "0E475473",
+		autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+});
+
 	  
 	  // Detect when Cast session ends
 	ctx.addEventListener(
