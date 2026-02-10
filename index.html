@@ -4291,11 +4291,32 @@ md.images = [ new chrome.cast.Image(logo) ];
 
 mediaInfo.metadata = md;
 
+// ✅ On force nos infos dans customData (ultra fiable sur Android TV)
+mediaInfo.customData = {
+  station: (cg && cg.name) ? cg.name : (window.currentGroup?.name || "Radio"),
+  title: (document.getElementById("currentTitle")?.textContent || "Live radio"),
+  logo: (cg && cg.favicon) ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg"
+};
+
+
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
 		  request.autoplay = true; // ✅ force lecture sur la TV
 
           const session = ctx.getCurrentSession();
           await session.loadMedia(request);
+		  
+		  // ✅ envoie aussi via message bus (pour mise à jour immédiate)
+try{
+  session.sendMessage(
+    "urn:x-cast:globalradio.meta",
+    JSON.stringify({
+      station: mediaInfo.customData.station,
+      title: mediaInfo.customData.title,
+      logo: mediaInfo.customData.logo
+    })
+  );
+}catch(e){}
+
 		  
 		  // 📺 Send initial metadata to custom receiver (TV)
 try{
