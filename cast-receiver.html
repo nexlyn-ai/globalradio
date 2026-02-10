@@ -1,44 +1,81 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GlobalRadio Receiver</title>
   <style>
-    html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui}
+    html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
     .wrap{position:absolute;inset:0;display:grid;place-items:center}
-    .card{width:min(88vw,980px);border:1px solid rgba(255,255,255,.12);border-radius:22px;
-      background:rgba(8,10,22,.82);backdrop-filter:blur(14px);padding:26px;box-shadow:0 30px 120px rgba(0,0,0,.55)}
+    .card{
+      width:min(88vw,980px);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      background:rgba(8,10,22,.82);
+      backdrop-filter:blur(14px);
+      padding:26px;
+      box-shadow:0 30px 120px rgba(0,0,0,.55)
+    }
     .title{font-weight:900;font-size:28px;line-height:1.1}
-    .sub{margin-top:10px;font-size:18px;opacity:.92;font-style:italic}
+    .sub{margin-top:10px;font-size:18px;opacity:.92;font-style:italic;min-height:1.4em}
     .hint{margin-top:16px;opacity:.6;font-size:13px}
+    .dot{
+      display:inline-block;width:10px;height:10px;border-radius:50%;
+      background:#22c55e;box-shadow:0 0 0 6px rgba(34,197,94,.14);
+      margin-right:8px;vertical-align:middle
+    }
   </style>
+
+  <!-- Cast Application Framework (CAF) receiver -->
   <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
       <div class="title" id="st">GlobalRadio.top</div>
-      <div class="sub" id="ti">…</div>
-      <div class="hint">Casting • metadata live</div>
+      <div class="sub" id="ti">Waiting for cast…</div>
+      <div class="hint"><span class="dot"></span>Casting • metadata live</div>
     </div>
   </div>
 
   <script>
+    // CAF Receiver context
     const context = cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();
 
-    // Namespace de messages (sender -> receiver)
+    // 1) Read metadata from the loaded MediaInfo (title/subtitle/images, etc.)
+    playerManager.addEventListener(
+      cast.framework.events.EventType.MEDIA_INFORMATION_CHANGED,
+      (e) => {
+        try{
+          const md = e && e.media && e.media.metadata;
+          if (!md) return;
+
+          // Sender sets GenericMediaMetadata: title + subtitle
+          if (md.title) document.getElementById("st").textContent = md.title;
+          if (md.subtitle) document.getElementById("ti").textContent = md.subtitle;
+        }catch(err){}
+      }
+    );
+
+    // 2) Also listen to our custom message bus (sender -> receiver)
     const NS = "urn:x-cast:globalradio.meta";
     const bus = context.getCastMessageBus(NS);
 
     bus.onMessage = (event) => {
       try{
-        const msg = JSON.parse(event.data || "{}");
-        if (msg.station) document.getElementById("st").textContent = msg.station;
-        if (msg.title)   document.getElementById("ti").textContent = msg.title;
-      }catch(e){}
+        // Some devices send string, others send object
+        const data = (typeof event.data === "string")
+          ? JSON.parse(event.data || "{}")
+          : (event.data || {});
+
+        if (data.station) document.getElementById("st").textContent = data.station;
+        if (data.title)   document.getElementById("ti").textContent = data.title;
+      }catch(err){}
     };
 
+    // Start receiver
     context.start();
   </script>
 </body>
