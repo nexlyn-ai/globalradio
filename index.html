@@ -4168,24 +4168,26 @@ window.__castMedia = null;
 
 		// 1) start / join cast session
       showBtn();
-	  function __startCastTitleSync(ctx){
+	 function __startCastTitleSync(ctx){
   clearInterval(window.__castTitleTimer);
+
   window.__castTitleTimer = setInterval(async () => {
     try{
       const cg2 = window.currentGroup || null;
       const cs2 = window.currentStream || null;
+
       const session = ctx.getCurrentSession();
       const media = session && session.getMediaSession ? session.getMediaSession() : null;
       if (!cs2 || !cs2.url || !media) return;
 
-      // 1) récupérer le titre même si le player web est STOP
+      // 1) récupérer le titre
       const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs2) : "";
       const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
 
-      // 2) (optionnel mais utile) remettre à jour le titre côté web UI
+      // (optionnel) refresh web UI
       if (typeof setTitleUIPlayer === "function") setTitleUIPlayer(liveClean);
 
-      // 3) pousser vers Chromecast
+      // 2) construire metadata
       const md2 = new chrome.cast.media.GenericMediaMetadata();
       md2.title = (cg2 && cg2.name) ? cg2.name : "Radio";
       md2.subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
@@ -4195,20 +4197,25 @@ window.__castMedia = null;
         : "https://globalradio.top/assets/globalradio-logo.jpg";
       md2.images = [ new chrome.cast.Image(logo2) ];
 
-      const codec = (cs2.codec || "").toLowerCase();
-      let contentType = "audio/mpeg";
-      if (codec.includes("aac")) contentType = "audio/aac";
-      if (codec.includes("flac")) contentType = "audio/flac";
-      if (codec.includes("ogg") || codec.includes("opus")) contentType = "audio/ogg";
+      // 3) IMPORTANT: réutiliser le mediaInfo existant sur la TV
+      const mi = media.media;               // MediaInfo actuel
+      if (!mi) return;
+      mi.metadata = md2;                    // on ne change QUE la metadata
 
-      const mi2 = new chrome.cast.media.MediaInfo(cs2.url, contentType);
-      mi2.metadata = md2;
+      const req = new chrome.cast.media.EditMediaInfoRequest(mi);
 
-      const editReq = new chrome.cast.media.EditMediaInfoRequest(mi2);
-      media.editMediaInfo(editReq);
-    }catch(e){}
+      // 4) IMPORTANT: API callback (pas Promise)
+      media.editMediaInfo(
+        req,
+        () => { /* ok */ },
+        (err) => { console.log("editMediaInfo error:", err); }
+      );
+    }catch(e){
+      console.log("cast title sync error:", e);
+    }
   }, 12000);
 }
+
 
       btn.addEventListener("click", async ()=>{
         try{
@@ -4226,7 +4233,7 @@ window.__castMedia = null;
 
           // 3) Build media
           // Many radio streams are MP3/AAC. MP3 is the safest default.
-        const url = cs.url || "";
+        const url = httpsFirst(cs.url || "");
 		const codec = (cs.codec || "").toLowerCase();
 		let contentType = "audio/mpeg";
 		if (codec.includes("aac")) contentType = "audio/aac";
