@@ -4137,7 +4137,7 @@ window.__castTitleTimer = null;
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        receiverApplicationId: "0E475473",
         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
       });
 
@@ -4200,11 +4200,18 @@ window.__castTitleTimer = null;
             return;
           }
 
-          const url = httpsFirst(cs.url);
-          let contentType = "audio/mpeg";
-          const codecLower = (cs.codec || "").toLowerCase();
-          if (codecLower.includes("aac")) contentType = "audio/aac";
-          if (codecLower.includes("ogg") || codecLower.includes("opus")) contentType = "audio/ogg";
+     const originalUrl = cs.url || "";
+       let url = httpsFirst(originalUrl);
+
+       // Proxy HTTPS si le stream est en HTTP ou si HTTPS direct n'existe pas
+       if (/^http:\/\//i.test(originalUrl) || !url.startsWith("https:")) {
+         url = "https://corsproxy.io/?" + encodeURIComponent(originalUrl);
+       }
+
+       let contentType = "audio/mpeg";
+       const codecLower = (cs.codec || "").toLowerCase();
+       if (codecLower.includes("aac")) contentType = "audio/aac";
+       if (codecLower.includes("ogg") || codecLower.includes("opus")) contentType = "audio/ogg";
 
           const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
           mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
