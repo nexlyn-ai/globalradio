@@ -4146,15 +4146,16 @@ window.GA = {
 
       showBtn();
 
+		// 1) start / join cast session
       btn.addEventListener("click", async ()=>{
         try{
-          // 1) start / join cast session
           await ctx.requestSession();
+		  
+		// 2) pick current stream
+		  const cg = window.currentGroup || null;
+		  const cs = window.currentStream || null;
 
-          // 2) pick current stream
-          const cs = window.currentStream;
-          const cg = window.currentGroup;
-
+                
           if (!cs || !cs.url){
             if (typeof toast === "function") toast(t("toastPick"));
             return;
@@ -4166,18 +4167,17 @@ window.GA = {
 		const codec = (cs.codec || "").toLowerCase();
 		let contentType = "audio/mpeg";
 		if (codec.includes("aac")) contentType = "audio/aac";
-		if (codec.includes("flac")) contentType = "audio/flac";
 		if (codec.includes("ogg")) contentType = "audio/ogg";
 		if (codec.includes("opus")) contentType = "audio/ogg";
 		const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
 
 
-          const md = new chrome.cast.media.MusicTrackMediaMetadata();
-          md.title = (cg && cg.name) ? cg.name : "Radio";
-		  md.subtitle = "Live radio • GlobalRadio.top";
-		  md.images = [
-  new chrome.cast.Image((cg && cg.favicon) ? cg.favicon : "https://globalradio.top/assets/icon-512.png")
-];
+          const md = new chrome.cast.media.GenericMediaMetadata();
+          md.title = (window.currentGroup?.name || "Radio") ;
+		  md.subtitle = (document.getElementById("currentTitle")?.textContent || "Live radio") + " • GlobalRadio.top";
+		  const logo = (cg && cg.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg");
+		  md.images = [ new chrome.cast.Image(logo) ];
+
           mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
