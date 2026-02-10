@@ -4143,10 +4143,23 @@ window.GA = {
         receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
       });
-
-      showBtn();
+	  
+	  // Detect when Cast session ends
+	ctx.addEventListener(
+	cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+  (e) => {
+    if (
+      e.sessionState === cast.framework.SessionState.SESSION_ENDED ||
+      e.sessionState === cast.framework.SessionState.SESSION_START_FAILED
+    ) {
+      // Cast stopped (no action needed for now)
+      console.log("Cast session ended");
+    }
+  }
+);
 
 		// 1) start / join cast session
+      showBtn();
       btn.addEventListener("click", async ()=>{
         try{
           await ctx.requestSession();
@@ -4184,6 +4197,10 @@ window.GA = {
           const session = ctx.getCurrentSession();
 
           await session.loadMedia(request);
+
+		// ✅ stop local playback to avoid double audio (phone + TV)
+		if (typeof stopPlayback === "function") stopPlayback();
+		else { try { audio.pause(); } catch(e){} }
 
           if (typeof toast === "function") toast(t("toastCasting"));
         }catch(e){
