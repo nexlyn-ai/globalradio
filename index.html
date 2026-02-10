@@ -4224,7 +4224,16 @@ window.__castTitleTimer = null;
           request.autoplay = true;
 
           const session = ctx.getCurrentSession();
-          await session.loadMedia(request);
+          session.loadMedia(request,
+  () => {
+    console.log("✅ LoadMedia SUCCESS – le flux devrait jouer sur la TV");
+    toast("Cast audio lancé !");
+  },
+  (err) => {
+    console.error("❌ LoadMedia ERROR :", err);
+    toast("Erreur load media : " + err.description || err.code || "inconnu");
+  }
+);
 
           try { document.getElementById("audioPlayer")?.pause(); } catch(e) {}
 
