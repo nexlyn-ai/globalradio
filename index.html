@@ -4221,10 +4221,21 @@ window.__castTitleTimer = null;
           mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
-          request.autoplay = true;
+request.autoplay = true;
 
-          const session = ctx.getCurrentSession();
-          await session.loadMedia(request);
+const session = ctx.getCurrentSession();
+
+session.loadMedia(request,
+  () => {
+    console.log("✅ LOAD MEDIA SUCCESS – le flux audio est chargé sur la TV");
+    if (typeof toast === "function") toast("Audio Cast lancé !");
+  },
+  (error) => {
+    console.error("❌ LOAD MEDIA ERROR :", error);
+    console.error("Détail erreur :", error.code, error.description, error.details);
+    if (typeof toast === "function") toast("Erreur Cast audio : " + (error.description || error.code || "inconnu"));
+  }
+);
   () => {
     console.log("✅ LoadMedia SUCCESS – le flux devrait jouer sur la TV");
     toast("Cast audio lancé !");
