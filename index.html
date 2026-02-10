@@ -4137,42 +4137,55 @@ window.__castTitleTimer = null;
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-        receiverApplicationId: "0E475473", // ← ton App ID publié
+        receiverApplicationId: "0E475473",
         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
       });
 
       showBtn();
 
-      // Démarre la synchronisation du titre dès qu’une session Cast est active
       function startTitleSync(){
         clearInterval(window.__castTitleTimer);
+
         window.__castTitleTimer = setInterval(async () => {
           const session = ctx.getCurrentSession();
-          if (!session) return;
+          if (!session || !window.currentStream) return;
 
-          const title = (typeof bestEffortTitle === "function")
-            ? await bestEffortTitle(window.currentStream)
-            : document.getElementById("currentTitle")?.textContent || "Live radio";
+          let liveTitle = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
+          if (typeof bestEffortTitle === "function") {
+            try {
+              const fetched = await bestEffortTitle(window.currentStream);
+              if (fetched) liveTitle = fetched;
+            } catch(e) {}
+          }
 
-          const cleanTitle = (typeof cleanTitle === "function") ? cleanTitle(title) : title;
+          let clean = liveTitle;
+          if (typeof cleanTitle === "function") {
+            clean = cleanTitle(liveTitle);
+          }
+
+          const finalTitle = clean || "Live radio";
 
           try{
             session.sendMessage("urn:x-cast:globalradio.meta", {
               station: window.currentGroup?.name || "Radio",
-              title: cleanTitle || "Live radio",
-              logo: window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg"
+              title: finalTitle,
+              logo: window.currentGroup?.favicon 
+                ? httpsFirst(window.currentGroup.favicon) 
+                : "https://globalradio.top/assets/globalradio-logo.jpg"
             });
-          }catch(e){}
+          } catch(e) {
+            console.log("Message Cast échoué :", e);
+          }
         }, 12000);
       }
 
-      // Écoute les changements de session
       ctx.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
         if (e.sessionState === cast.framework.SessionState.SESSION_STARTED ||
             e.sessionState === cast.framework.SessionState.SESSION_RESUMED) {
           startTitleSync();
         } else {
           clearInterval(window.__castTitleTimer);
+          window.__castTitleTimer = null;
         }
       });
 
@@ -4189,8 +4202,9 @@ window.__castTitleTimer = null;
 
           const url = httpsFirst(cs.url);
           let contentType = "audio/mpeg";
-          if ((cs.codec||"").toLowerCase().includes("aac")) contentType = "audio/aac";
-          if ((cs.codec||"").toLowerCase().includes("ogg") || (cs.codec||"").includes("opus")) contentType = "audio/ogg";
+          const codecLower = (cs.codec || "").toLowerCase();
+          if (codecLower.includes("aac")) contentType = "audio/aac";
+          if (codecLower.includes("ogg") || codecLower.includes("opus")) contentType = "audio/ogg";
 
           const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
           mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
@@ -4199,9 +4213,11 @@ window.__castTitleTimer = null;
           md.title = cg?.name || "Radio";
           md.artist = "GlobalRadio.top";
           md.albumName = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
+
           let logo = cg?.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
           if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
           md.images = [new chrome.cast.Image(logo)];
+
           mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -4210,18 +4226,22 @@ window.__castTitleTimer = null;
           const session = ctx.getCurrentSession();
           await session.loadMedia(request);
 
-          // Coupe le son local
           try { document.getElementById("audioPlayer")?.pause(); } catch(e) {}
 
-          toast(t("toastCasting"));
-          startTitleSync(); // en cas de session reprise
-        }catch(e){
+          if (typeof setPlayerStatusKey === "function") {
+            setPlayerStatusKey("toastCasting", t("toastCasting"));
+          }
+          if (typeof toast === "function") toast(t("toastCasting"));
+
+          startTitleSync();
+
+        } catch(e) {
           console.error("Cast error:", e);
-          toast(t("toastCastFailed"));
+          if (typeof toast === "function") toast(t("toastCastFailed"));
         }
       });
 
-    }catch(e){
+    } catch(e){
       console.error("Cast init error:", e);
       hideBtn();
     }
