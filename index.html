@@ -4266,20 +4266,21 @@ try{
 		if (codec.includes("aac")) contentType = "audio/aac";
 		if (codec.includes("ogg")) contentType = "audio/ogg";
 		if (codec.includes("opus")) contentType = "audio/ogg";
+		
 		const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
-
+		mediaInfo.streamType = chrome.cast.media.StreamType.LIVE; // ✅ radios live
 
           const md = new chrome.cast.media.GenericMediaMetadata();
           md.title = (window.currentGroup?.name || "Radio") ;
 		  md.subtitle = (document.getElementById("currentTitle")?.textContent || "Live radio") + " • GlobalRadio.top";
 		  const logo = (cg && cg.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg");
 		  md.images = [ new chrome.cast.Image(logo) ];
-
           mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
-          const session = ctx.getCurrentSession();
+		  request.autoplay = true; // ✅ force lecture sur la TV
 
+          const session = ctx.getCurrentSession();
           await session.loadMedia(request);
 		  
 		  // 📺 Send initial metadata to custom receiver (TV)
