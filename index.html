@@ -4144,7 +4144,7 @@ window.__castMedia = null;
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        receiverApplicationId: "0E475473",
         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
       });
 	  
@@ -4186,6 +4186,22 @@ window.__castMedia = null;
       // 1) récupérer le titre (indépendant du player web)
       const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs) : "";
       const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
+	  
+	  // 📺 Send live metadata to custom Cast receiver (TV)
+try{
+  const session = ctx.getCurrentSession();
+  if (session){
+    session.sendMessage(
+      "urn:x-cast:globalradio.meta",
+      JSON.stringify({
+        station: window.currentGroup?.name || "Radio",
+        title: liveClean || "Live radio"
+      })
+    );
+  }
+}catch(e){}
+ 
+	  
       const subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
 
       if (subtitle === lastSubtitle) return;
