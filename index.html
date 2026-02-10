@@ -4174,6 +4174,10 @@ window.GA = {
 
           const md = new chrome.cast.media.MusicTrackMediaMetadata();
           md.title = (cg && cg.name) ? cg.name : "Radio";
+		  md.subtitle = "Live radio • GlobalRadio.top";
+		  md.images = [
+  new chrome.cast.Image((cg && cg.favicon) ? cg.favicon : "https://globalradio.top/assets/icon-512.png")
+];
           mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
