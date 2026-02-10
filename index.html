@@ -4270,12 +4270,26 @@ try{
 		const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
 		mediaInfo.streamType = chrome.cast.media.StreamType.LIVE; // ✅ radios live
 
-          const md = new chrome.cast.media.GenericMediaMetadata();
-          md.title = (window.currentGroup?.name || "Radio") ;
-		  md.subtitle = (document.getElementById("currentTitle")?.textContent || "Live radio") + " • GlobalRadio.top";
-		  const logo = (cg && cg.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg");
-		  md.images = [ new chrome.cast.Image(logo) ];
-          mediaInfo.metadata = md;
+          const md = new chrome.cast.media.MusicTrackMediaMetadata();
+
+// ✅ la TV affiche beaucoup mieux ces champs
+md.title = (window.currentGroup?.name || "Radio");
+md.artist = "GlobalRadio.top";
+
+// On met le titre live en “albumName” (souvent visible)
+const liveTitle = (document.getElementById("currentTitle")?.textContent || "Live radio");
+md.albumName = liveTitle;
+
+// ✅ Image en HTTPS only (sinon beaucoup de TV n’affichent rien)
+let logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+if (window.currentGroup?.favicon) logo = httpsFirst(window.currentGroup.favicon);
+
+// (optionnel) si jamais ça finit en http:// on fallback
+if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+
+md.images = [ new chrome.cast.Image(logo) ];
+
+mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
 		  request.autoplay = true; // ✅ force lecture sur la TV
