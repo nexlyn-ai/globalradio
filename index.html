@@ -4172,8 +4172,7 @@ window.__castMedia = null;
 	function __startCastTitleSync(ctx){
   clearInterval(window.__castTitleTimer);
 
-  let lastSent = "";
-  let lastReloadAt = 0;
+  let lastSubtitle = "";
 
   window.__castTitleTimer = setInterval(async () => {
     try{
@@ -4189,8 +4188,8 @@ window.__castMedia = null;
       const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
       const subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
 
-      if (subtitle === lastSent) return;
-      lastSent = subtitle;
+      if (subtitle === lastSubtitle) return;
+      lastSubtitle = subtitle;
 
       // 2) construire metadata
       const md = new chrome.cast.media.GenericMediaMetadata();
@@ -4202,46 +4201,29 @@ window.__castMedia = null;
         : "https://globalradio.top/assets/globalradio-logo.jpg";
       md.images = [ new chrome.cast.Image(logo) ];
 
-      // 3) Essai 1 : editMediaInfo
+      // 3) update metadata SANS relancer le flux
       try{
-        const mi = media.media;
-        if (mi){
-          mi.metadata = md;
-          const req = new chrome.cast.media.EditMediaInfoRequest(mi);
-          media.editMediaInfo(req, ()=>{}, ()=>{});
-        }
-      }catch(e){}
+        const mi = media.media; // MediaInfo courant
+        if (!mi) return;
 
-      // 4) Essai 2 : reload (throttlé)
-      const now = Date.now();
-      if (now - lastReloadAt < 25000) return;
-      lastReloadAt = now;
+        mi.metadata = md;
+        const req = new chrome.cast.media.EditMediaInfoRequest(mi);
 
-      const codec = (cs.codec || "").toLowerCase();
-      let contentType = "audio/mpeg";
-      if (codec.includes("aac")) contentType = "audio/aac";
-      if (codec.includes("flac")) contentType = "audio/flac";
-      if (codec.includes("ogg") || codec.includes("opus")) contentType = "audio/ogg";
-
-      const url = httpsFirst(cs.url || "");
-      const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
-      mediaInfo.metadata = md;
-
-      const loadReq = new chrome.cast.media.LoadRequest(mediaInfo);
-      loadReq.autoplay = true;
-
-      try{
-        const t = media.getEstimatedTime ? media.getEstimatedTime() : 0;
-        if (t && Number.isFinite(t)) loadReq.currentTime = t;
-      }catch(e){}
-
-      await session.loadMedia(loadReq);
+        // callbacks optionnels pour debug
+        media.editMediaInfo(req,
+          ()=>{ /* ok */ },
+          (err)=>{ /* si ça échoue, on ne relance PAS */ }
+        );
+      }catch(e){
+        // silence
+      }
 
     }catch(e){
       console.log("cast title sync error:", e);
     }
   }, 12000);
 }
+
 
 
 
