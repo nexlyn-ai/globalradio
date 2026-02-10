@@ -4224,7 +4224,7 @@ window.__castTitleTimer = null;
           request.autoplay = true;
 
           const session = ctx.getCurrentSession();
-          session.loadMedia(request,
+          await session.loadMedia(request);
   () => {
     console.log("✅ LoadMedia SUCCESS – le flux devrait jouer sur la TV");
     toast("Cast audio lancé !");
