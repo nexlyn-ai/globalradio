@@ -4145,8 +4145,10 @@ window.__castMedia = null;
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
 		receiverApplicationId: "0E475473",
-		autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+		autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+		resumeSavedSession: false
 });
+
 	  
 	  // Detect when Cast session ends
 	ctx.addEventListener(
@@ -4245,6 +4247,17 @@ try{
 
       btn.addEventListener("click", async ()=>{
         try{
+		const existing = ctx.getCurrentSession && ctx.getCurrentSession();
+		if (existing){
+		try{
+		const appId = existing.getApplicationMetadata?.().applicationId;
+		if (appId && appId !== "0E475473"){
+      // session existante (souvent Default Receiver) → on la ferme
+      ctx.endCurrentSession(true);
+    }
+  }catch(e){}
+}
+
           await ctx.requestSession();
 		  
 		// 2) pick current stream
