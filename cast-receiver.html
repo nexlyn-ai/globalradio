@@ -5,47 +5,65 @@
   <title>GlobalRadio Receiver</title>
   <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
   <style>
-    cast-media-player { --theme-hue: 200; }
-    #liveTitle { font-size: 2em; color: white; text-align: center; margin-top: 20px; }
+    cast-media-player { --theme-hue: 210; --progress-color: #4da3ff; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    body { background: #0b1227; color: white; font-family: system-ui; margin: 0; overflow: hidden; }
+    #overlay { position: absolute; bottom: 80px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
+    #station { font-size: 2.8em; font-weight: bold; }
+    #title { font-size: 2.2em; margin-top: 20px; opacity: 0.9; }
   </style>
 </head>
 <body>
   <cast-media-player id="player"></cast-media-player>
-  <div id="liveTitle">Live radio</div>
+  <div id="overlay">
+    <div id="station">GlobalRadio.top</div>
+    <div id="title">Live radio</div>
+  </div>
 
   <script>
     const context = cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();
 
-    // Player de base
-    playerManager.setMessageInterceptor(
-      cast.framework.messages.MessageType.LOAD,
-      request => {
-        request.media.streamType = cast.framework.messages.StreamType.LIVE;
-        return request;
+    // Intercepte TOUT LOAD pour forcer LIVE + autoplay + logs
+    playerManager.setMessageInterceptor(cast.framework.messages.MessageType.LOAD, (loadRequest) => {
+      console.log("🔥 LOAD intercepté et forcé LIVE :", loadRequest);
+      if (loadRequest.media) {
+        loadRequest.media.streamType = cast.framework.messages.StreamType.LIVE;
       }
-    );
+      loadRequest.autoplay = true;
+      return loadRequest;
+    });
 
-    // Écoute des messages custom
+    // Logs erreurs player (visibles dans debug Cast si besoin)
+    playerManager.addEventListener(cast.framework.events.EventType.ERROR, (event) => {
+      console.error("❌ Erreur player :", event);
+    });
+
+    playerManager.addEventListener(cast.framework.events.EventType.MEDIA_STATUS, (event) => {
+      console.log("📡 Media status :", event);
+    });
+
+    // Messages custom pour titre live + overlay visible
     context.addCustomMessageListener('urn:x-cast:globalradio.meta', (event) => {
       const data = event.data;
+      console.log("📩 Meta reçu :", data);
 
-      // Mise à jour du titre live (subtitle du player natif)
+      document.getElementById("station").textContent = data.station || "Radio";
+      document.getElementById("title").textContent = data.title || "Live radio";
+
+      // Mise à jour metadata player (pour affichage natif TV)
       const media = playerManager.getMediaInformation();
       if (media && media.metadata) {
+        media.metadata.title = data.station || "Radio";
         media.metadata.subtitle = data.title || "Live radio";
-        media.metadata.title = data.station || "GlobalRadio.top";
         if (data.logo) {
           media.metadata.images = [{ url: data.logo }];
         }
-        playerManager.setMediaInformation(media, { autoplay: true });
+        playerManager.setMediaInformation(media);
       }
-
-      // Mise à jour d’un élément custom (plus visible sur certaines TV)
-      document.getElementById("liveTitle").textContent = data.title || "Live radio";
     });
 
-    context.start({ statusText: "GlobalRadio.top ready" });
+    // Démarre le receiver
+    context.start({ statusText: "GlobalRadio.top prêt" });
   </script>
 </body>
 </html>
