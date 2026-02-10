@@ -4122,6 +4122,10 @@ window.GA = {
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
 <script>
+// Cast metadata updater
+window.__castTitleTimer = null;
+window.__castMedia = null;
+
 (function initCastButton(){
   const btn = document.getElementById("castBtn");
   if (!btn) return;
@@ -4152,6 +4156,10 @@ window.GA = {
       e.sessionState === cast.framework.SessionState.SESSION_ENDED ||
       e.sessionState === cast.framework.SessionState.SESSION_START_FAILED
     ) {
+	clearInterval(window.__castTitleTimer);
+	window.__castTitleTimer = null;
+	window.__castMedia = null;
+
       // Cast stopped (no action needed for now)
       console.log("Cast session ended");
     }
@@ -4197,6 +4205,37 @@ window.GA = {
           const session = ctx.getCurrentSession();
 
           await session.loadMedia(request);
+		  // Keep a handle to current cast media session
+window.__castMedia = session.getMediaSession();
+
+// Start periodic metadata updates (title/subtitle/logo)
+clearInterval(window.__castTitleTimer);
+window.__castTitleTimer = setInterval(async () => {
+  try {
+    const cg2 = window.currentGroup || null;
+    const cs2 = window.currentStream || null;
+    if (!window.__castMedia || !cs2 || !cs2.url) return;
+
+    // Fetch title even if local player is STOP
+    const liveTitle = await bestEffortTitle({ url: cs2.url, uuid: cs2.uuid });
+
+    const md2 = new chrome.cast.media.GenericMediaMetadata();
+    md2.title = (cg2 && cg2.name) ? cg2.name : "Radio";
+    md2.subtitle = (liveTitle ? liveTitle : "Live radio") + " • GlobalRadio.top";
+
+    const logo2 = (cg2 && cg2.favicon) ? httpsFirst(cg2.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
+    md2.images = [ new chrome.cast.Image(logo2) ];
+
+    const mi2 = new chrome.cast.media.MediaInfo(cs2.url, contentType);
+    mi2.metadata = md2;
+
+    const editReq = new chrome.cast.media.EditMediaInfoRequest(mi2);
+    window.__castMedia.editMediaInfo(editReq);
+  } catch (e) {
+    // silent
+  }
+}, 14000);
+
 
 		// ✅ stop local playback to avoid double audio (phone + TV)
 		if (typeof stopPlayback === "function") stopPlayback();
