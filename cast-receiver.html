@@ -1,118 +1,167 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<title>CUSTOM RECEIVER LOADED</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GlobalRadio Receiver</title>
   <style>
-    html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui}
-    .wrap{position:absolute;inset:0;display:grid;place-items:center;padding:22px}
+    html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{position:absolute;inset:0;display:grid;place-items:center}
     .card{
-      width:min(92vw,980px);
+      width:min(88vw,980px);
       border:1px solid rgba(255,255,255,.12);
       border-radius:22px;
       background:rgba(8,10,22,.82);
       backdrop-filter:blur(14px);
-      padding:22px;
+      padding:26px;
       box-shadow:0 30px 120px rgba(0,0,0,.55);
-      display:flex; gap:18px; align-items:center;
+      display:flex;
+      gap:18px;
+      align-items:center;
     }
-    .logo{
-      width:96px;height:96px;border-radius:22px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      display:grid;place-items:center;overflow:hidden;flex:0 0 auto;
+    .art{
+      width:96px;height:96px;border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      flex:0 0 auto;
+      display:grid;place-items:center;
     }
-    .logo img{width:78%;height:78%;object-fit:contain;display:block}
+    .art img{width:100%;height:100%;object-fit:cover;display:none}
+    .art .note{font-size:34px;opacity:.55;line-height:1}
     .title{font-weight:900;font-size:28px;line-height:1.1}
     .sub{margin-top:10px;font-size:18px;opacity:.92;font-style:italic}
-    .hint{margin-top:16px;opacity:.6;font-size:13px}
-    cast-media-player{display:none;} /* audio only, UI perso */
+    .hint{margin-top:14px;opacity:.65;font-size:13px}
+    .row{display:flex;flex-direction:column;min-width:0}
+    .ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   </style>
 
   <!-- CAF Receiver -->
   <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="logo"><img id="lg" alt="logo" /></div>
-      <div>
-        <div class="title" id="st">GlobalRadio.top</div>
-        <div class="sub" id="ti">Waiting for cast…</div>
-        <div class="hint" id="hi">Casting • metadata live</div>
+      <div class="art">
+        <img id="logo" alt="logo" />
+        <div class="note" id="note">♪</div>
+      </div>
+
+      <div class="row" style="flex:1;min-width:0">
+        <div class="title ellipsis" id="st">GlobalRadio.top</div>
+        <div class="sub ellipsis" id="ti">Waiting for cast…</div>
+        <div class="hint ellipsis" id="status">Casting • metadata live</div>
       </div>
     </div>
   </div>
 
-  <!-- required element for CAF playback (even hidden) -->
-  <cast-media-player></cast-media-player>
-
   <script>
+    // UI helpers
+    const $st = document.getElementById("st");
+    const $ti = document.getElementById("ti");
+    const $status = document.getElementById("status");
+    const $logo = document.getElementById("logo");
+    const $note = document.getElementById("note");
+
+    function setLogo(url){
+      if (!url){
+        $logo.style.display = "none";
+        $note.style.display = "block";
+        $logo.removeAttribute("src");
+        return;
+      }
+      $logo.onload = () => { $logo.style.display = "block"; $note.style.display = "none"; };
+      $logo.onerror = () => { setLogo(null); };
+      // cache-bust léger au cas où (optionnel)
+      $logo.src = url;
+    }
+
+    function setText(station, title){
+      if (station) $st.textContent = station;
+      if (title !== undefined) $ti.textContent = title || "—";
+    }
+
+    function updateFromMediaInfo(mediaInfo){
+      if (!mediaInfo) return;
+
+      // CAF metadata (si tu la fournis côté sender)
+      const md = mediaInfo.metadata || null;
+
+      // Station / Title : on essaie plusieurs champs selon ce que le sender met
+      const station =
+        (md && (md.title || md.artist)) ||
+        mediaInfo.contentId ||
+        null;
+
+      const title =
+        (md && (md.subtitle || md.albumName)) ||
+        (mediaInfo.customData && (mediaInfo.customData.title || mediaInfo.customData.track)) ||
+        null;
+
+      // Images : GenericMediaMetadata met souvent images[0].url
+      let img = null;
+      if (md && Array.isArray(md.images) && md.images[0] && md.images[0].url) img = md.images[0].url;
+      if (!img && mediaInfo.customData && mediaInfo.customData.logo) img = mediaInfo.customData.logo;
+
+      if (station) $st.textContent = station;
+      if (title) $ti.textContent = title;
+
+      setLogo(img);
+    }
+
+    // ---- CAF Receiver Context ----
     const context = cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();
 
+    // 1) Message bus (bonus) : si le sender t’envoie station/title/logo en direct
     const NS = "urn:x-cast:globalradio.meta";
     const bus = context.getCastMessageBus(NS);
 
-    const $st = document.getElementById("st");
-    const $ti = document.getElementById("ti");
-    const $lg = document.getElementById("lg");
-    const $hi = document.getElementById("hi");
-
-    const FALLBACK_LOGO = "https://globalradio.top/assets/globalradio-logo.jpg";
-
-    function setUI({station, title, logo}){
-      if (station) $st.textContent = station;
-      if (title)   $ti.textContent = title;
-      if (logo)    $lg.src = logo;
-    }
-
-    // 1) Messages live (titre live)
     bus.onMessage = (event) => {
       try{
         const msg = JSON.parse(event.data || "{}");
-        setUI({
-          station: msg.station,
-          title: msg.title,
-          logo: msg.logo
-        });
+        if (msg.station) $st.textContent = msg.station;
+        if (msg.title)   $ti.textContent = msg.title;
+        if (msg.logo)    setLogo(msg.logo);
+        if (msg.status)  $status.textContent = msg.status;
       }catch(e){}
     };
 
-    // 2) Intercepte le LOAD pour récupérer customData (station/logo)
-    playerManager.setMessageInterceptor(
-      cast.framework.messages.MessageType.LOAD,
-      (loadRequestData) => {
-        try{
-          const cd = loadRequestData?.media?.customData || {};
-          setUI({
-            station: cd.station || "Radio",
-            title: cd.title || "Live radio",
-            logo: cd.logo || FALLBACK_LOGO
-          });
-          $hi.textContent = "Playing • Custom Receiver";
-        }catch(e){}
-        return loadRequestData;
+    // 2) Événements CAF natifs : quand le média est LOADED / status change
+    playerManager.addEventListener(
+      cast.framework.events.EventType.MEDIA_STATUS,
+      (evt) => {
+        // evt.mediaStatus.media / evt.mediaStatus.currentTime...
+        const ms = evt.mediaStatus;
+        if (ms) {
+          if (ms.playerState) $status.textContent = "PlayerState: " + ms.playerState;
+        }
       }
     );
 
-    // 3) Quand le media est chargé, essaie aussi de lire metadata “classique”
     playerManager.addEventListener(
       cast.framework.events.EventType.PLAYER_LOAD_COMPLETE,
       () => {
-        try{
-          const info = playerManager.getMediaInformation();
-          const md = info?.metadata || {};
-          const station = md.title || md.artist || "Radio";
-          const title = md.subtitle || md.albumName || "Live radio";
-          const img = (md.images && md.images[0] && md.images[0].url) ? md.images[0].url : FALLBACK_LOGO;
-          setUI({station, title, logo: img});
-        }catch(e){}
+        // Quand un média vient d’être chargé : on lit mediaInfo
+        const mi = playerManager.getMediaInformation && playerManager.getMediaInformation();
+        updateFromMediaInfo(mi);
+        $status.textContent = "Playing • metadata from sender";
       }
     );
 
-    context.start();
+    playerManager.addEventListener(
+      cast.framework.events.EventType.ERROR,
+      (e) => {
+        $status.textContent = "Error: " + (e && e.detailedErrorCode ? e.detailedErrorCode : "unknown");
+      }
+    );
+
+    // Start receiver
+    context.start({
+      // optionnel : évite de “drop” trop vite si silence / pas d’UI
+      disableIdleTimeout: true
+    });
   </script>
 </body>
 </html>
