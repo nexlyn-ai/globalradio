@@ -5,144 +5,70 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui}
-    .wrap{position:absolute;inset:0;display:grid;place-items:center;padding:18px}
-    .card{
-      width:min(92vw,980px);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:22px;
-      background:rgba(8,10,22,.82);
-      backdrop-filter:blur(14px);
-      padding:26px;
-      box-shadow:0 30px 120px rgba(0,0,0,.55)
-    }
+    .wrap{position:absolute;inset:0;display:grid;place-items:center}
+    .card{width:min(88vw,980px);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+      background:rgba(8,10,22,.82);backdrop-filter:blur(14px);padding:26px;box-shadow:0 30px 120px rgba(0,0,0,.55)}
     .title{font-weight:900;font-size:28px;line-height:1.1}
     .sub{margin-top:10px;font-size:18px;opacity:.92;font-style:italic}
-    .row{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{
-      font-size:12px;opacity:.95;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:6px 10px;border-radius:999px
-    }
-    .hint{margin-top:12px;opacity:.65;font-size:12px;line-height:1.35}
-    .err{color:#ff8aa0}
-    .ok{color:#8dffb8}
+    .hint{margin-top:16px;opacity:.6;font-size:13px}
+    .tiny{margin-top:8px;opacity:.55;font-size:12px;word-break:break-all}
+    /* On cache l'UI player mais on garde le moteur CAF qui lit le flux */
+    cast-media-player{display:none !important;}
   </style>
 
-  <!-- CAF Receiver -->
+  <!-- CAF receiver -->
   <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
 <body>
+  <!-- IMPORTANT: nécessaire pour que CAF puisse lire le média -->
+  <cast-media-player></cast-media-player>
+
   <div class="wrap">
     <div class="card">
       <div class="title" id="st">GlobalRadio.top</div>
       <div class="sub" id="ti">Waiting for cast…</div>
-
-      <div class="row">
-        <span class="pill" id="statePill">STATE: IDLE</span>
-        <span class="pill" id="volPill">VOL: —</span>
-      </div>
-
-      <div class="hint" id="hint">Casting • metadata live</div>
+      <div class="hint" id="state">Casting • metadata live</div>
+      <div class="tiny" id="dbg"></div>
     </div>
   </div>
 
   <script>
-    const stEl = document.getElementById("st");
-    const tiEl = document.getElementById("ti");
-    const statePill = document.getElementById("statePill");
-    const volPill = document.getElementById("volPill");
-    const hintEl = document.getElementById("hint");
-
     const context = cast.framework.CastReceiverContext.getInstance();
     const playerManager = context.getPlayerManager();
 
-    // --- Custom namespace sender -> receiver
-    const NS = "urn:x-cast:globalradio.meta";
-    const bus = context.getCastMessageBus(NS);
+    // (Optionnel) Empêche l'écran de se fermer trop vite si silence
+    // playerManager.setIdleReason(cast.framework.events.IdleReason.FINISHED);
 
-    function setStationTitle(station, title){
-      if (station) stEl.textContent = station;
-      if (title) tiEl.textContent = title;
-    }
+    // Affiche l'état player
+    function setState(s){ document.getElementById("state").textContent = s; }
 
-    // Accept BOTH stringified JSON and object payloads
-    bus.onMessage = (event) => {
-      try{
-        const data = event.data;
-        const msg = (typeof data === "string") ? JSON.parse(data || "{}") : (data || {});
-        setStationTitle(msg.station, msg.title);
-      }catch(e){}
-    };
-
-    // --- Make live streams more compatible
-    playerManager.setMessageInterceptor(
-      cast.framework.messages.MessageType.LOAD,
-      (loadRequestData) => {
-        try{
-          // Ensure streamType LIVE (important for radios)
-          if (loadRequestData?.media){
-            loadRequestData.media.streamType = cast.framework.messages.StreamType.LIVE;
-
-            // If sender forgot contentType, keep device-friendly default
-            if (!loadRequestData.media.contentType){
-              loadRequestData.media.contentType = "audio/mpeg";
-            }
-          }
-
-          // Try to immediately show metadata from the LoadRequest
-          const md = loadRequestData?.media?.metadata || null;
-          const title = (md && (md.title || md.name)) ? (md.title || md.name) : "Radio";
-          const sub = (md && md.subtitle) ? md.subtitle : "Connecting…";
-          setStationTitle(title, sub);
-        }catch(e){}
-        return loadRequestData;
-      }
-    );
-
-    // --- Player state / errors
+    // Quand un média est chargé (loadMedia depuis le sender), CAF va jouer automatiquement
     playerManager.addEventListener(
       cast.framework.events.EventType.PLAYER_STATE_CHANGED,
       (e) => {
-        try{
-          const s = e?.state || "UNKNOWN";
-          statePill.textContent = "STATE: " + s;
-
-          if (s === "PLAYING"){
-            hintEl.className = "hint ok";
-            hintEl.textContent = "Audio playing on TV ✅";
-          } else if (s === "BUFFERING"){
-            hintEl.className = "hint";
-            hintEl.textContent = "Buffering…";
-          } else if (s === "IDLE"){
-            hintEl.className = "hint";
-            hintEl.textContent = "Waiting for cast…";
-          }
-        }catch(e){}
+        setState("Player: " + e.playerState);
       }
     );
 
-    playerManager.addEventListener(
-      cast.framework.events.EventType.ERROR,
-      (e) => {
-        hintEl.className = "hint err";
-        hintEl.textContent = "Playback error on TV (codec/URL not supported). Try MP3/AAC.";
-      }
-    );
+    // Namespace (sender -> receiver)
+    const NS = "urn:x-cast:globalradio.meta";
+    const bus = context.getCastMessageBus(NS);
 
-    // Volume pill
-    function refreshVol(){
+    bus.onMessage = (event) => {
       try{
-        const sys = context.getSystemVolume();
-        const lvl = (sys && typeof sys.level === "number") ? sys.level : null;
-        const muted = !!(sys && sys.muted);
-        volPill.textContent = "VOL: " + (lvl !== null ? Math.round(lvl*100) + "%" : "—") + (muted ? " (MUTED)" : "");
-      }catch(e){}
-    }
-    context.addEventListener(cast.framework.events.EventType.SYSTEM_VOLUME_CHANGED, refreshVol);
+        const raw = event.data;
+        const msg = (typeof raw === "string") ? JSON.parse(raw) : raw;
+
+        if (msg && msg.station) document.getElementById("st").textContent = msg.station;
+        if (msg && msg.title)   document.getElementById("ti").textContent = msg.title;
+
+        document.getElementById("dbg").textContent = "meta ok";
+      }catch(e){
+        document.getElementById("dbg").textContent = "meta parse error";
+      }
+    };
 
     context.start();
-    refreshVol();
   </script>
 </body>
 </html>
