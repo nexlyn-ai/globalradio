@@ -4168,6 +4168,48 @@ window.__castMedia = null;
 
 		// 1) start / join cast session
       showBtn();
+	  function __startCastTitleSync(ctx){
+  clearInterval(window.__castTitleTimer);
+  window.__castTitleTimer = setInterval(async () => {
+    try{
+      const cg2 = window.currentGroup || null;
+      const cs2 = window.currentStream || null;
+      const session = ctx.getCurrentSession();
+      const media = session && session.getMediaSession ? session.getMediaSession() : null;
+      if (!cs2 || !cs2.url || !media) return;
+
+      // 1) récupérer le titre même si le player web est STOP
+      const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs2) : "";
+      const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
+
+      // 2) (optionnel mais utile) remettre à jour le titre côté web UI
+      if (typeof setTitleUIPlayer === "function") setTitleUIPlayer(liveClean);
+
+      // 3) pousser vers Chromecast
+      const md2 = new chrome.cast.media.GenericMediaMetadata();
+      md2.title = (cg2 && cg2.name) ? cg2.name : "Radio";
+      md2.subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
+
+      const logo2 = (cg2 && cg2.favicon)
+        ? httpsFirst(cg2.favicon)
+        : "https://globalradio.top/assets/globalradio-logo.jpg";
+      md2.images = [ new chrome.cast.Image(logo2) ];
+
+      const codec = (cs2.codec || "").toLowerCase();
+      let contentType = "audio/mpeg";
+      if (codec.includes("aac")) contentType = "audio/aac";
+      if (codec.includes("flac")) contentType = "audio/flac";
+      if (codec.includes("ogg") || codec.includes("opus")) contentType = "audio/ogg";
+
+      const mi2 = new chrome.cast.media.MediaInfo(cs2.url, contentType);
+      mi2.metadata = md2;
+
+      const editReq = new chrome.cast.media.EditMediaInfoRequest(mi2);
+      media.editMediaInfo(editReq);
+    }catch(e){}
+  }, 12000);
+}
+
       btn.addEventListener("click", async ()=>{
         try{
           await ctx.requestSession();
@@ -4205,8 +4247,13 @@ window.__castMedia = null;
           const session = ctx.getCurrentSession();
 
           await session.loadMedia(request);
+		  
+		// 🔇 Coupe le son local (téléphone) sans casser le title engine
+		  try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
+		  __startCastTitleSync(ctx);
+
 		  // Keep a handle to current cast media session
-window.__castMedia = session.getMediaSession();
+		window.__castMedia = session.getMediaSession();
 
 // Start periodic metadata updates (title/subtitle/logo)
 clearInterval(window.__castTitleTimer);
