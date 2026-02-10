@@ -4122,282 +4122,107 @@ window.GA = {
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
 <script>
-// Cast metadata updater
 window.__castTitleTimer = null;
-window.__castMedia = null;
 
 (function initCastButton(){
   const btn = document.getElementById("castBtn");
   if (!btn) return;
 
-  function showBtn(){
-    btn.style.display = "grid";
-  }
-  function hideBtn(){
-    btn.style.display = "none";
-  }
+  function showBtn(){ btn.style.display = "grid"; }
+  function hideBtn(){ btn.style.display = "none"; }
 
-  // Google Cast calls this when API is ready
   window.__onGCastApiAvailable = function(isAvailable){
     if (!isAvailable) { hideBtn(); return; }
 
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-		receiverApplicationId: "0E475473",
-		autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
-		resumeSavedSession: false
-});
+        receiverApplicationId: "0E475473", // ← ton App ID publié
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+      });
 
-
-	  
-	  // Detect when Cast session ends
-	ctx.addEventListener(
-	cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-  (e) => {
-    if (
-      e.sessionState === cast.framework.SessionState.SESSION_ENDED ||
-      e.sessionState === cast.framework.SessionState.SESSION_START_FAILED
-    ) {
-	clearInterval(window.__castTitleTimer);
-	window.__castTitleTimer = null;
-	window.__castMedia = null;
-
-      // Cast stopped (no action needed for now)
-      console.log("Cast session ended");
-    }
-  }
-);
-
-		// 1) start / join cast session
       showBtn();
 
-	function __startCastTitleSync(ctx){
-  clearInterval(window.__castTitleTimer);
+      // Démarre la synchronisation du titre dès qu’une session Cast est active
+      function startTitleSync(){
+        clearInterval(window.__castTitleTimer);
+        window.__castTitleTimer = setInterval(async () => {
+          const session = ctx.getCurrentSession();
+          if (!session) return;
 
-  let lastSubtitle = "";
+          const title = (typeof bestEffortTitle === "function")
+            ? await bestEffortTitle(window.currentStream)
+            : document.getElementById("currentTitle")?.textContent || "Live radio";
 
-  window.__castTitleTimer = setInterval(async () => {
-    try{
-      const cg = window.currentGroup || null;
-      const cs = window.currentStream || null;
+          const cleanTitle = (typeof cleanTitle === "function") ? cleanTitle(title) : title;
 
-      const session = ctx.getCurrentSession();
-      const media = session && session.getMediaSession ? session.getMediaSession() : null;
-      if (!cs || !cs.url || !session || !media) return;
-
-      // 1) récupérer le titre (indépendant du player web)
-      const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs) : "";
-      const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
-	  
-	  // 📺 Send live metadata to custom Cast receiver (TV)
-try{
-  const session = ctx.getCurrentSession();
-  try{
-  const appId = session.getApplicationMetadata?.().applicationId;
-  console.log("CAST appId =", appId);
-  toast("CAST appId: " + appId, 2500);
-}catch(e){}
-
-  if (session){
-    session.sendMessage(
-      "urn:x-cast:globalradio.meta",
-      JSON.stringify({
-        station: window.currentGroup?.name || "Radio",
-        title: liveClean || "Live radio"
-      })
-    );
-  }
-}catch(e){}
- 
-	  
-      const subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
-
-      if (subtitle === lastSubtitle) return;
-      lastSubtitle = subtitle;
-
-      // 2) construire metadata
-      const md = new chrome.cast.media.GenericMediaMetadata();
-      md.title = (cg && cg.name) ? cg.name : "Radio";
-      md.subtitle = subtitle;
-
-      const logo = (cg && cg.favicon)
-        ? httpsFirst(cg.favicon)
-        : "https://globalradio.top/assets/globalradio-logo.jpg";
-      md.images = [ new chrome.cast.Image(logo) ];
-
-      // 3) update metadata SANS relancer le flux
-      try{
-        const mi = media.media; // MediaInfo courant
-        if (!mi) return;
-
-        mi.metadata = md;
-        const req = new chrome.cast.media.EditMediaInfoRequest(mi);
-
-        // callbacks optionnels pour debug
-        media.editMediaInfo(req,
-          ()=>{ /* ok */ },
-          (err)=>{ /* si ça échoue, on ne relance PAS */ }
-        );
-      }catch(e){
-        // silence
+          try{
+            session.sendMessage("urn:x-cast:globalradio.meta", {
+              station: window.currentGroup?.name || "Radio",
+              title: cleanTitle || "Live radio",
+              logo: window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg"
+            });
+          }catch(e){}
+        }, 12000);
       }
 
-    }catch(e){
-      console.log("cast title sync error:", e);
-    }
-  }, 12000);
-}
+      // Écoute les changements de session
+      ctx.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
+        if (e.sessionState === cast.framework.SessionState.SESSION_STARTED ||
+            e.sessionState === cast.framework.SessionState.SESSION_RESUMED) {
+          startTitleSync();
+        } else {
+          clearInterval(window.__castTitleTimer);
+        }
+      });
 
-
-
-
-      btn.addEventListener("click", async ()=>{
+      btn.addEventListener("click", async () => {
         try{
-		const existing = ctx.getCurrentSession && ctx.getCurrentSession();
-		if (existing){
-		try{
-		const appId = existing.getApplicationMetadata?.().applicationId;
-		if (appId && appId !== "0E475473"){
-      // session existante (souvent Default Receiver) → on la ferme
-      ctx.endCurrentSession(true);
-    }
-  }catch(e){}
-}
-
           await ctx.requestSession();
-		  
-		  // ===== DEBUG: which Cast app is actually running? =====
-try{
-  const session = ctx.getCurrentSession();
-  const meta = session && session.getApplicationMetadata ? session.getApplicationMetadata() : null;
-  const appId = meta && meta.applicationId;
 
-  console.log("CAST DEBUG appId =", appId);
-
-  // affichage visible
-  if (typeof toast === "function") {
-    toast("Cast App ID: " + appId, 3500);
-  } else {
-    alert("Cast App ID: " + appId);
-  }
-}catch(e){
-  console.log("CAST DEBUG error:", e);
-}
-
-		  
-		// 2) pick current stream
-		  const cg = window.currentGroup || null;
-		  const cs = window.currentStream || null;
-
-                
-          if (!cs || !cs.url){
-            if (typeof toast === "function") toast(t("toastPick"));
+          const cg = window.currentGroup;
+          const cs = window.currentStream;
+          if (!cs || !cs.url) {
+            toast(t("toastPick"));
             return;
           }
 
-          // 3) Build media
-          // Many radio streams are MP3/AAC. MP3 is the safest default.
-        const url = httpsFirst(cs.url || "");
-		const codec = (cs.codec || "").toLowerCase();
-		let contentType = "audio/mpeg";
-		if (codec.includes("aac")) contentType = "audio/aac";
-		if (codec.includes("ogg")) contentType = "audio/ogg";
-		if (codec.includes("opus")) contentType = "audio/ogg";
-		
-		const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
-		mediaInfo.streamType = chrome.cast.media.StreamType.LIVE; // ✅ radios live
+          const url = httpsFirst(cs.url);
+          let contentType = "audio/mpeg";
+          if ((cs.codec||"").toLowerCase().includes("aac")) contentType = "audio/aac";
+          if ((cs.codec||"").toLowerCase().includes("ogg") || (cs.codec||"").includes("opus")) contentType = "audio/ogg";
+
+          const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
+          mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
 
           const md = new chrome.cast.media.MusicTrackMediaMetadata();
-
-// ✅ la TV affiche beaucoup mieux ces champs
-md.title = (window.currentGroup?.name || "Radio");
-md.artist = "GlobalRadio.top";
-
-// On met le titre live en “albumName” (souvent visible)
-const liveTitle = (document.getElementById("currentTitle")?.textContent || "Live radio");
-md.albumName = liveTitle;
-
-// ✅ Image en HTTPS only (sinon beaucoup de TV n’affichent rien)
-let logo = "https://globalradio.top/assets/globalradio-logo.jpg";
-if (window.currentGroup?.favicon) logo = httpsFirst(window.currentGroup.favicon);
-
-// (optionnel) si jamais ça finit en http:// on fallback
-if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
-
-md.images = [ new chrome.cast.Image(logo) ];
-
-mediaInfo.metadata = md;
-
-// ✅ On force nos infos dans customData (ultra fiable sur Android TV)
-mediaInfo.customData = {
-  station: (cg && cg.name) ? cg.name : (window.currentGroup?.name || "Radio"),
-  title: (document.getElementById("currentTitle")?.textContent || "Live radio"),
-  logo: (cg && cg.favicon) ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg"
-};
-
+          md.title = cg?.name || "Radio";
+          md.artist = "GlobalRadio.top";
+          md.albumName = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
+          let logo = cg?.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
+          if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+          md.images = [new chrome.cast.Image(logo)];
+          mediaInfo.metadata = md;
 
           const request = new chrome.cast.media.LoadRequest(mediaInfo);
-		  request.autoplay = true; // ✅ force lecture sur la TV
+          request.autoplay = true;
 
           const session = ctx.getCurrentSession();
           await session.loadMedia(request);
-		  
-		  // ✅ envoie aussi via message bus (pour mise à jour immédiate)
-try{
-  session.sendMessage(
-    "urn:x-cast:globalradio.meta",
-    JSON.stringify({
-      station: mediaInfo.customData.station,
-      title: mediaInfo.customData.title,
-      logo: mediaInfo.customData.logo
-    })
-  );
-}catch(e){}
 
-		  
-		  // 📺 Send initial metadata to custom receiver (TV)
-try{
-  session.sendMessage(
-    "urn:x-cast:globalradio.meta",
-    JSON.stringify({
-      station: window.currentGroup?.name || "Radio",
-      title: document.getElementById("currentTitle")?.textContent || "Live radio"
-    })
-  );
-}catch(e){}
+          // Coupe le son local
+          try { document.getElementById("audioPlayer")?.pause(); } catch(e) {}
 
-		  
-		// 🔇 Coupe le son local (téléphone) sans casser le title engine
-		  try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
-		  
-		  // UI: show "Casting…" on web player
-		if (typeof setPlayerStatusKey === "function") {
-		setPlayerStatusKey(
-    "toastCasting",
-    (typeof t === "function") ? t("toastCasting") : "Casting…"
-  );
-}
-
-		  
-		// Sync TV title (utilise bestEffortTitle)
-		  __startCastTitleSync(ctx);
-
-		  // Keep a handle to current cast media session (optionnel)
-		window.__castMedia = session.getMediaSession();
-
-		// ✅ éviter double audio sans stopper le title engine
-		try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
-
-          if (typeof toast === "function") toast(t("toastCasting"));
+          toast(t("toastCasting"));
+          startTitleSync(); // en cas de session reprise
         }catch(e){
-          console.log("Cast error:", e);
-          if (typeof toast === "function") toast(t("toastCastFailed"));
+          console.error("Cast error:", e);
+          toast(t("toastCastFailed"));
         }
       });
 
     }catch(e){
-      console.log("Cast init error:", e);
+      console.error("Cast init error:", e);
       hideBtn();
     }
   };
