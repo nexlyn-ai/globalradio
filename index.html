@@ -4287,10 +4287,10 @@ try{
 try{
   session.sendMessage(
     "urn:x-cast:globalradio.meta",
-    {
+    JSON.stringify({
       station: window.currentGroup?.name || "Radio",
       title: document.getElementById("currentTitle")?.textContent || "Live radio"
-    }
+    })
   );
 }catch(e){}
 
