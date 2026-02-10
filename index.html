@@ -4149,6 +4149,7 @@ window.__castMedia = null;
 		resumeSavedSession: false
 });
 
+
 	  
 	  // Detect when Cast session ends
 	ctx.addEventListener(
@@ -4192,6 +4193,12 @@ window.__castMedia = null;
 	  // 📺 Send live metadata to custom Cast receiver (TV)
 try{
   const session = ctx.getCurrentSession();
+  try{
+  const appId = session.getApplicationMetadata?.().applicationId;
+  console.log("CAST appId =", appId);
+  toast("CAST appId: " + appId, 2500);
+}catch(e){}
+
   if (session){
     session.sendMessage(
       "urn:x-cast:globalradio.meta",
@@ -4259,6 +4266,25 @@ try{
 }
 
           await ctx.requestSession();
+		  
+		  // ===== DEBUG: which Cast app is actually running? =====
+try{
+  const session = ctx.getCurrentSession();
+  const meta = session && session.getApplicationMetadata ? session.getApplicationMetadata() : null;
+  const appId = meta && meta.applicationId;
+
+  console.log("CAST DEBUG appId =", appId);
+
+  // affichage visible
+  if (typeof toast === "function") {
+    toast("Cast App ID: " + appId, 3500);
+  } else {
+    alert("Cast App ID: " + appId);
+  }
+}catch(e){
+  console.log("CAST DEBUG error:", e);
+}
+
 		  
 		// 2) pick current stream
 		  const cg = window.currentGroup || null;
