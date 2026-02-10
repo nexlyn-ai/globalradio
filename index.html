@@ -4168,53 +4168,81 @@ window.__castMedia = null;
 
 		// 1) start / join cast session
       showBtn();
-	 function __startCastTitleSync(ctx){
+
+	function __startCastTitleSync(ctx){
   clearInterval(window.__castTitleTimer);
+
+  let lastSent = "";
+  let lastReloadAt = 0;
 
   window.__castTitleTimer = setInterval(async () => {
     try{
-      const cg2 = window.currentGroup || null;
-      const cs2 = window.currentStream || null;
+      const cg = window.currentGroup || null;
+      const cs = window.currentStream || null;
 
       const session = ctx.getCurrentSession();
       const media = session && session.getMediaSession ? session.getMediaSession() : null;
-      if (!cs2 || !cs2.url || !media) return;
+      if (!cs || !cs.url || !session || !media) return;
 
-      // 1) récupérer le titre
-      const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs2) : "";
+      // 1) récupérer le titre (indépendant du player web)
+      const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs) : "";
       const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
+      const subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
 
-      // (optionnel) refresh web UI
-      if (typeof setTitleUIPlayer === "function") setTitleUIPlayer(liveClean);
+      if (subtitle === lastSent) return;
+      lastSent = subtitle;
 
       // 2) construire metadata
-      const md2 = new chrome.cast.media.GenericMediaMetadata();
-      md2.title = (cg2 && cg2.name) ? cg2.name : "Radio";
-      md2.subtitle = (liveClean ? liveClean : "Live radio") + " • GlobalRadio.top";
+      const md = new chrome.cast.media.GenericMediaMetadata();
+      md.title = (cg && cg.name) ? cg.name : "Radio";
+      md.subtitle = subtitle;
 
-      const logo2 = (cg2 && cg2.favicon)
-        ? httpsFirst(cg2.favicon)
+      const logo = (cg && cg.favicon)
+        ? httpsFirst(cg.favicon)
         : "https://globalradio.top/assets/globalradio-logo.jpg";
-      md2.images = [ new chrome.cast.Image(logo2) ];
+      md.images = [ new chrome.cast.Image(logo) ];
 
-      // 3) IMPORTANT: réutiliser le mediaInfo existant sur la TV
-      const mi = media.media;               // MediaInfo actuel
-      if (!mi) return;
-      mi.metadata = md2;                    // on ne change QUE la metadata
+      // 3) Essai 1 : editMediaInfo
+      try{
+        const mi = media.media;
+        if (mi){
+          mi.metadata = md;
+          const req = new chrome.cast.media.EditMediaInfoRequest(mi);
+          media.editMediaInfo(req, ()=>{}, ()=>{});
+        }
+      }catch(e){}
 
-      const req = new chrome.cast.media.EditMediaInfoRequest(mi);
+      // 4) Essai 2 : reload (throttlé)
+      const now = Date.now();
+      if (now - lastReloadAt < 25000) return;
+      lastReloadAt = now;
 
-      // 4) IMPORTANT: API callback (pas Promise)
-      media.editMediaInfo(
-        req,
-        () => { /* ok */ },
-        (err) => { console.log("editMediaInfo error:", err); }
-      );
+      const codec = (cs.codec || "").toLowerCase();
+      let contentType = "audio/mpeg";
+      if (codec.includes("aac")) contentType = "audio/aac";
+      if (codec.includes("flac")) contentType = "audio/flac";
+      if (codec.includes("ogg") || codec.includes("opus")) contentType = "audio/ogg";
+
+      const url = httpsFirst(cs.url || "");
+      const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
+      mediaInfo.metadata = md;
+
+      const loadReq = new chrome.cast.media.LoadRequest(mediaInfo);
+      loadReq.autoplay = true;
+
+      try{
+        const t = media.getEstimatedTime ? media.getEstimatedTime() : 0;
+        if (t && Number.isFinite(t)) loadReq.currentTime = t;
+      }catch(e){}
+
+      await session.loadMedia(loadReq);
+
     }catch(e){
       console.log("cast title sync error:", e);
     }
   }, 12000);
 }
+
 
 
       btn.addEventListener("click", async ()=>{
