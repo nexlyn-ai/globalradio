@@ -4282,6 +4282,18 @@ try{
 
           await session.loadMedia(request);
 		  
+		  // 📺 Send initial metadata to custom receiver (TV)
+try{
+  session.sendMessage(
+    "urn:x-cast:globalradio.meta",
+    {
+      station: window.currentGroup?.name || "Radio",
+      title: document.getElementById("currentTitle")?.textContent || "Live radio"
+    }
+  );
+}catch(e){}
+
+		  
 		// 🔇 Coupe le son local (téléphone) sans casser le title engine
 		  try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
 		  
