@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body{margin:0;height:100%;background:#050710;color:#e7eefc;font-family:system-ui}
+    .wrap{position:absolute;inset:0;display:grid;place-items:center}
+    .card{width:min(88vw,980px);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+      background:rgba(8,10,22,.82);backdrop-filter:blur(14px);padding:26px;box-shadow:0 30px 120px rgba(0,0,0,.55)}
+    .title{font-weight:900;font-size:28px;line-height:1.1}
+    .sub{margin-top:10px;font-size:18px;opacity:.92;font-style:italic}
+    .hint{margin-top:16px;opacity:.6;font-size:13px}
+  </style>
+  <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="title" id="st">GlobalRadio.top</div>
+      <div class="sub" id="ti">…</div>
+      <div class="hint">Casting • metadata live</div>
+    </div>
+  </div>
+
+  <script>
+    const context = cast.framework.CastReceiverContext.getInstance();
+    const playerManager = context.getPlayerManager();
+
+    // Namespace de messages (sender -> receiver)
+    const NS = "urn:x-cast:globalradio.meta";
+    const bus = context.getCastMessageBus(NS);
+
+    bus.onMessage = (event) => {
+      try{
+        const msg = JSON.parse(event.data || "{}");
+        if (msg.station) document.getElementById("st").textContent = msg.station;
+        if (msg.title)   document.getElementById("ti").textContent = msg.title;
+      }catch(e){}
+    };
+
+    context.start();
+  </script>
+</body>
+</html>
