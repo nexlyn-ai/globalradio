@@ -1699,6 +1699,11 @@ header.isSticky{
     </span>
 
 <span style="opacity:.55;">•</span>
+<span class="footerStatus" id="footerStations" data-state="CONNECT" title="Total stations in the directory">
+  <span class="sDot"></span><span class="sText">—</span> <span data-i18n="stationsLabel">stations</span>
+</span>
+
+<span style="opacity:.55;">•</span>
 <span id="footerBuild" style="opacity:.6; font-size:11px; cursor:pointer;">
   Build <span id="footerBuildVer">—</span>
 </span>
@@ -1991,6 +1996,7 @@ header.isSticky{
 		footerBuild: "Build",
 		buildTitle: "Build / Updates",
 		buildBody: "Coming soon — this panel will show the latest build notes and checks.",
+		stationsLabel: "stations",
 		ok: "OK"
 
       },
@@ -2074,7 +2080,8 @@ header.isSticky{
 		footerBuild: "Build",
 		buildTitle: "Build / Mises à jour",
 		buildBody: "Bientôt — ce panneau affichera les notes de build et les checks.",
-		ok: "OK",
+		stationsLabel: "radios",
+		ok: "OK"
 
       }
     };
@@ -4672,6 +4679,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Lance une fois (après que t() existe, donc ici en fin de page c'est OK)
   initPresenceCounter();
+})();
+</script>
+
+<script>
+/* ===============================
+   Total stations counter
+   =============================== */
+(function(){
+  let lastStations = null;
+
+  function setStationsCount(n){
+    const el = document.getElementById("footerStations");
+    if (!el) return;
+
+    const txt = el.querySelector(".sText");
+    if (!txt) return;
+
+    const label = t("stationsLabel");
+    const val = Number(n) || 0;
+
+    txt.textContent = `${val.toLocaleString()} ${label}`;
+
+    if (lastStations !== null && val !== lastStations){
+      el.classList.remove("bump");
+      requestAnimationFrame(() => {
+        el.classList.add("bump");
+        clearTimeout(el._bumpT);
+        el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
+      });
+    }
+
+    lastStations = val;
+    el.dataset.state = "LIVE";
+  }
+
+  async function fetchTotalStations(){
+    try{
+      const r = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
+      const data = await r.json();
+      const count = data?.stationcount;
+      if (typeof count === "number") setStationsCount(count);
+      else throw new Error("no stationcount");
+    }catch(e){
+      const el = document.getElementById("footerStations");
+      if (el){
+        el.dataset.state = "ERR";
+        el.querySelector(".sText").textContent = `— ${t("stationsLabel")}`;
+      }
+    }
+  }
+
+  // Fetch au chargement + toutes les 30 minutes
+  fetchTotalStations();
+  setInterval(fetchTotalStations, 30 * 60 * 1000);
+
+  // Refresh si page visible
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) fetchTotalStations();
+  });
 })();
 </script>
 
