@@ -1172,6 +1172,23 @@ header.isSticky{
       background: rgba(0,0,0,.55);
       backdrop-filter: blur(10px);
     }
+	
+	/* ===== Build Modal ===== */
+#buildModal{
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#buildModal.show{ display:flex; }
+	
 	/* ===== FIX: modal scroll on mobile ===== */
 #addModal{
   overflow: auto;
@@ -1563,6 +1580,8 @@ header.isSticky{
 
     <span style="opacity:.55;">•</span>
     <a href="#" id="footerAddStation" data-i18n="footerAddStation">Add a station</a>
+	<span style="opacity:.55;">•</span>
+	<a href="#" id="footerBuild" data-i18n="footerBuild">Build</a>
     <span style="opacity:.55;">•</span>
     <span class="madeIn">
       <span data-i18n="madeInFrance">Made in France</span>
@@ -1606,6 +1625,26 @@ header.isSticky{
 
   <!-- Add Station Modal -->
   <div id="addModal" aria-hidden="true">
+  <!-- Build / Update Modal (placeholder) -->
+<div id="buildModal" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-label="Build updates">
+    <div class="modalTop">
+      <div class="ttl" data-i18n="buildTitle">Build / Updates</div>
+      <button class="btn btnSmall" id="buildClose" type="button">✕</button>
+    </div>
+
+    <div class="modalBody" style="grid-template-columns: 1fr;">
+      <div class="full modalHint" data-i18n="buildBody">
+        Coming soon — this panel will show the latest build notes and checks.
+      </div>
+    </div>
+
+    <div class="modalActions">
+      <button class="btn btnPrimary" id="buildOk" type="button" data-i18n="ok">OK</button>
+    </div>
+  </div>
+</div>
+
     <div class="modalCard" role="dialog" aria-modal="true" aria-label="Add station">
       <div class="modalTop">
         <div class="ttl" data-i18n="addTitle">Add / update a station</div>
@@ -1723,7 +1762,12 @@ header.isSticky{
         toastNeedName: "Please enter a station name.",
         toastNeedStream: "Please enter at least 1 stream URL.",
 		toastCasting: "Casting…",
-		toastCastFailed: "Cast failed."
+		toastCastFailed: "Cast failed.",
+		footerBuild: "Build",
+		buildTitle: "Build / Updates",
+		buildBody: "Coming soon — this panel will show the latest build notes and checks.",
+		ok: "OK"
+
       },
       fr: {
         siteName: "GlobalRadio.top",
@@ -1801,7 +1845,12 @@ header.isSticky{
         toastNeedName: "Merci d’indiquer un nom.",
         toastNeedStream: "Merci d’indiquer au moins 1 URL de flux.",
 		toastCasting: "Diffusion sur TV…",
-		toastCastFailed: "Échec de la diffusion."
+		toastCastFailed: "Échec de la diffusion.",
+		footerBuild: "Build",
+		buildTitle: "Build / Mises à jour",
+		buildBody: "Bientôt — ce panneau affichera les notes de build et les checks.",
+		ok: "OK",
+
       }
     };
 
@@ -3759,7 +3808,6 @@ if (topAddBtn){
   });
 }
 
-
     document.getElementById("footerAddStation").addEventListener("click", (e)=>{
       e.preventDefault();
       openAddModal();
@@ -3767,6 +3815,38 @@ if (topAddBtn){
     document.getElementById("addClose").addEventListener("click", closeAddModal);
     document.getElementById("addCancel").addEventListener("click", closeAddModal);
     addModal.addEventListener("click", (e)=>{ if (e.target === addModal) closeAddModal(); });
+	
+// -----------------------
+// Build / update modal
+// -----------------------
+const buildModal = document.getElementById("buildModal");
+
+function openBuildModal(){
+  if (!buildModal) return;
+  buildModal.classList.add("show");
+  buildModal.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeBuildModal(){
+  if (!buildModal) return;
+  buildModal.classList.remove("show");
+  buildModal.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("footerBuild")?.addEventListener("click", (e)=>{
+  e.preventDefault();
+  openBuildModal();
+});
+
+document.getElementById("buildClose")?.addEventListener("click", closeBuildModal);
+document.getElementById("buildOk")?.addEventListener("click", closeBuildModal);
+
+buildModal?.addEventListener("click", (e)=>{
+  if (e.target === buildModal) closeBuildModal();
+});
+	
 
     function normalizeUrlMaybe(u){
       const s = safeText(u,"");
