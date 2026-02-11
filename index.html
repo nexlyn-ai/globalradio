@@ -3799,8 +3799,7 @@ if (editBtn){
       addModal.classList.add("show");
       addModal.setAttribute("aria-hidden","false");
       document.body.style.overflow = "hidden";
-	  
-    }
+	}
     function closeAddModal(){
       addModal.classList.remove("show");
       addModal.setAttribute("aria-hidden","true");
@@ -3826,14 +3825,12 @@ if (topAddBtn){
 // Build / update modal
 // -----------------------
 const buildModal = document.getElementById("buildModal");
-
 function openBuildModal(){
   if (!buildModal) return;
   buildModal.classList.add("show");
   buildModal.setAttribute("aria-hidden","false");
   document.body.style.overflow = "hidden";
 }
-
 function closeBuildModal(){
   if (!buildModal) return;
   buildModal.classList.remove("show");
@@ -3841,17 +3838,29 @@ function closeBuildModal(){
   document.body.style.overflow = "";
 }
 
-document.getElementById("footerBuild")?.addEventListener("click", ()=>{
+// Footer build: open modal (safe click)
+document.getElementById("footerBuild")?.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
   openBuildModal();
 });
 
+document.getElementById("buildClose")?.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeBuildModal();
+});
 
-document.getElementById("buildClose")?.addEventListener("click", closeBuildModal);
-document.getElementById("buildOk")?.addEventListener("click", closeBuildModal);
+document.getElementById("buildOk")?.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeBuildModal();
+});
 
 buildModal?.addEventListener("click", (e)=>{
   if (e.target === buildModal) closeBuildModal();
 });
+
 	
 
     function normalizeUrlMaybe(u){
