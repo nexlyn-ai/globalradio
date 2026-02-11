@@ -1358,7 +1358,7 @@
   </header>
 
   <div class="filters">
-    <div class="bar">
+  <form class="bar" id="filtersForm" action="javascript:void(0)">
       <select id="viewMode" aria-label="View mode">
         <option value="all" data-i18n="viewAll">All stations</option>
         <option value="favorites" data-i18n="viewFavs">Favorites</option>
@@ -1384,8 +1384,8 @@
 
       <button class="btn" id="clearBtn" data-i18n="reset">Reset</button>
 	  <button class="btn" id="topAddStation" data-i18n="footerAddStation">Add a station</button>
-    </div>
-  </div>
+     </form>
+	</div>
 
   <div class="featured">
     <div class="featured-card" id="featuredCard">
