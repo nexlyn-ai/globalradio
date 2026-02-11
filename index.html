@@ -2750,6 +2750,9 @@ const streamCount = (group.streams||[]).length;
       window.scrollTo({ top: 0, behavior: "smooth" });
       updateBottomSafe();
       animateGridEntrance();
+	  // ✅ restore homepage SEO
+	  restoreDefaultSEO();
+
     }
 
     function populateDetail(group){
@@ -2970,6 +2973,8 @@ if (editBtn){
 
       // ✅ Fix title leak: Detail title engine uses THIS detail group (not current playing station unless same group)
       startDetailTitleEngine(group);
+	  // ✅ SEO dynamique par radio
+		updateSEOForStation(group);
     }
 
     // -----------------------
@@ -4031,6 +4036,62 @@ if (topAddBtn){
         updateBottomSafe();
       });
     })();
+
+// =======================
+// Dynamic SEO per station
+// =======================
+function updateSEOForStation(group){
+  if (!group) return;
+
+  const siteName = "GlobalRadio.top";
+
+  const title = `${group.name} – Live Stream | ${siteName}`;
+  document.title = title;
+
+  const desc = (LANG === "fr")
+    ? `Écoutez ${group.name} en direct. Radio en ligne depuis ${group.country || "le monde"}. Meilleurs flux disponibles.`
+    : `Listen to ${group.name} live online. Radio from ${group.country || "around the world"}. Best available streams.`;
+
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute("content", desc);
+
+  let ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute("content", title);
+
+  let ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute("content", desc);
+
+  // Canonical (optional hash style)
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical){
+    const cleanName = group.name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    canonical.setAttribute("href", `https://globalradio.top/#${cleanName}`);
+  }
+}
+
+
+// Restore homepage SEO
+function restoreDefaultSEO(){
+  const siteName = "GlobalRadio.top";
+
+  document.title = `${siteName} — Global online radio directory`;
+
+  const defaultDesc = "Explore radios worldwide: countries, styles, favorites, stable playback and best-effort live metadata.";
+
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute("content", defaultDesc);
+
+  let ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute("content", document.title);
+
+  let ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute("content", defaultDesc);
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical){
+    canonical.setAttribute("href", "https://globalradio.top/");
+  }
+}
 
     // -----------------------
     // Init
