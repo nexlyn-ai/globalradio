@@ -3583,9 +3583,18 @@ if (editBtn){
       startVizLoop();
       startTitleEngine();
     });
-    audio.addEventListener("pause", ()=>{
+ 
+ audio.addEventListener("pause", ()=>{
   isPlaying = false;
   setPlayPauseIcon(true);
+
+  // ✅ SI CAST ACTIF: on ne laisse PAS l'event pause écraser "Casting…"
+  if (isCasting){
+    const msg = (typeof t === "function") ? t("toastCasting") : "Casting…";
+    setPlayerStatusKey("statusPaused", msg);
+    setFooterStatus(isMuted ? "MUTE" : "LIVE");
+    return;
+  }
 
   // ✅ Si c'est un STOP manuel, on force l'état "Stopped — press ▶ to resume"
   if (manualStop){
@@ -3608,6 +3617,7 @@ if (editBtn){
     setPlayerStatusKey("statusStopped");
   }
 });
+
 
     audio.addEventListener("waiting", ()=>{
       if (currentGroup){
@@ -4305,13 +4315,7 @@ function castPromoText(cg){
           try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
 		  if (typeof setCastState === "function") setCastState(true);
 
-          // UI: show "Casting…"
-          if (typeof setPlayerStatusKey === "function") {
-            setPlayerStatusKey(
-              "toastCasting",
-              (typeof t === "function") ? t("toastCasting") : "Casting…"
-            );
-          }
+          
 
           __startCastTitleSync(ctx);
           window.__castMedia = session.getMediaSession();
