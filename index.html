@@ -4169,13 +4169,13 @@ window.__castTitleTimer = null;
           const finalTitle = clean || "Live radio";
 
           // Mise à jour metadata pour le Default Receiver (titre live dans le subtitle)
-                    const md = new chrome.cast.media.GenericMediaMetadata();
-          md.title = (window.currentGroup?.name || "Radio") + " — " + finalTitle; // Nom radio + titre live en GROS
-          md.subtitle = "GlobalRadio.top"; // Sous-titre fixe
-          let logo = window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
-          if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
-          md.images = [new chrome.cast.Image(logo)];
-
+            const md = new chrome.cast.media.GenericMediaMetadata();
+       md.title = (window.currentGroup?.name || "Radio") + " — " + finalTitle; // Nom radio + titre live en GROS titre (plus visible sur TV)
+       md.subtitle = "GlobalRadio.top"; // Sous-titre fixe
+       let logo = window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
+       if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+       md.images = [new chrome.cast.Image(logo)];
+	   
           const mi = media.media;
           if (mi) {
             mi.metadata = md;
