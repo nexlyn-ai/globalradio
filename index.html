@@ -4211,7 +4211,7 @@ window.__castTitleTimer = null;
 
        // Proxy HTTPS si le stream est en HTTP ou si HTTPS direct n'existe pas
        if (/^http:\/\//i.test(originalUrl) || !url.startsWith("https:")) {
-       url = "https://proxy.cors.sh/" + originalUrl;
+       url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(originalUrl);
        }
 
        let contentType = "audio/mpeg";
