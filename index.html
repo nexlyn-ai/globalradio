@@ -4211,7 +4211,7 @@ window.__castTitleTimer = null;
 
        // Proxy HTTPS si le stream est en HTTP ou si HTTPS direct n'existe pas
        if (/^http:\/\//i.test(originalUrl) || !url.startsWith("https:")) {
-         url = "https://corsproxy.io/?" + encodeURIComponent(originalUrl);
+       url = "https://proxy.cors.sh/" + originalUrl;
        }
 
        let contentType = "audio/mpeg";
