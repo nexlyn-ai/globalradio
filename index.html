@@ -1411,7 +1411,10 @@ header.isSticky{
   background: linear-gradient(135deg,#4da3ff,#7c5cff);
   color:white;
 }
-
+/* Build hover effect */
+#footerBuild:hover{
+  opacity:.9;
+}
   </style>
 </head>
 
@@ -3835,10 +3838,10 @@ function closeBuildModal(){
   document.body.style.overflow = "";
 }
 
-document.getElementById("footerBuild")?.addEventListener("click", (e)=>{
-  e.preventDefault();
+document.getElementById("footerBuild")?.addEventListener("click", ()=>{
   openBuildModal();
 });
+
 
 document.getElementById("buildClose")?.addEventListener("click", closeBuildModal);
 document.getElementById("buildOk")?.addEventListener("click", closeBuildModal);
