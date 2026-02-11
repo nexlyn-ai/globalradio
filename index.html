@@ -4206,7 +4206,14 @@ window.__castTitleTimer = null;
             return;
           }
 
-       let url = httpsFirst(cs.url || "");
+              const originalUrl = cs.url || "";
+       let url = httpsFirst(originalUrl);
+
+       // Proxy fiable pour tous les streams (fixe HTTP et timeouts)
+       if (/^http:\/\//i.test(originalUrl) || !url.startsWith("https:")) {
+         url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(originalUrl);
+       }
+
        let contentType = "audio/mpeg";
        const codecLower = (cs.codec || "").toLowerCase();
        if (codecLower.includes("aac")) contentType = "audio/aac";
