@@ -150,37 +150,48 @@
     }
 
     header{
-      position:relative;
-      z-index:1;
-      padding: 28px 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-      background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.14));
-      backdrop-filter: blur(10px);
-    }
+    position:relative;
+    z-index:1;
+
+  /* ✅ plus compact en hauteur */
+  padding: 14px 16px 10px;
+
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.14));
+  backdrop-filter: blur(10px);
+}
+
 
     .wrap{ max-width: var(--max); margin:0 auto; }
 
     .topbar{
       display:flex;
-      align-items:flex-end;
+      align-items:center;
       justify-content:space-between;
       gap: 16px;
       flex-wrap: wrap;
     }
 
-    .brand h1{ margin:0; font-size: 2.2rem; line-height: 1.1; }
+    .brand h1{
+  margin:0;
+  font-size: 1.75rem;   /* ✅ moins haut */
+  line-height: 1.05;
+}
+
     .brand p{ margin:8px 0 0; color: var(--muted); max-width: 760px; }
 
     .siteLogo{
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.10);
-      box-shadow: 0 10px 25px rgba(0,0,0,.18);
-      flex: 0 0 auto;
-    }
+  /* ✅ logo un peu plus grand */
+  width: 54px;
+  height: 54px;
+
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.10);
+  box-shadow: 0 10px 25px rgba(0,0,0,.18);
+  flex: 0 0 auto;
+}
 
     .brandLink{
       display:inline-flex;
