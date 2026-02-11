@@ -4169,9 +4169,9 @@ window.__castTitleTimer = null;
           const finalTitle = clean || "Live radio";
 
           // Mise à jour metadata pour le Default Receiver (titre live dans le subtitle)
-          const md = new chrome.cast.media.GenericMediaMetadata();
-          md.title = window.currentGroup?.name || "Radio";
-          md.subtitle = finalTitle;
+                    const md = new chrome.cast.media.GenericMediaMetadata();
+          md.title = (window.currentGroup?.name || "Radio") + " — " + finalTitle; // Nom radio + titre live en GROS
+          md.subtitle = "GlobalRadio.top"; // Sous-titre fixe
           let logo = window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
           if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
           md.images = [new chrome.cast.Image(logo)];
@@ -4222,14 +4222,14 @@ window.__castTitleTimer = null;
           const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
           mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
 
-          const md = new chrome.cast.media.MusicTrackMediaMetadata();
-          md.title = cg?.name || "Radio";
-          md.artist = "GlobalRadio.top";
-          md.albumName = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
+                 const currentLiveTitle = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
 
-          let logo = cg?.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
-          if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
-          md.images = [new chrome.cast.Image(logo)];
+       const md = new chrome.cast.media.GenericMediaMetadata();
+       md.title = (cg?.name || "Radio") + " — " + currentLiveTitle; // Nom radio + titre live en gros (très visible sur TV)
+       md.subtitle = "GlobalRadio.top"; // Sous-titre fixe
+       let logo = cg?.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
+       if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+       md.images = [new chrome.cast.Image(logo)];
 
           mediaInfo.metadata = md;
 
