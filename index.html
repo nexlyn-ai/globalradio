@@ -2845,10 +2845,14 @@ const visible = showBrokenDetail ? [...good, ...bad] : good;
     ${streamRows}
   </div>
 
-  <div class="detail-legal">
-    Audio streams are provided by third-party radio stations.
-    GlobalRadio.top does not install software and does not collect personal data.
-  </div>
+<div class="detail-legal">
+  ${
+    LANG === "fr"
+      ? "Les flux audio sont fournis par des radios tierces. GlobalRadio.top n’installe aucun logiciel et ne collecte aucune donnée personnelle."
+      : "Audio streams are provided by third-party radio stations. GlobalRadio.top does not install software and does not collect personal data."
+  }
+</div>
+
 `;
 
 	
@@ -4381,12 +4385,6 @@ function castPromoText(cg){
 </script>
 
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-
-
-<div class="legal-note">
-  Audio streams are provided by third-party radio stations.
-  GlobalRadio.top does not install software and does not collect personal data.
-</div>
 
 </body>
 </html>
