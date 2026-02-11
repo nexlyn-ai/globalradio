@@ -3775,6 +3775,38 @@ if (topAddBtn){
   // 4) reload liste
   resetAndReload();
 
+// ✅ Mobile: allow "Enter / Search" to validate search
+(function(){
+  const form = document.getElementById("filtersForm");
+  const search = document.getElementById("searchInput");
+  if (!form || !search) return;
+
+  // Hint to mobile keyboards
+  search.setAttribute("enterkeyhint", "search");
+
+  form.addEventListener("submit", (e)=>{
+    e.preventDefault();
+
+    // ferme le détail si besoin
+    if (typeof isDetailOpen === "function" && isDetailOpen()) showList();
+
+    // lance la recherche immédiatement
+    if (document.getElementById("viewMode").value !== "favorites") resetAndReload();
+
+    // ferme le clavier
+    search.blur();
+  });
+
+  // fallback au cas où le clavier envoie Enter sans submit
+  search.addEventListener("keydown", (e)=>{
+    if (e.key === "Enter"){
+      e.preventDefault();
+      form.requestSubmit?.() || form.dispatchEvent(new Event("submit"));
+    }
+  });
+})();
+
+
   // 5) scroll top
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
