@@ -1627,57 +1627,48 @@ header.isSticky{
     </div>
   </div>
 
-  <!-- Add Station Modal -->
-  <div id="addModal" aria-hidden="true">
-  <!-- Build / Update Modal (placeholder) -->
-<div id="buildModal" aria-hidden="true">
-  <div class="modalCard" role="dialog" aria-modal="true" aria-label="Build updates">
-    <div class="modalTop">
-      <div class="ttl" data-i18n="buildTitle">Build / Updates</div>
-      <button class="btn btnSmall" id="buildClose" type="button">✕</button>
-    </div>
-
-    <div class="modalBody" style="grid-template-columns: 1fr;">
-      <div class="full modalHint" data-i18n="buildBody">
-        Coming soon — this panel will show the latest build notes and checks.
+  <!-- Build / Update Modal -->
+  <div id="buildModal" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-label="Build updates">
+      <div class="modalTop">
+        <div class="ttl" data-i18n="buildTitle">Build / Updates</div>
+        <button class="btn btnSmall" id="buildClose" type="button">✕</button>
+      </div>
+      <div class="modalBody" style="grid-template-columns: 1fr;">
+        <div class="full modalHint" data-i18n="buildBody">
+          Coming soon — this panel will show the latest build notes and checks.
+        </div>
+      </div>
+      <div class="modalActions">
+        <button class="btn btnPrimary" id="buildOk" type="button" data-i18n="ok">OK</button>
       </div>
     </div>
-
-    <div class="modalActions">
-      <button class="btn btnPrimary" id="buildOk" type="button" data-i18n="ok">OK</button>
-    </div>
   </div>
-</div>
 
+  <!-- Add Station Modal -->
+  <div id="addModal" aria-hidden="true">
     <div class="modalCard" role="dialog" aria-modal="true" aria-label="Add station">
       <div class="modalTop">
         <div class="ttl" data-i18n="addTitle">Add / update a station</div>
         <button class="btn btnSmall" id="addClose" type="button">✕</button>
       </div>
-
       <div class="modalBody">
         <input id="addName" type="text" class="full" placeholder="Station name" data-i18n-placeholder="addNamePh">
         <input id="addCountry" type="text" placeholder="Country" data-i18n-placeholder="addCountryPh">
-        <input id="addHomepage" type="text" placeholder="Website (https://...)" data-i18n-placeholder="addHomePh">
-
+        <input id="addHomepage" type="text" placeholder="Website[](https://...)" data-i18n-placeholder="addHomePh">
         <input id="addFavicon" type="text" class="full" placeholder="Logo URL (optional)" data-i18n-placeholder="addFaviconPh">
         <input id="addTags" type="text" class="full" placeholder="Tags / styles (comma separated)" data-i18n-placeholder="addTagsPh">
-
         <div class="full modalHint" data-i18n="addStreamsHint">
           Streams (at least 1, you can add up to 3). Broken streams will be ignored in the radio page and the station is considered HS only if all streams are broken.
         </div>
-
-        <input id="addStream1" type="text" class="full" placeholder="Stream URL #1 (https://...)" data-i18n-placeholder="addStream1Ph">
+        <input id="addStream1" type="text" class="full" placeholder="Stream URL #1[](https://...)" data-i18n-placeholder="addStream1Ph">
         <input id="addStream2" type="text" class="full" placeholder="Stream URL #2 (optional)" data-i18n-placeholder="addStream2Ph">
         <input id="addStream3" type="text" class="full" placeholder="Stream URL #3 (optional)" data-i18n-placeholder="addStream3Ph">
-
         <textarea id="addNote" class="full" placeholder="Optional note (codec/bitrate info, etc.)" data-i18n-placeholder="addNotePh"></textarea>
-
         <div class="full modalHint" data-i18n="addSubmitHint">
           Submit sends data to the Radio-Browser API. If you enter multiple streams, the app will submit one entry per stream (they’ll be merged by our duplicate fusion).
         </div>
       </div>
-
       <div class="modalActions">
         <button class="btn" id="addCancel" type="button" data-i18n="cancel">Cancel</button>
         <button class="btn btnPrimary" id="addSubmit" type="button" data-i18n="submit">Submit</button>
