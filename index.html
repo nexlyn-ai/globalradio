@@ -4682,6 +4682,71 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+/* ===============================
+   Total stations counter
+   =============================== */
+(function(){
+  let lastStations = null;
+
+  function setStationsCount(n){
+    const el = document.getElementById("footerStations");
+    if (!el) return;
+
+    const txt = el.querySelector(".sText");
+    if (!txt) return;
+
+    const label = t("stationsLabel"); // "stations" ou "radios"
+    const val = Number(n) || 0;
+
+    if (val > 0) {
+      txt.textContent = `${val.toLocaleString()} ${label}`;
+      el.dataset.state = "CONNECT"; // point vert
+    } else {
+      txt.textContent = `—`;
+      el.dataset.state = "ERR"; // point rouge si erreur
+    }
+
+    // Animation bump si changement
+    if (lastStations !== null && val !== lastStations && val > 0){
+      el.classList.remove("bump");
+      requestAnimationFrame(() => {
+        el.classList.add("bump");
+        clearTimeout(el._bumpT);
+        el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
+      });
+    }
+
+    lastStations = val;
+  }
+
+  async function fetchTotalStations(){
+    try{
+      const r = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
+      if (!r.ok) throw new Error("bad response");
+      const data = await r.json();
+      const count = data?.stations; // champ correct de l'API Radio-Browser
+      if (typeof count === "number") {
+        setStationsCount(count);
+      } else {
+        throw new Error("no stations field");
+      }
+    }catch(e){
+      setStationsCount(0); // affiche juste "—"
+    }
+  }
+
+  // Fetch immédiat + toutes les 30 min
+  fetchTotalStations();
+  setInterval(fetchTotalStations, 30 * 60 * 1000);
+
+  // Refresh si page visible
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) fetchTotalStations();
+  });
+})();
+</script>
+
 <span class="footerStatus" id="footerStations" data-state="CONNECT" title="Total stations in the directory">
   <span class="sDot"></span><span class="sText">—</span>
 </span>
