@@ -1523,6 +1523,21 @@ header.isSticky{
   color:white;
 }
 
+/* Icônes footer */
+.ico-headphones{
+  width: 16px;
+  height: 16px;
+  margin: 0 4px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h1v-4H5v-5a7 7 0 1 1 14 0v5h-1v4h1c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h1v-4H5v-5a7 7 0 1 1 14 0v5h-1v4h1c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z'/%3E%3C/svg%3E");
+}
+.ico-broadcast{
+  width: 16px;
+  height: 16px;
+  margin: 0 4px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3Ccircle cx='12' cy='15' r='1'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3Ccircle cx='12' cy='15' r='1'/%3E%3C/svg%3E");
+}
   </style>
 </head>
 
@@ -4610,18 +4625,14 @@ document.addEventListener("DOMContentLoaded", () => {
 (function(){
   let lastOnline = null;
 
-  function setOnlineCount(n){
+    function setOnlineCount(n){
     const el = document.getElementById("footerOnline");
     if (!el) return;
-
     const txt = el.querySelector(".sText");
     if (!txt) return;
-
     const label = (typeof t === "function") ? t("onlineLabel") : "online";
     const val = Math.max(0, Number(n) || 0);
-
-    txt.textContent = `${val} ${label}`;
-
+    txt.innerHTML = val > 0 ? `${val} <span class="ico ico-headphones"></span> ${label}` : `— <span class="ico ico-headphones"></span> ${label}`;
     if (lastOnline !== null && val !== lastOnline){
       el.classList.remove("bump");
       requestAnimationFrame(() => {
@@ -4630,7 +4641,6 @@ document.addEventListener("DOMContentLoaded", () => {
         el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
       });
     }
-
     lastOnline = val;
   }
 
@@ -4687,23 +4697,25 @@ document.addEventListener("DOMContentLoaded", () => {
 (function(){
   let lastStations = null;
 
-  function setStationsCount(n){
+    function setStationsCount(n){
     const el = document.getElementById("footerStations");
     if (!el) return;
-
     const txt = el.querySelector(".sText");
     if (!txt) return;
-
-    const label = t("stationsLabel"); // "stations" ou "radios"
+    const label = t("stationsLabel");
     const val = Number(n) || 0;
-
-    if (val > 0) {
-      txt.textContent = `${val.toLocaleString()} ${label}`;
-      el.dataset.state = "CONNECT"; // point vert
-    } else {
-      txt.textContent = `—`;
-      el.dataset.state = "ERR"; // point rouge si erreur
+    txt.innerHTML = val > 0 ? `${val.toLocaleString()} <span class="ico ico-broadcast"></span> ${label}` : `— <span class="ico ico-broadcast"></span>`;
+    if (lastStations !== null && val !== lastStations && val > 0){
+      el.classList.remove("bump");
+      requestAnimationFrame(() => {
+        el.classList.add("bump");
+        clearTimeout(el._bumpT);
+        el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
+      });
     }
+    lastStations = val;
+    el.dataset.state = val > 0 ? "CONNECT" : "ERR";
+  }
 
     // Animation bump si changement
     if (lastStations !== null && val !== lastStations && val > 0){
