@@ -4127,6 +4127,23 @@ window.GA = {
 window.__castTitleTimer = null;
 window.__castMedia = null;
 
+function castPromoText(cg){
+  const lang = (typeof LANG !== "undefined") ? LANG : "fr";
+
+  let domain = "";
+  try{
+    const hp = cg?.homepage || "";
+    if (hp) domain = (new URL(hp)).hostname.replace(/^www\./,"");
+  }catch(e){}
+
+  if (!domain) domain = (lang === "fr") ? "le site de la radio" : "the station website";
+
+  return (lang === "fr")
+    ? `Retrouvez les titres sur ${domain}`
+    : `Find track titles on ${domain}`;
+}
+
+
 (function initCastButton(){
   const btn = document.getElementById("castBtn");
   if (!btn) return;
@@ -4161,23 +4178,6 @@ window.__castMedia = null;
 	window.__castTitleTimer = null;
 	window.__castMedia = null;
 	
-	function castPromoText(cg){
-  const lang = (typeof LANG !== "undefined") ? LANG : "fr";
-
-  let domain = "";
-  try{
-    const hp = cg?.homepage || "";
-    if (hp) domain = (new URL(hp)).hostname.replace(/^www\./,"");
-  }catch(e){}
-
-  if (!domain) domain = (lang === "fr") ? "le site de la radio" : "the station website";
-
-  return (lang === "fr")
-    ? `Retrouvez les titres sur ${domain}`
-    : `Find track titles on ${domain}`;
-}
-
-
       // Cast stopped (no action needed for now)
       console.log("Cast session ended");
     }
@@ -4202,12 +4202,13 @@ window.__castMedia = null;
       if (!cs || !cs.url || !session || !media) return;
 
       // 1) récupérer le titre (indépendant du player web)
-      const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs) : "";
-      const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
-      const subtitle = castPromoText(cg) + " • GlobalRadio.top";
+    const live = (typeof bestEffortTitle === "function") ? await bestEffortTitle(cs) : "";
+	const liveClean = (typeof cleanTitle === "function") ? cleanTitle(live) : (live || "");
+	const subtitle = (liveClean ? liveClean : castPromoText(cg)) + " • GlobalRadio.top";
 
-      if (subtitle === lastSubtitle) return;
-      lastSubtitle = subtitle;
+	if (subtitle === lastSubtitle) return;
+	lastSubtitle = subtitle;
+ 
 
       // 2) construire metadata
       const md = new chrome.cast.media.GenericMediaMetadata();
