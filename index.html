@@ -2217,6 +2217,7 @@ function setShowBrokenDetailForGroup(groupId, value){
     let isMuted = false;
     let vizLowEnergy = false;
 	let manualStop = false; // ✅ évite que l'event "pause" écrase l'état STOP
+	let isCasting = false; // ✅ Cast actif -> on affiche "Casting…" dans le player
 
     let currentTryIndex = 0;
 
@@ -2341,6 +2342,29 @@ function setShowBrokenDetailForGroup(groupId, value){
       playerStateText = overrideText ? String(overrideText) : "";
       document.getElementById("playerStatus").textContent = playerStateText || t(playerStateKey);
     }
+	
+	function setCastState(on){
+  isCasting = !!on;
+
+  // Affichage "Casting…" / "Diffusion sur TV…"
+  if (isCasting){
+    const msg = (typeof t === "function")
+      ? t("toastCasting")
+      : "Casting…";
+    setPlayerStatusKey("statusPaused", msg); // on force un texte propre dans le player
+    setFooterStatus("LIVE");
+    return;
+  }
+
+  // Retour à un état normal
+  if (currentGroup){
+    if (isPlaying) setPlayerStatusKey("statusLive");
+    else setPlayerStatusKey("statusPaused");
+  } else {
+    setPlayerStatusKey("statusSelect");
+  }
+}
+
 
     // -----------------------
     // Bottom safe area (fix overlap)
@@ -4233,6 +4257,7 @@ function castPromoText(cg){
             clearInterval(window.__castTitleTimer);
             window.__castTitleTimer = null;
             window.__castMedia = null;
+			if (typeof setCastState === "function") setCastState(false);
             console.log("Cast session ended");
           }
         }
@@ -4278,6 +4303,7 @@ function castPromoText(cg){
 
           // cut local audio (no double sound)
           try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
+		  if (typeof setCastState === "function") setCastState(true);
 
           // UI: show "Casting…"
           if (typeof setPlayerStatusKey === "function") {
