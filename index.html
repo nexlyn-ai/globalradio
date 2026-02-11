@@ -4156,6 +4156,54 @@ function castPromoText(cg){
     : `Find track titles on ${domain}`;
 }
 
+function castArtworkUrl(cg){
+  // Objectif: image HD (512px+) pour la TV, pas un micro favicon
+  try{
+    const fav = (cg && cg.favicon) ? httpsFirst(cg.favicon) : "";
+    if (fav && !fav.toLowerCase().includes("favicon")) return fav; // souvent déjà un logo correct
+  }catch(e){}
+
+  // Fallback: favicon Google en grand (souvent 256)
+  try{
+    const hp = cg?.homepage || "";
+    const domain = hp ? (new URL(hp)).hostname.replace(/^www\./,"") : "";
+    if (domain){
+      return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=256`;
+    }
+  }catch(e){}
+
+  // Dernier fallback: ton logo site
+  return "https://globalradio.top/assets/globalradio-logo.jpg";
+}
+
+function buildCastMetadata(cg, liveTitle){
+  // Utilise MusicTrackMediaMetadata: rendu plus “Now playing”
+  const md = new chrome.cast.media.MusicTrackMediaMetadata();
+
+  const stationName = (cg && cg.name) ? cg.name : "Radio";
+  md.title = stationName;
+
+  const subtitleBase = liveTitle ? liveTitle : castPromoText(cg);
+  const country = cg?.country ? cg.country : "";
+  const domain = (()=>{ try{ return cg?.homepage ? new URL(cg.homepage).hostname.replace(/^www\./,"") : ""; }catch(e){ return ""; } })();
+
+  // Subtitle lisible sur TV (évite trop long)
+  const extra = (country || domain) ? ` • ${country || domain}` : "";
+  md.subtitle = (subtitleBase + extra + " • GlobalRadio.top").slice(0, 120);
+
+  // Artist/album aident parfois l’UI à être plus “musique”
+  md.artist = domain || country || "Live Radio";
+  md.albumName = "GlobalRadio.top";
+
+  const art = castArtworkUrl(cg);
+  md.images = [
+    new chrome.cast.Image(art),
+    new chrome.cast.Image("https://globalradio.top/assets/globalradio-logo.jpg")
+  ];
+
+  return md;
+}
+
 
 (function initCastButton(){
   const btn = document.getElementById("castBtn");
@@ -4224,21 +4272,9 @@ function castPromoText(cg){
  
 
       // 2) construire metadata
-      const md = new chrome.cast.media.GenericMediaMetadata();
-      md.title = (cg && cg.name) ? cg.name : "Radio";
-      md.subtitle = subtitle;
+      const md = buildCastMetadata(cg, liveClean);
+	mi.metadata = md;
 
-      const logo = (cg && cg.favicon)
-        ? httpsFirst(cg.favicon)
-        : "https://globalradio.top/assets/globalradio-logo.jpg";
-      md.images = [ new chrome.cast.Image(logo) ];
-
-      // 3) update metadata SANS relancer le flux
-      try{
-        const mi = media.media; // MediaInfo courant
-        if (!mi) return;
-
-        mi.metadata = md;
         const req = new chrome.cast.media.EditMediaInfoRequest(mi);
 
         // callbacks optionnels pour debug
@@ -4283,19 +4319,25 @@ function castPromoText(cg){
 		if (codec.includes("opus")) contentType = "audio/ogg";
 		const mediaInfo = new chrome.cast.media.MediaInfo(url, contentType);
 
+		// ✅ Indique “LIVE” (utile sur certains receivers)
+		mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
 
-          const md = new chrome.cast.media.GenericMediaMetadata();
-          md.title = (window.currentGroup?.name || "Radio") ;
-		  md.subtitle = castPromoText(cg) + " • GlobalRadio.top";
-		  const logo = (cg && cg.favicon ? httpsFirst(cg.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg");
-		  md.images = [ new chrome.cast.Image(logo) ];
+		// ✅ Metadata plus “musique” + artwork HD
+		mediaInfo.metadata = buildCastMetadata(cg, "");
 
-          mediaInfo.metadata = md;
+		// (optionnel) infos utiles si tu fais un receiver custom un jour
+		mediaInfo.customData = {
+		homepage: cg?.homepage || "",
+		station: cg?.name || ""
+};
 
-          const request = new chrome.cast.media.LoadRequest(mediaInfo);
-          const session = ctx.getCurrentSession();
+		const request = new chrome.cast.media.LoadRequest(mediaInfo);
+		request.autoplay = true;
+		request.currentTime = 0;
 
-          await session.loadMedia(request);
+		const session = ctx.getCurrentSession();
+		await session.loadMedia(request);
+
 		  
 		// 🔇 Coupe le son local (téléphone) sans casser le title engine
 		  try{ document.getElementById("audioPlayer")?.pause(); }catch(e){}
