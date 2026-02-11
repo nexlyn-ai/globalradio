@@ -4137,18 +4137,21 @@ window.__castTitleTimer = null;
     try{
       const ctx = cast.framework.CastContext.getInstance();
       ctx.setOptions({
-        receiverApplicationId: "0E475473",
+        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
       });
 
       showBtn();
 
-      function startTitleSync(){
+            function startTitleSync(){
         clearInterval(window.__castTitleTimer);
 
         window.__castTitleTimer = setInterval(async () => {
           const session = ctx.getCurrentSession();
-          if (!session || !window.currentStream) return;
+          if (!session) return;
+
+          const media = session.getMediaSession();
+          if (!media) return;
 
           let liveTitle = document.getElementById("currentTitle")?.textContent?.trim() || "Live radio";
           if (typeof bestEffortTitle === "function") {
@@ -4165,16 +4168,19 @@ window.__castTitleTimer = null;
 
           const finalTitle = clean || "Live radio";
 
-          try{
-            session.sendMessage("urn:x-cast:globalradio.meta", {
-              station: window.currentGroup?.name || "Radio",
-              title: finalTitle,
-              logo: window.currentGroup?.favicon 
-                ? httpsFirst(window.currentGroup.favicon) 
-                : "https://globalradio.top/assets/globalradio-logo.jpg"
-            });
-          } catch(e) {
-            console.log("Message Cast échoué :", e);
+          // Mise à jour metadata pour le Default Receiver (titre live dans le subtitle)
+          const md = new chrome.cast.media.GenericMediaMetadata();
+          md.title = window.currentGroup?.name || "Radio";
+          md.subtitle = finalTitle;
+          let logo = window.currentGroup?.favicon ? httpsFirst(window.currentGroup.favicon) : "https://globalradio.top/assets/globalradio-logo.jpg";
+          if (/^http:\/\//i.test(logo)) logo = "https://globalradio.top/assets/globalradio-logo.jpg";
+          md.images = [new chrome.cast.Image(logo)];
+
+          const mi = media.media;
+          if (mi) {
+            mi.metadata = md;
+            const req = new chrome.cast.media.EditMediaInfoRequest(mi);
+            media.editMediaInfo(req, () => {}, (e) => console.log("Update metadata error:", e));
           }
         }, 12000);
       }
