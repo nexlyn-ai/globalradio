@@ -149,16 +149,47 @@
       z-index:0;
     }
 
-    header{
-    position:relative;
-    z-index:1;
+ header{
+  position: sticky;   /* ✅ sticky */
+  top: 0;
+  z-index: 300;
 
-  /* ✅ plus compact en hauteur */
   padding: 14px 16px 10px;
-
   border-bottom: 1px solid rgba(255,255,255,.07);
+
   background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,92,255,.14));
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+
+  transition:
+    padding .18s ease,
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+/* ✅ état compact au scroll */
+header.isSticky{
+  padding: 8px 16px 6px;
+  background: rgba(8,10,22,.82);
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 14px 45px rgba(0,0,0,.35);
+}
+
+/* ===== Mobile: tagline compact ===== */
+@media (max-width: 640px){
+  .brand p{
+    font-size: .92rem;
+    line-height: 1.25;
+    margin-top: 6px;
+    opacity: .82;
+
+    /* ✅ 2 lignes max + ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 
 
@@ -3998,6 +4029,27 @@ if (topAddBtn){
     // Init
     // -----------------------
     document.getElementById("year").textContent = new Date().getFullYear();
+	
+	// ===== Sticky header premium (compact on scroll) =====
+(function stickyHeader(){
+  const header = document.querySelector("header");
+  if (!header) return;
+
+  const TH = 14; // seuil en px
+  let raf = null;
+
+  const onScroll = () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = null;
+      header.classList.toggle("isSticky", window.scrollY > TH);
+    });
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+})();
+
 
     (async function init(){
       const savedLang = localStorage.getItem("gr_lang");
