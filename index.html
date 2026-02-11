@@ -1540,6 +1540,42 @@ header.isSticky{
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2v2c4.41 0 8 3.59 8 8s-3.59 8-8 8v2c5.52 0 10-4.48 10-10S17.52 2 12 2z'/%3E%3Cpath d='M12 6v2c2.21 0 4 1.79 4 4s-1.79 4-4 4v2c3.31 0 6-2.69 6-6s-2.69-6-6-6z'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2v2c4.41 0 8 3.59 8 8s-3.59 8-8 8v2c5.52 0 10-4.48 10-10S17.52 2 12 2z'/%3E%3Cpath d='M12 6v2c2.21 0 4 1.79 4 4s-1.79 4-4 4v2c3.31 0 6-2.69 6-6s-2.69-6-6-6z'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3C/svg%3E");
 }
+
+/* Badge Add station */
+.footerAdd{
+  display:inline-flex; 
+  align-items:center; 
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.footerAdd:hover{
+  background: rgba(77,163,255,.15);
+  border-color: rgba(77,163,255,.4);
+  transform: translateY(-1px);
+}
+.footerAdd .sDot{
+  background: var(--accent);
+  box-shadow: 0 0 0 6px rgba(77,163,255,.14);
+}
+
+/* Icône + moderne */
+.ico-plus{
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
+}
+
   </style>
 </head>
 
@@ -1706,8 +1742,11 @@ header.isSticky{
   <span class="sDot"></span><span class="sText">—</span>
 </span>
 
-  <span style="opacity:.55;">•</span>
-    <a href="#" id="footerAddStation" data-i18n="footerAddStation">Add a station</a>
+      <span style="opacity:.55;">•</span>
+    <a href="#" id="footerAddStation" class="footerAdd">
+      <span class="sDot ico ico-plus"></span>
+      <span data-i18n="footerAddStation">Add a station</span>
+    </a>
     <span style="opacity:.55;">•</span>
     <span class="footerStatus" id="footerStations" data-state="CONNECT" title="Total stations in the directory">
       <span class="sDot"></span><span class="sText">—</span>
