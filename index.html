@@ -1332,6 +1332,15 @@
   margin-left: auto;
   flex: 0 0 auto;
 }
+
+.detail-legal{
+  margin-top:16px;
+  font-size:12px;
+  opacity:.6;
+  text-align:center;
+  line-height:1.4;
+}
+
 	
   </style>
 </head>
@@ -2758,86 +2767,90 @@ const visible = showBrokenDetail ? [...good, ...bad] : good;
       }).join("");
 
       document.getElementById("detailContent").innerHTML = `
-        <div class="detail-top">
-          <div class="detail-logo">
-            <img id="detailLogo" alt="${group.name}">
-          </div>
-		
-		
-		
-          <div class="detail-title">
-            <h2>${group.name}</h2>
-            <p>${safeText(group.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(group.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
+  <div class="detail-top">
+    <div class="detail-logo">
+      <img id="detailLogo" alt="${group.name}">
+    </div>
 
-            ${homeBlock}
+    <div class="detail-title">
+      <h2>${group.name}</h2>
+      <p>${safeText(group.country, LANG==="fr" ? "Monde" : "World")} • ${safeText(group.tags, LANG==="fr" ? "Divers" : "Misc")}</p>
 
-            <div class="detail-actions">
-  <button class="btn btnPrimary" id="detailPlayBest">
-    ${t("playBest")}
-  </button>
+      ${homeBlock}
 
-  <button class="btn" id="detailFav">
-    ${isFavorite(group) ? "❤️" : "♡"} ${t("fav")}
-  </button>
+      <div class="detail-actions">
+        <button class="btn btnPrimary" id="detailPlayBest">
+          ${t("playBest")}
+        </button>
 
-  <button class="btn" id="detailEdit">
-    ✏️ ${LANG === "fr" ? "Soumettre une modification" : "Submit an update"}
-  </button>
-</div>
+        <button class="btn" id="detailFav">
+          ${isFavorite(group) ? "❤️" : "♡"} ${t("fav")}
+        </button>
 
-          </div>
-        </div>
-
-        <div id="detailTitle">${t("titleLabel")} ${t("titleLoading")}</div>
-
-        <div class="streams">
-          <div class="streamsHeader">
-  <div>
-    <strong>${t("streamsTitle")}</strong>
-    <span class="hint">
-      • ${showBrokenDetail ? (LANG==="fr" ? "Les flux HS sont affichés" : "Broken streams are shown")
-                           : t("streamsHidden")}
-      <span
-  id="toggleHS"
-  class="chip chipToggle"
-  style="margin-left:10px; cursor:pointer;"
->
-  <span class="dot"></span>
-  ${
-  showBrokenDetail
-    ? (LANG==="fr"
-        ? `Masquer HS${hsCount ? ` (${hsCount})` : ""}`
-        : `Hide HS${hsCount ? ` (${hsCount})` : ""}`
-      )
-    : (LANG==="fr"
-        ? `Afficher HS${hsCount ? ` (+${hsCount})` : ""}`
-        : `Show HS${hsCount ? ` (+${hsCount})` : ""}`
-      )
-}
-
-
-</span>
-
-  </div>
-  <div class="hint">${(group.streams||[]).length} ${LANG==="fr" ? "flux connus" : "known streams"}</div>
-</div>
-
-		${allBroken ? `
-  <div class="streamRow">
-    <div class="modalHint" style="opacity:.95;">
-      ${LANG==="fr"
-        ? "😕 Tous les flux connus semblent HS pour cette radio. Tu peux tenter d’afficher les flux HS pour tester quand même."
-        : "😕 All known streams look broken for this station. You can show broken streams to try them anyway."
-      }
+        <button class="btn" id="detailEdit">
+          ✏️ ${LANG === "fr" ? "Soumettre une modification" : "Submit an update"}
+        </button>
+      </div>
     </div>
   </div>
-` : ``}
 
+  <div id="detailTitle">${t("titleLabel")} ${t("titleLoading")}</div>
 
-         ${streamRows}
+  <div class="streams">
+    <div class="streamsHeader">
+      <div>
+        <strong>${t("streamsTitle")}</strong>
+        <span class="hint">
+          • ${showBrokenDetail
+              ? (LANG==="fr" ? "Les flux HS sont affichés" : "Broken streams are shown")
+              : t("streamsHidden")}
+          <span
+            id="toggleHS"
+            class="chip chipToggle"
+            style="margin-left:10px; cursor:pointer;"
+          >
+            <span class="dot"></span>
+            ${
+              showBrokenDetail
+                ? (LANG==="fr"
+                    ? `Masquer HS${hsCount ? ` (${hsCount})` : ""}`
+                    : `Hide HS${hsCount ? ` (${hsCount})` : ""}`
+                  )
+                : (LANG==="fr"
+                    ? `Afficher HS${hsCount ? ` (+${hsCount})` : ""}`
+                    : `Show HS${hsCount ? ` (+${hsCount})` : ""}`
+                  )
+            }
+          </span>
+        </span>
+      </div>
 
+      <div class="hint">
+        ${(group.streams||[]).length}
+        ${LANG==="fr" ? "flux connus" : "known streams"}
+      </div>
+    </div>
+
+    ${allBroken ? `
+      <div class="streamRow">
+        <div class="modalHint" style="opacity:.95;">
+          ${LANG==="fr"
+            ? "😕 Tous les flux connus semblent HS pour cette radio. Tu peux tenter d’afficher les flux HS pour tester quand même."
+            : "😕 All known streams look broken for this station. You can show broken streams to try them anyway."
+          }
         </div>
-      `;
+      </div>
+    ` : ``}
+
+    ${streamRows}
+  </div>
+
+  <div class="detail-legal">
+    Audio streams are provided by third-party radio stations.
+    GlobalRadio.top does not install software and does not collect personal data.
+  </div>
+`;
+
 	
 
 	const toggleHS = document.getElementById("toggleHS");
