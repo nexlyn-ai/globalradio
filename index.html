@@ -1576,6 +1576,30 @@ header.isSticky{
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
 }
 
+/* Effets hover uniformes sur tous les badges footer */
+.footerStatus,
+.footerAdd{
+  transition: all .18s ease;
+  cursor: default; /* les compteurs ne sont pas cliquables */
+}
+.footerStatus:hover,
+.footerAdd:hover{
+  background: rgba(77,163,255,.15);
+  border-color: rgba(77,163,255,.45);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(77,163,255,.18);
+}
+
+/* Add station reste cliquable (cursor pointer déjà dans le CSS précédent) */
+/* Optionnel : petit pulse sur le + au hover */
+.footerAdd:hover .ico-plus{
+  animation: pulsePlus .6s ease-in-out;
+}
+@keyframes pulsePlus{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.18); }
+}
+
   </style>
 </head>
 
