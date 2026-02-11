@@ -1599,9 +1599,7 @@ header.isSticky{
 <span id="footerBuild" style="opacity:.6; font-size:11px; cursor:pointer;">
   Build 0.9.2
 </span>
-	
-	
-  </div>
+	</div>
 
   <div id="fsMode" aria-hidden="true">
     <div class="aurora"></div>
@@ -3822,43 +3820,48 @@ if (topAddBtn){
     addModal.addEventListener("click", (e)=>{ if (e.target === addModal) closeAddModal(); });
 	
 // -----------------------
-// Build / update modal
+// Build / update modal (SAFE init)
 // -----------------------
-const buildModal = document.getElementById("buildModal");
-function openBuildModal(){
-  if (!buildModal) return;
-  buildModal.classList.add("show");
-  buildModal.setAttribute("aria-hidden","false");
-  document.body.style.overflow = "hidden";
-}
-function closeBuildModal(){
-  if (!buildModal) return;
-  buildModal.classList.remove("show");
-  buildModal.setAttribute("aria-hidden","true");
-  document.body.style.overflow = "";
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const buildModal = document.getElementById("buildModal");
+  const buildBtn   = document.getElementById("footerBuild");
+  const buildClose = document.getElementById("buildClose");
+  const buildOk    = document.getElementById("buildOk");
 
-// Footer build: open modal (safe click)
-document.getElementById("footerBuild")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  openBuildModal();
-});
+  function openBuildModal(){
+    if (!buildModal) return;
+    buildModal.classList.add("show");
+    buildModal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+  }
+  function closeBuildModal(){
+    if (!buildModal) return;
+    buildModal.classList.remove("show");
+    buildModal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
 
-document.getElementById("buildClose")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  closeBuildModal();
-});
+  buildBtn?.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    openBuildModal();
+  });
 
-document.getElementById("buildOk")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  closeBuildModal();
-});
+  buildClose?.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    closeBuildModal();
+  });
 
-buildModal?.addEventListener("click", (e)=>{
-  if (e.target === buildModal) closeBuildModal();
+  buildOk?.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    closeBuildModal();
+  });
+
+  buildModal?.addEventListener("click", (e)=>{
+    if (e.target === buildModal) closeBuildModal();
+  });
 });
 
 	
