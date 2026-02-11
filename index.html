@@ -4697,25 +4697,23 @@ document.addEventListener("DOMContentLoaded", () => {
 (function(){
   let lastStations = null;
 
-    function setStationsCount(n){
+  function setStationsCount(n){
     const el = document.getElementById("footerStations");
     if (!el) return;
+
     const txt = el.querySelector(".sText");
     if (!txt) return;
+
     const label = t("stationsLabel");
     const val = Number(n) || 0;
-    txt.innerHTML = val > 0 ? `${val.toLocaleString()} <span class="ico ico-broadcast"></span> ${label}` : `— <span class="ico ico-broadcast"></span>`;
-    if (lastStations !== null && val !== lastStations && val > 0){
-      el.classList.remove("bump");
-      requestAnimationFrame(() => {
-        el.classList.add("bump");
-        clearTimeout(el._bumpT);
-        el._bumpT = setTimeout(() => el.classList.remove("bump"), 260);
-      });
+
+    if (val > 0) {
+      txt.innerHTML = `${val.toLocaleString()} <span class="ico ico-broadcast"></span> ${label}`;
+      el.dataset.state = "CONNECT"; // point vert
+    } else {
+      txt.innerHTML = `— <span class="ico ico-broadcast"></span>`;
+      el.dataset.state = "ERR"; // point rouge
     }
-    lastStations = val;
-    el.dataset.state = val > 0 ? "CONNECT" : "ERR";
-  }
 
     // Animation bump si changement
     if (lastStations !== null && val !== lastStations && val > 0){
@@ -4735,14 +4733,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const r = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
       if (!r.ok) throw new Error("bad response");
       const data = await r.json();
-      const count = data?.stations; // champ correct de l'API Radio-Browser
+      const count = data?.stations; // champ correct
       if (typeof count === "number") {
         setStationsCount(count);
       } else {
         throw new Error("no stations field");
       }
     }catch(e){
-      setStationsCount(0); // affiche juste "—"
+      setStationsCount(0); // affiche "—" + icône + point rouge
     }
   }
 
