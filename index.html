@@ -1633,6 +1633,7 @@ header.isSticky{
   gap: 12px; /* espace réduit */
 }
 
+/* Logo + texte (titre + tagline en colonne) alignés */
 .brandLink{
   display: flex;
   align-items: center;
@@ -1649,20 +1650,21 @@ header.isSticky{
 .brandText{
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* centre verticalement titre + tagline */
 }
 
 .brandText h1{
   margin: 0;
   font-size: 1.55rem;
   line-height: 1.1;
-  background: linear-gradient(135deg, #4da3ff, #7c5cff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-fill-color: transparent;
-  position: relative;
-  overflow: hidden;
+}
+
+.brandText p{
+  margin: 3px 0 0; /* serré pour tenir dans la hauteur du logo */
+  font-size: .84rem;
+  line-height: 1.2;
+  opacity: .88;
+  max-width: 520px; /* évite débordement large écran */
 }
 
 /* Shine subtil sur le titre */
@@ -1712,9 +1714,11 @@ header.isSticky{
   <header>
   <h1 id="seo-title" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">GlobalRadio.top</h1>
     <div class="wrap topbar">
-                  <div class="brand">
+      <div class="brand">
         <a href="#" class="brandLink" id="homeLink" title="Home">
-          <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
+          <div id="headerLogoPulse">
+            <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
+          </div>
           <div class="brandText">
             <h1 data-i18n="siteName">GlobalRadio.top</h1>
             <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
@@ -3851,7 +3855,7 @@ if (editBtn){
       const freq = new Uint8Array(1024);
       const time = new Uint8Array(2048);
 
-      const loop = ()=>{
+            const loop = ()=>{
         vizRaf = requestAnimationFrame(loop);
         if (!analyser) return;
 
@@ -3876,7 +3880,7 @@ if (editBtn){
           updateDynamicFavicon(level01);
         }
 
-        // Pulse logo fullscreen (déjà existant)
+        // Pulse logo fullscreen
         const wrap = document.getElementById("fsLogoWrap");
         if (wrap){
           const boost = vizLowEnergy ? 0.08 : 0.22;
@@ -3885,10 +3889,10 @@ if (editBtn){
           wrap.classList.toggle("active", !vizLowEnergy && level01 > 0.20);
         }
 
-        // Pulse logo header (nouveau)
+        // Pulse logo header
         const headerLogo = document.getElementById("headerLogoPulse");
         if (headerLogo && isPlaying){
-          const boostHeader = vizLowEnergy ? 0.04 : 0.10; // plus subtil que fullscreen
+          const boostHeader = vizLowEnergy ? 0.04 : 0.10; // subtil
           const sHeader = 1 + level01 * boostHeader;
           headerLogo.style.transform = `scale(${sHeader.toFixed(3)})`;
           headerLogo.classList.toggle("active", !vizLowEnergy && level01 > 0.15);
