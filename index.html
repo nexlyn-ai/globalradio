@@ -2297,7 +2297,7 @@ header.isSticky{
     // -----------------------
     // Constants / Settings
     // -----------------------
-    const API_BASE = "https://de1.api.radio-browser.info/json";
+    const API_BASE = "https://nl1.api.radio-browser.info/json"; // mirror plus stable
     const limit = 48;
     const SITE_LOGO = "/assets/globalradio-logo.jpg";
     const DEFAULT_COUNTRY = "France";
@@ -2366,6 +2366,19 @@ function isBlockedMixedContent(finalUrl){
   return IS_HTTPS_PAGE && /^http:\/\//i.test(finalUrl);
 }
 
+    // Fetch sécurisé avec timeout (8s max) pour éviter les blocages
+    async function fetchWithTimeout(url, options = {}, timeout = 8000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
+      }
+    }
 
     function loadMap(key){
       try { return JSON.parse(localStorage.getItem(key) || "{}"); }
@@ -2977,7 +2990,14 @@ function setShowBrokenDetailForGroup(groupId, value){
     // -----------------------
     async function loadFilters(){
       try{
-        const countries = await fetch(`${API_BASE}/countries`).then(r => r.json());
+        let countries = [];
+        try {
+          const r = await fetchWithTimeout(`${API_BASE}/countries`);
+          if (!r.ok) throw new Error('bad response');
+          countries = await r.json();
+        } catch(e) {
+          console.error('Countries fetch error:', e);
+        }
         countries.sort((a,b)=> (b.stationcount||0)-(a.stationcount||0));
         const cs = document.getElementById("countrySelect");
         cs.innerHTML = `<option value="" data-i18n="allCountries">${t("allCountries")}</option>`;
@@ -3034,9 +3054,15 @@ const params = new URLSearchParams({
       if (country) params.append("country", country);
       if (tag) params.append("tag", tag);
 
-      let data = [];
-      try{ data = await fetch(`${API_BASE}/stations/search?${params}`).then(r => r.json()); }
-      catch(e){ data = []; }
+    let data = [];
+      try {
+        const r = await fetchWithTimeout(`${API_BASE}/stations/search?${params}`);
+        if (!r.ok) throw new Error('bad response');
+        data = await r.json();
+      } catch(e) {
+        console.error('Stations fetch error:', e);
+        data = [];
+      }
 
       if (!append){ groups = []; offset = 0; hasMore = true; }
 
