@@ -1580,7 +1580,7 @@ header.isSticky{
 .footerStatus,
 .footerAdd{
   transition: all .18s ease;
-  cursor: default; /* les compteurs ne sont pas cliquables */
+  cursor: default; /* compteurs non cliquables */
 }
 .footerStatus:hover,
 .footerAdd:hover{
@@ -1590,8 +1590,7 @@ header.isSticky{
   box-shadow: 0 8px 20px rgba(77,163,255,.18);
 }
 
-/* Add station reste cliquable (cursor pointer déjà dans le CSS précédent) */
-/* Optionnel : petit pulse sur le + au hover */
+/* Pulse sur le + au hover (Add station) */
 .footerAdd:hover .ico-plus{
   animation: pulsePlus .6s ease-in-out;
 }
@@ -1599,10 +1598,11 @@ header.isSticky{
   0%,100%{ transform: scale(1); }
   50%{ transform: scale(1.18); }
 }
+
 /* Lang switch footer (badge discret) */
 .langSwitchFooter{
-  display:inline-flex;
-  gap:6px;
+  display: inline-flex;
+  gap: 6px;
   padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,.10);
@@ -1621,12 +1621,16 @@ header.isSticky{
   border-color: rgba(77,163,255,.45);
 }
 
-/* Header plus compact et élégant */
+/* Header compact et élégant */
 header{
   padding: 10px 16px 8px; /* normal */
 }
 header.isSticky{
   padding: 6px 16px 4px; /* compact au scroll */
+}
+
+.topbar{
+  gap: 12px; /* espace réduit */
 }
 
 .brandLink{
@@ -1638,37 +1642,20 @@ header.isSticky{
 }
 
 .siteLogo{
-  width: 52px; /* compact et équilibré */
+  width: 52px;
   height: 52px;
 }
 
-.brand{
+.brandText{
   display: flex;
   flex-direction: column;
-  justify-content: center; /* centre verticalement avec le logo */
-  text-align: left;
+  justify-content: center;
 }
 
-.brand h1{
+.brandText h1{
   margin: 0;
   font-size: 1.55rem;
   line-height: 1.1;
-}
-
-.brand p{
-  margin: 3px 0 0; /* serré pour tenir dans la hauteur du logo */
-  font-size: .84rem;
-  line-height: 1.2;
-  opacity: .88;
-  max-width: 520px; /* évite débordement large écran */
-}
-
-.topbar{
-  gap: 12px; /* espace réduit */
-}
-
-/* Effet premium sur GlobalRadio.top dans le header */
-.brandText h1{
   background: linear-gradient(135deg, #4da3ff, #7c5cff);
   -webkit-background-clip: text;
   background-clip: text;
@@ -1678,7 +1665,7 @@ header.isSticky{
   overflow: hidden;
 }
 
-/* Shine subtil qui passe lentement */
+/* Shine subtil sur le titre */
 .brandText h1::after{
   content: "";
   position: absolute;
@@ -1689,20 +1676,27 @@ header.isSticky{
   transform: skewX(-25deg);
   animation: shine 8s infinite linear;
 }
-
 @keyframes shine{
   0% { left: -150%; }
   100% { left: 150%; }
 }
 
-/* Hover : léger glow + scale */
+/* Hover titre */
 .brandText h1:hover{
   filter: brightness(1.08);
   transform: scale(1.02);
   transition: all .22s ease;
 }
 
-/* Pulse beat sur logo header quand radio en cours */
+.brandText p{
+  margin: 3px 0 0;
+  font-size: .84rem;
+  line-height: 1.2;
+  opacity: .88;
+  max-width: 520px;
+}
+
+/* Pulse beat sur logo header */
 #headerLogoPulse{
   transition: transform .12s ease, filter .22s ease;
 }
@@ -1718,11 +1712,9 @@ header.isSticky{
   <header>
   <h1 id="seo-title" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">GlobalRadio.top</h1>
     <div class="wrap topbar">
-            <div class="brand">
+                  <div class="brand">
         <a href="#" class="brandLink" id="homeLink" title="Home">
-                    <div id="headerLogoPulse">
-            <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
-          </div>
+          <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
           <div class="brandText">
             <h1 data-i18n="siteName">GlobalRadio.top</h1>
             <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
