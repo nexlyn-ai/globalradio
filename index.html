@@ -1599,7 +1599,49 @@ header.isSticky{
   0%,100%{ transform: scale(1); }
   50%{ transform: scale(1.18); }
 }
+/* Lang switch footer (badge discret) */
+.langSwitchFooter{
+  display:inline-flex;
+  gap:6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  font-size: .82rem;
+}
+.langSwitchFooter .btnSmall{
+  min-width: 42px;
+  padding: 6px 10px;
+  font-size: .78rem;
+  opacity: .75;
+}
+.langSwitchFooter .btnSmall.isActive{
+  opacity: 1;
+  background: rgba(77,163,255,.25);
+  border-color: rgba(77,163,255,.45);
+}
 
+/* Header plus compact (gain de place) */
+header{
+  padding: 10px 16px 8px; /* réduit */
+}
+header.isSticky{
+  padding: 6px 16px 4px; /* encore plus compact au scroll */
+}
+.siteLogo{
+  width: 46px; /* plus petit */
+  height: 46px;
+}
+.brand h1{
+  font-size: 1.55rem; /* légèrement réduit */
+}
+.brand p{
+  margin-top: 4px;
+  font-size: .88rem; /* plus discret */
+}
+.topbar{
+  gap: 12px; /* un peu moins d’espace */
+}
   </style>
 </head>
 
@@ -1617,10 +1659,6 @@ header.isSticky{
         <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
       </div>
 
-      <div class="langSwitch" aria-label="Language switch">
-        <button class="btn btnSmall" id="langEN" type="button">EN</button>
-        <button class="btn btnSmall" id="langFR" type="button">FR</button>
-      </div>
     </div>
   </header>
 
@@ -1755,38 +1793,40 @@ header.isSticky{
   <button id="scrollTopBtn" data-i18n-title="ttScrollTop" title="Scroll to top">⬆</button>
 
   <div id="fixedFooter">
-    <a href="/" id="footerHomeLink">© <span id="year"></span> GlobalRadio.top</a>
-    <span style="opacity:.55;">•</span>
-    <span id="footerStatus" class="footerStatus" data-state="STOP">
-      <span class="sDot"></span><span class="sText">STOP</span>
-    </span>
-	
-	<span style="opacity:.55;">•</span>
-<span class="footerStatus" id="footerOnline" data-state="CONNECT" title="Visitors online">
-  <span class="sDot"></span><span class="sText">—</span>
-</span>
-
-      <span style="opacity:.55;">•</span>
-    <a href="#" id="footerAddStation" class="footerAdd">
-      <span class="sDot ico ico-plus"></span>
-      <span data-i18n="footerAddStation">Add a station</span>
-    </a>
-    <span style="opacity:.55;">•</span>
-    <span class="footerStatus" id="footerStations" data-state="CONNECT" title="Total stations in the directory">
-      <span class="sDot"></span><span class="sText">—</span>
-    </span>
-    <span style="opacity:.55;">•</span>
-    <span class="madeIn">
-      <span data-i18n="madeInFrance">Made in France</span>
-      <span class="frFlag" aria-hidden="true"></span>
-      <span data-i18n="with">with</span> <span class="heartBlue" aria-hidden="true">🩵</span>
-    </span>
-    <span style="opacity:.55;">•</span>
-    <span id="footerBuild" style="opacity:.6; font-size:11px; cursor:pointer;">
-      Build <span id="footerBuildVer">—</span>
-    </span>
-
-	</div>
+  <a href="/" id="footerHomeLink">© <span id="year"></span> GlobalRadio.top</a>
+  <span style="opacity:.55;">•</span>
+  <span id="footerStatus" class="footerStatus" data-state="STOP">
+    <span class="sDot"></span><span class="sText">STOP</span>
+  </span>
+  <span style="opacity:.55;">•</span>
+  <span class="footerStatus" id="footerOnline" data-state="CONNECT" title="Visitors online">
+    <span class="sDot"></span><span class="sText">—</span>
+  </span>
+  <span style="opacity:.55;">•</span>
+  <a href="#" id="footerAddStation" class="footerAdd">
+    <span class="sDot ico ico-plus"></span>
+    <span data-i18n="footerAddStation">Add a station</span>
+  </a>
+  <span style="opacity:.55;">•</span>
+  <span class="footerStatus" id="footerStations" data-state="CONNECT" title="Total stations in the directory">
+    <span class="sDot"></span><span class="sText">—</span>
+  </span>
+  <span style="opacity:.55;">•</span>
+  <div class="langSwitchFooter">
+    <button class="btn btnSmall" id="langEN" type="button">EN</button>
+    <button class="btn btnSmall" id="langFR" type="button">FR</button>
+  </div>
+  <span style="opacity:.55;">•</span>
+  <span class="madeIn">
+    <span data-i18n="madeInFrance">Made in France</span>
+    <span class="frFlag" aria-hidden="true"></span>
+    <span data-i18n="with">with</span> <span class="heartBlue" aria-hidden="true">🩵</span>
+  </span>
+  <span style="opacity:.55;">•</span>
+  <span id="footerBuild" style="opacity:.6; font-size:11px; cursor:pointer;">
+    Build <span id="footerBuildVer">—</span>
+  </span>
+</div>
 
   <div id="fsMode" aria-hidden="true">
     <div class="aurora"></div>
