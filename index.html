@@ -1621,27 +1621,49 @@ header.isSticky{
   border-color: rgba(77,163,255,.45);
 }
 
-/* Header plus compact (gain de place) */
+/* Header plus compact et élégant */
 header{
-  padding: 10px 16px 8px; /* réduit */
+  padding: 10px 16px 8px; /* normal */
 }
 header.isSticky{
-  padding: 6px 16px 4px; /* encore plus compact au scroll */
+  padding: 6px 16px 4px; /* compact au scroll */
 }
+
+.brandLink{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .siteLogo{
-  width: 46px; /* plus petit */
-  height: 46px;
+  width: 52px; /* compact et équilibré */
+  height: 52px;
 }
+
+.brand{
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* centre verticalement avec le logo */
+  text-align: left;
+}
+
 .brand h1{
-  font-size: 1.55rem; /* légèrement réduit */
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.1;
 }
+
 .brand p{
-  margin-top: 4px;
-  font-size: .88rem; /* plus discret */
+  margin: 2px 0 0; /* serré */
+  font-size: .85rem;
+  line-height: 1.2;
+  opacity: .88;
 }
+
 .topbar{
-  gap: 12px; /* un peu moins d’espace */
+  gap: 12px; /* espace réduit */
 }
+
   </style>
 </head>
 
