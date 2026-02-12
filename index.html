@@ -1666,6 +1666,42 @@ header.isSticky{
 .topbar{
   gap: 12px; /* espace réduit */
 }
+
+/* Effet premium sur GlobalRadio.top dans le header */
+.brandText h1{
+  background: linear-gradient(135deg, #4da3ff, #7c5cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shine subtil qui passe lentement */
+.brandText h1::after{
+  content: "";
+  position: absolute;
+  top: 0; left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transform: skewX(-25deg);
+  animation: shine 8s infinite linear;
+}
+
+@keyframes shine{
+  0% { left: -150%; }
+  100% { left: 150%; }
+}
+
+/* Hover : léger glow + scale */
+.brandText h1:hover{
+  filter: brightness(1.08);
+  transform: scale(1.02);
+  transition: all .22s ease;
+}
+
   </style>
 </head>
 
