@@ -1632,7 +1632,9 @@ header.isSticky{
 .brandLink{
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  text-decoration: none;
+  color: var(--text);
 }
 
 .siteLogo{
@@ -1654,16 +1656,16 @@ header.isSticky{
 }
 
 .brand p{
-  margin: 2px 0 0; /* serré */
-  font-size: .85rem;
+  margin: 3px 0 0; /* serré pour tenir dans la hauteur du logo */
+  font-size: .84rem;
   line-height: 1.2;
   opacity: .88;
+  max-width: 520px; /* évite débordement large écran */
 }
 
 .topbar{
   gap: 12px; /* espace réduit */
 }
-
   </style>
 </head>
 
@@ -1673,12 +1675,14 @@ header.isSticky{
   <header>
   <h1 id="seo-title" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">GlobalRadio.top</h1>
     <div class="wrap topbar">
-      <div class="brand">
+            <div class="brand">
         <a href="#" class="brandLink" id="homeLink" title="Home">
           <img class="siteLogo" id="siteLogoHeader" src="/assets/globalradio-logo.jpg" alt="GlobalRadio.top logo">
-          <h1 data-i18n="siteName">GlobalRadio.top</h1>
+          <div class="brandText">
+            <h1 data-i18n="siteName">GlobalRadio.top</h1>
+            <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
+          </div>
         </a>
-        <p data-i18n="siteTagline">The global directory of online radios — explore, discover, listen live.</p>
       </div>
 
     </div>
